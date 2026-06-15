@@ -322,4 +322,232 @@ document.addEventListener('DOMContentLoaded', () => {
     sendLog("Unsupported");
   }
 
+  // --- Discord Presence Logger & Live Renderer (Lanyard API) ---
+  const DISCORD_USER_ID = "1380218516677857291";
+  let spotifyInterval = null;
+
+  function initDiscordPresence(userId) {
+    const ws = new WebSocket("wss://api.lanyard.rest/socket");
+    let heartbeatInterval = null;
+
+    ws.onopen = () => {
+      console.log("Discord Lanyard socket opened");
+    };
+
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+
+      // Hello (opcode 1) -> Start heartbeat and Subscribe
+      if (msg.op === 1) {
+        heartbeatInterval = setInterval(() => {
+          ws.send(JSON.stringify({ op: 3 }));
+        }, msg.d.heartbeat_interval);
+
+        ws.send(JSON.stringify({
+          op: 2,
+          d: { subscribe_to_id: userId }
+        }));
+      }
+
+      // Event updates (INIT_STATE or PRESENCE_UPDATE)
+      if (msg.t === "INIT_STATE" || msg.t === "PRESENCE_UPDATE") {
+        updatePresenceDOM(msg.d);
+      }
+    };
+
+    ws.onclose = () => {
+      if (heartbeatInterval) clearInterval(heartbeatInterval);
+      console.log("Discord Lanyard socket closed. Reconnecting in 5s...");
+      setTimeout(() => initDiscordPresence(userId), 5000);
+    };
+
+    ws.onerror = (err) => {
+      console.error("Discord Lanyard socket error:", err);
+      ws.close();
+    };
+  }
+
+  function updatePresenceDOM(data) {
+    if (!data) return;
+
+    // Clear any active spotify progress runner
+    if (spotifyInterval) {
+      clearInterval(spotifyInterval);
+      spotifyInterval = null;
+    }
+
+    const user = data.discord_user;
+    const status = data.discord_status;
+    const spotify = data.spotify;
+    const activities = data.activities || [];
+
+    // 1. Update Profile Avatar
+    const avatarImg = document.getElementById("discordAvatar");
+    if (avatarImg) {
+      if (user.avatar) {
+        avatarImg.src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`;
+      } else {
+        const fallbackId = parseInt(user.id.slice(-4)) % 6;
+        avatarImg.src = `https://cdn.discordapp.com/embed/avatars/${fallbackId}.png`;
+      }
+    }
+
+    // 2. Update Display Name and Username
+    const dispNameEl = document.getElementById("discordDisplayName");
+    if (dispNameEl) {
+      dispNameEl.textContent = user.global_name || user.username || "Milky";
+    }
+
+    const usernameEl = document.getElementById("discordUsername");
+    if (usernameEl) {
+      usernameEl.textContent = `@${user.username}`;
+    }
+
+    // Update Contact redirect button text if available
+    const contactText = document.getElementById("discordContactText");
+    if (contactText) {
+      contactText.textContent = `Discord @${user.username}`;
+    }
+
+    // 3. Update Status Dot
+    const statusDot = document.getElementById("discordStatusDot");
+    const statusTextEl = document.getElementById("discordStatusText");
+    if (statusDot && statusTextEl) {
+      statusDot.className = `discord-status-dot ${status}`;
+      
+      let statusLabel = "Offline";
+      if (status === "online") statusLabel = "Online";
+      else if (status === "idle") statusLabel = "Away";
+      else if (status === "dnd") statusLabel = "Do Not Disturb";
+      
+      statusTextEl.textContent = statusLabel;
+    }
+
+    // 4. Update Custom Status (activity type 4 is Custom Status)
+    const customStatusEl = document.getElementById("discordCustomStatus");
+    const customStatus = activities.find(act => act.type === 4);
+    if (customStatusEl) {
+      if (customStatus && (customStatus.state || customStatus.emoji)) {
+        customStatusEl.style.display = "inline-flex";
+        const emojiEl = customStatusEl.querySelector(".status-emoji");
+        const textEl = customStatusEl.querySelector(".status-text");
+
+        if (emojiEl) {
+          if (customStatus.emoji && customStatus.emoji.id) {
+            const ext = customStatus.emoji.animated ? 'gif' : 'png';
+            emojiEl.innerHTML = `<img src="https://cdn.discordapp.com/emojis/${customStatus.emoji.id}.${ext}?size=44" style="width: 20px; height: 20px; vertical-align: middle;" alt="" />`;
+          } else if (customStatus.emoji && customStatus.emoji.name) {
+            emojiEl.textContent = customStatus.emoji.name;
+          } else {
+            emojiEl.textContent = "";
+          }
+        }
+        if (textEl) {
+          textEl.textContent = customStatus.state || "";
+        }
+      } else {
+        customStatusEl.style.display = "none";
+      }
+    }
+
+    // 5. Update Spotify Info
+    const spotifyEl = document.getElementById("discordSpotify");
+    if (spotifyEl) {
+      if (data.listening_to_spotify && spotify) {
+        spotifyEl.style.display = "flex";
+        
+        const artEl = document.getElementById("spotifyAlbumArt");
+        const trackEl = document.getElementById("spotifyTrack");
+        const artistEl = document.getElementById("spotifyArtist");
+        const albumEl = document.getElementById("spotifyAlbum");
+        const progressEl = document.getElementById("spotifyProgress");
+
+        if (artEl) artEl.src = spotify.album_art_url || "";
+        if (trackEl) trackEl.textContent = spotify.song || "Unknown Track";
+        if (artistEl) artistEl.textContent = `by ${spotify.artist || "Unknown Artist"}`;
+        if (albumEl) albumEl.textContent = `on ${spotify.album || "Unknown Album"}`;
+
+        if (progressEl && spotify.timestamps) {
+          const start = spotify.timestamps.start;
+          const end = spotify.timestamps.end;
+          const duration = end - start;
+
+          const updateProgress = () => {
+            const now = Date.now();
+            const elapsed = Math.max(0, Math.min(duration, now - start));
+            const percent = (elapsed / duration) * 100;
+            progressEl.style.width = `${percent}%`;
+          };
+
+          updateProgress();
+          spotifyInterval = setInterval(updateProgress, 1000);
+        }
+      } else {
+        spotifyEl.style.display = "none";
+      }
+    }
+
+    // 6. Update Game Activity
+    const activityEl = document.getElementById("discordActivity");
+    const gameActivity = activities.find(act => act.type !== 4 && act.name !== "Spotify");
+
+    if (activityEl) {
+      if (gameActivity) {
+        activityEl.style.display = "flex";
+        
+        const actHeader = activityEl.querySelector(".activity-header");
+        const actName = document.getElementById("activityName");
+        const actDetails = document.getElementById("activityDetails");
+        const actState = document.getElementById("activityState");
+        const actImage = document.getElementById("activityImage");
+        const actSmallImage = document.getElementById("activitySmallImage");
+
+        let typeLabel = "Playing";
+        if (gameActivity.type === 1) typeLabel = "Streaming";
+        else if (gameActivity.type === 2) typeLabel = "Listening to";
+        else if (gameActivity.type === 3) typeLabel = "Watching";
+        else if (gameActivity.type === 5) typeLabel = "Competing in";
+        
+        if (actHeader) actHeader.textContent = typeLabel;
+        if (actName) actName.textContent = gameActivity.name || "Game";
+        if (actDetails) actDetails.textContent = gameActivity.details || "";
+        if (actState) actState.textContent = gameActivity.state || "";
+
+        if (gameActivity.assets && (gameActivity.assets.large_image || gameActivity.assets.small_image)) {
+          actImage.style.display = "block";
+          
+          const getAssetUrl = (appId, assetId) => {
+            if (!assetId) return "";
+            if (assetId.startsWith("mp:external/")) {
+              return `https://media.discordapp.net/${assetId.replace("mp:external/", "")}`;
+            }
+            return `https://cdn.discordapp.com/app-assets/${appId}/${assetId}.png`;
+          };
+
+          if (gameActivity.assets.large_image) {
+            actImage.src = getAssetUrl(gameActivity.application_id, gameActivity.assets.large_image);
+          } else {
+            actImage.src = "https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png";
+          }
+
+          if (gameActivity.assets.small_image) {
+            actSmallImage.style.display = "block";
+            actSmallImage.src = getAssetUrl(gameActivity.application_id, gameActivity.assets.small_image);
+          } else {
+            actSmallImage.style.display = "none";
+          }
+        } else {
+          actImage.style.display = "block";
+          actImage.src = "https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png";
+          actSmallImage.style.display = "none";
+        }
+      } else {
+        activityEl.style.display = "none";
+      }
+    }
+  }
+
+  // Initialize Discord presence monitoring
+  initDiscordPresence(DISCORD_USER_ID);
+
 });

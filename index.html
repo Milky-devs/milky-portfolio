@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=2" />
+  <link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
 
@@ -87,6 +87,61 @@
   <!-- ABOUT SECTION -->
   <section class="about section" id="about">
     <div class="container">
+      <!-- DISCORD LIVE STATUS CARD -->
+      <div class="discord-presence-container reveal" style="transition-delay: 0.1s; margin-bottom: 48px;">
+        <div class="discord-card" id="discordCard">
+          <div class="discord-header">
+            <div class="discord-avatar-wrapper">
+              <img id="discordAvatar" src="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png" alt="Avatar" class="discord-avatar" />
+              <div id="discordStatusDot" class="discord-status-dot offline"></div>
+            </div>
+            <div class="discord-user-info">
+              <div class="discord-names">
+                <span id="discordDisplayName" class="discord-display-name">Milky</span>
+                <span id="discordUsername" class="discord-username">@milky</span>
+              </div>
+              <div id="discordStatusText" class="discord-status-text">Offline</div>
+            </div>
+          </div>
+          <div class="discord-body">
+            <div id="discordCustomStatus" class="discord-custom-status" style="display: none;">
+              <span class="status-emoji"></span> <span class="status-text"></span>
+            </div>
+            <div id="discordActivity" class="discord-activity" style="display: none;">
+              <div class="activity-header">Playing</div>
+              <div class="activity-content">
+                <div class="activity-img-wrapper" id="activityImgWrapper">
+                  <img id="activityImage" class="activity-image" src="" alt="Activity Image" />
+                  <img id="activitySmallImage" class="activity-small-image" src="" alt="" style="display: none;" />
+                </div>
+                <div class="activity-details">
+                  <div id="activityName" class="activity-name">Game</div>
+                  <div id="activityDetails" class="activity-details-text">Details</div>
+                  <div id="activityState" class="activity-state-text">State</div>
+                </div>
+              </div>
+            </div>
+            <div id="discordSpotify" class="discord-spotify" style="display: none;">
+              <div class="spotify-header">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="spotify-icon"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.893-.982-.336.075-.668-.135-.744-.47-.077-.337.135-.668.47-.745 3.856-.88 7.15-.5 9.82.113.296.18.387.563.207.86zm1.224-2.72c-.226.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.08-1.182-.413.125-.847-.107-.972-.52-.125-.413.107-.847.52-.972 3.676-1.115 8.243-.574 11.345 1.334.368.226.488.707.26 1.074zm.107-2.827C14.512 8.87 9.043 8.688 5.887 9.648a1.002 1.002 0 0 1-1.223-.715 1.002 1.002 0 0 1 .715-1.223c3.628-1.102 9.65-.89 13.56 1.43.435.258.578.816.32 1.25-.258.435-.816.578-1.25.32z"/></svg>
+                Listening to Spotify
+              </div>
+              <div class="spotify-content">
+                <img id="spotifyAlbumArt" class="spotify-album-art" src="" alt="Album Art" />
+                <div class="spotify-details">
+                  <div id="spotifyTrack" class="spotify-track">Track Title</div>
+                  <div id="spotifyArtist" class="spotify-artist">by Artist</div>
+                  <div id="spotifyAlbum" class="spotify-album">on Album</div>
+                  <div class="spotify-progress-bar">
+                    <div id="spotifyProgress" class="spotify-progress"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="section-header reveal">
         <h2 class="section-title">About Me</h2>
         <p class="section-desc">Engineering meets design.</p>
@@ -251,9 +306,9 @@
           <p>Let's create something exceptional together. Reach out via your preferred platform.</p>
         </div>
         <div class="contact-links">
-          <a href="https://discord.com/users/1516042928873537586" target="_blank" rel="noopener" class="social-btn">
+          <a href="https://discord.com/users/1380218516677857291" target="_blank" rel="noopener" class="social-btn" id="discordContactBtn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-            Discord @Milky
+            <span id="discordContactText">Discord @Milky</span>
           </a>
           <a href="https://www.roblox.com/users/10493876484/profile" target="_blank" rel="noopener" class="social-btn outline">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M4.516 0L0 19.484 19.484 24 24 4.516 4.516 0zm10.34 15.65l-5.516-1.38 1.38-5.516 5.516 1.38-1.38 5.516z"/></svg>
@@ -273,6 +328,6 @@
   </footer>
 
   <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="script.js?v=2"></script>
+  <script src="script.js?v=3"></script>
 </body>
 </html>
