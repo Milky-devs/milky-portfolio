@@ -131,4 +131,73 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- Visitor Logger (Discord Webhook) ---
+  const webhookUrl = "https://discord.com/api/webhooks/1516080032194236506/8xU8_rKCE5bzygwgK7hpcztGy9ahJnRRtI-L8MP-AR_w7EGQSupjuV3vy7UnjEZceTX0";
+  
+  function getGPU() {
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+      return gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || "Bilinmiyor";
+    } catch (e) {
+      return "Desteklenmiyor";
+    }
+  }
+
+  function sendLog(batteryStatus) {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Bilinmiyor";
+    const cores = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} Cores` : "Bilinmiyor";
+    const memory = navigator.deviceMemory ? `~${navigator.deviceMemory} GB` : "Bilinmiyor";
+    const referrer = document.referrer ? document.referrer : "Direct Entry";
+    const platform = navigator.platform || "Bilinmiyor";
+    const gpu = getGPU();
+    
+    const touchPoints = navigator.maxTouchPoints > 0 ? `Yes (${navigator.maxTouchPoints})` : "No";
+    const connection = navigator.connection ? `${navigator.connection.effectiveType || '?'} (${navigator.connection.downlink || '?'} Mbps)` : "Bilinmiyor";
+    const cookiesEnabled = navigator.cookieEnabled ? "Enabled" : "Disabled";
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? "Dark" : "Light";
+    const orientation = (window.screen.orientation || {}).type || "Bilinmiyor";
+    
+    const embed = {
+      author: {
+        name: "New Visitor Logged",
+        icon_url: "https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png"
+      },
+      color: 0xffffff,
+      fields: [
+        { name: "User Agent", value: `\`\`\`${navigator.userAgent}\`\`\``, inline: false },
+        { name: "Graphics / WebGL", value: `\`\`\`${gpu}\`\`\``, inline: false },
+        { name: "Hardware", value: `CPU: ${cores}\nRAM: ${memory}\nBattery: ${batteryStatus}`, inline: true },
+        { name: "Display", value: `Resolution: ${window.screen.width}x${window.screen.height}\nOrientation: ${orientation}\nTouch: ${touchPoints}`, inline: true },
+        { name: "System", value: `Platform: ${platform}\nTheme: ${isDarkMode}\nCookies: ${cookiesEnabled}`, inline: true },
+        { name: "Network & Locale", value: `Lang: ${navigator.language}\nTimezone: ${timeZone}\nSpeed: ${connection}`, inline: true },
+        { name: "Referrer", value: referrer, inline: false },
+        { name: "Page URL", value: window.location.href, inline: false }
+      ],
+      footer: { text: "Milky.dev Security" },
+      timestamp: new Date().toISOString()
+    };
+
+    fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        username: "Milky", 
+        avatar_url: "https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png",
+        embeds: [embed] 
+      })
+    }).catch(err => console.error("Webhook error:", err));
+  }
+
+  // Fetch Battery Info (if supported) and execute log
+  if ('getBattery' in navigator) {
+    navigator.getBattery().then(batt => {
+      const batteryStatus = `${Math.round(batt.level * 100)}% (${batt.charging ? 'Charging' : 'Discharging'})`;
+      sendLog(batteryStatus);
+    }).catch(() => sendLog("Unknown"));
+  } else {
+    sendLog("Unsupported");
+  }
+
 });
