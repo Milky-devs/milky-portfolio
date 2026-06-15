@@ -119,13 +119,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   revealElements.forEach(el => revealObserver.observe(el));
 
-  // --- Mouse Glow Effect ---
-  const cursorGlow = document.getElementById('cursorGlow');
-  if (cursorGlow) {
+  // --- Antigravity Glow Effect ---
+  const antiGlow = document.getElementById('antiGlow');
+  
+  if (antiGlow) {
     document.addEventListener('mousemove', (e) => {
+      // Small delay via CSS transition + requestAnimationFrame creates the fluid liquid feel
       requestAnimationFrame(() => {
-        // Center the 600x600 glow element exactly on the mouse coordinates
-        cursorGlow.style.transform = `translate(${e.clientX - 300}px, ${e.clientY - 300}px)`;
+        antiGlow.style.transform = `translate(${e.clientX - 600}px, ${e.clientY - 600}px)`;
       });
     });
   }
