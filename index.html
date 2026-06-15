@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Milky — Roblox developer, builder and programmer. Lua, Java, TypeScript." />
+  <title>MILKY.DEV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="grid-overlay"></div>
+  <div class="noise-overlay"></div>
+
+  <!-- NAV -->
+  <nav class="nav" id="nav">
+    <div class="nav-left">
+      <span class="nav-logo" id="nav-logo">MILKY<span class="logo-dot">.</span>DEV</span>
+    </div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about"   data-num="01">About</a></li>
+      <li><a href="#skills"  data-num="02">Skills</a></li>
+      <li><a href="#builder" data-num="03">Builder</a></li>
+      <li><a href="#contact" data-num="04">Contact</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle">
+      <span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-scan"></div>
+
+    <div class="hero-top-bar">
+      <span class="hud-text">SYS // ONLINE</span>
+      <span class="hud-dot"></span>
+      <span class="hud-text" id="hud-time">00:00:00</span>
+    </div>
+
+    <div class="hero-center">
+      <div class="hero-label">
+        <span class="hero-label-line"></span>
+        ROBLOX DEVELOPER — BUILDER — PROGRAMMER
+        <span class="hero-label-line"></span>
+      </div>
+
+      <h1 class="hero-title">
+        <span class="title-line" data-text="MILKY">MILKY</span>
+      </h1>
+
+      <p class="hero-sub">
+        Writing systems. Building worlds.<br />
+        Shipping things that work.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#skills" class="cta-primary" id="btn-skills">
+          <span class="cta-inner">VIEW SKILLS</span>
+          <span class="cta-bg"></span>
+        </a>
+        <a href="#contact" class="cta-ghost" id="btn-contact">CONTACT →</a>
+      </div>
+    </div>
+
+    <div class="hero-bottom-bar">
+      <div class="hud-stat">
+        <span class="hud-val">LUA · TS · JAVA</span>
+        <span class="hud-key">LANGUAGES</span>
+      </div>
+      <div class="hud-divider"></div>
+      <div class="hud-stat">
+        <span class="hud-val">ROBLOX</span>
+        <span class="hud-key">PLATFORM</span>
+      </div>
+      <div class="hud-divider"></div>
+      <div class="hud-stat">
+        <span class="hud-val" id="hud-status">BUILDING</span>
+        <span class="hud-key">CURRENT STATUS</span>
+      </div>
+    </div>
+
+    <div class="hero-scroll-hint" id="scrollHint">
+      <div class="scroll-track"><div class="scroll-thumb"></div></div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="container">
+      <div class="section-tag reveal">
+        <span class="tag-num">01</span>
+        <span class="tag-line"></span>
+        <span class="tag-label">ABOUT</span>
+      </div>
+      <div class="about-grid">
+        <div class="about-left reveal">
+          <h2 class="display-heading">
+            NOT JUST<br />
+            <em>A SCRIPTER.</em>
+          </h2>
+          <p>
+            I'm <strong>Milky</strong> — a developer and builder on Roblox with a real interest in
+            making things that actually feel good. I've spent time learning how to write clean Lua,
+            think in systems, and build maps that match the vision of the game.
+          </p>
+          <p>
+            Outside of Roblox I work with <strong>Java</strong> and <strong>TypeScript</strong>
+            for broader projects. I care a lot about code quality — readable, structured, maintainable.
+          </p>
+          <div class="about-tags reveal">
+            <span class="ftag">Game Systems</span>
+            <span class="ftag">Map Building</span>
+            <span class="ftag">Server Logic</span>
+            <span class="ftag">OOP</span>
+            <span class="ftag">Clean Code</span>
+          </div>
+        </div>
+        <div class="about-right reveal">
+          <div class="terminal">
+            <div class="terminal-top">
+              <div class="dots">
+                <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+              </div>
+              <span class="terminal-name">milky@dev:~</span>
+            </div>
+            <pre class="terminal-code"><span class="tc-grey">// profile.ts</span>
+
+<span class="tc-pink">const</span> <span class="tc-white">Milky</span> <span class="tc-grey">=</span> {
+  <span class="tc-cyan">name</span><span class="tc-grey">:</span>     <span class="tc-green">"Milky"</span>,
+  <span class="tc-cyan">role</span><span class="tc-grey">:</span>     <span class="tc-green">"Roblox Dev &amp; Builder"</span>,
+  <span class="tc-cyan">skills</span><span class="tc-grey">:</span>   [<span class="tc-green">"Lua"</span>, <span class="tc-green">"TS"</span>, <span class="tc-green">"Java"</span>],
+  <span class="tc-cyan">status</span><span class="tc-grey">:</span>   <span class="tc-green">"building something real"</span>,
+  <span class="tc-cyan">platform</span><span class="tc-grey">:</span> <span class="tc-green">"Roblox Studio"</span>,
+}
+
+<span class="tc-pink">export default</span> <span class="tc-white">Milky</span><span class="tc-grey">;</span>
+
+<span class="tc-grey">// ready.</span><span class="blink-cursor">█</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section class="skills" id="skills">
+    <div class="container">
+      <div class="section-tag reveal">
+        <span class="tag-num">02</span>
+        <span class="tag-line"></span>
+        <span class="tag-label">SKILLS</span>
+      </div>
+      <h2 class="display-heading reveal">TECHNICAL<br /><em>STACK</em></h2>
+
+      <div class="skill-grid">
+
+        <div class="skill-card reveal" id="sk-builder">
+          <div class="sk-head">
+            <span class="sk-id" style="--nc:#ff6eb4;">BLD</span>
+            <div>
+              <p class="sk-name">Roblox Builder</p>
+              <p class="sk-tier" style="color:#ff6eb4;">ADVANCED</p>
+            </div>
+            <span class="sk-pct" style="color:#ff6eb4;">90%</span>
+          </div>
+          <p class="sk-desc">Terrain sculpting, map design, lighting, UI layouts, modular builds. I build the world before scripting it.</p>
+          <div class="sk-bar"><div class="sk-fill" style="--pct:90%; --nc:#ff6eb4;"></div></div>
+        </div>
+
+        <div class="skill-card reveal" id="sk-lua">
+          <div class="sk-head">
+            <span class="sk-id" style="--nc:#00f5ff;">LUA</span>
+            <div>
+              <p class="sk-name">Lua / Luau</p>
+              <p class="sk-tier" style="color:#00f5ff;">ADVANCED</p>
+            </div>
+            <span class="sk-pct" style="color:#00f5ff;">88%</span>
+          </div>
+          <p class="sk-desc">Game mechanics, module scripts, RemoteEvents, OOP patterns — Lua is my daily driver inside Roblox Studio.</p>
+          <div class="sk-bar"><div class="sk-fill" style="--pct:88%; --nc:#00f5ff;"></div></div>
+        </div>
+
+        <div class="skill-card reveal" id="sk-roblox">
+          <div class="sk-head">
+            <span class="sk-id" style="--nc:#e8473f;">RBX</span>
+            <div>
+              <p class="sk-name">Roblox Studio</p>
+              <p class="sk-tier" style="color:#e8473f;">ADVANCED</p>
+            </div>
+            <span class="sk-pct" style="color:#e8473f;">85%</span>
+          </div>
+          <p class="sk-desc">Full game development pipeline — scripting, building, publishing. I know the platform end to end.</p>
+          <div class="sk-bar"><div class="sk-fill" style="--pct:85%; --nc:#e8473f;"></div></div>
+        </div>
+
+        <div class="skill-card reveal" id="sk-java">
+          <div class="sk-head">
+            <span class="sk-id" style="--nc:#f89820;">JAVA</span>
+            <div>
+              <p class="sk-name">Java</p>
+              <p class="sk-tier" style="color:#f89820;">INTERMEDIATE</p>
+            </div>
+            <span class="sk-pct" style="color:#f89820;">75%</span>
+          </div>
+          <p class="sk-desc">OOP design, data structures, algorithmic thinking. Solid fundamentals built outside of any game engine.</p>
+          <div class="sk-bar"><div class="sk-fill" style="--pct:75%; --nc:#f89820;"></div></div>
+        </div>
+
+        <div class="skill-card reveal" id="sk-ts">
+          <div class="sk-head">
+            <span class="sk-id" style="--nc:#5b9cf6;">TS</span>
+            <div>
+              <p class="sk-name">TypeScript</p>
+              <p class="sk-tier" style="color:#5b9cf6;">INTERMEDIATE</p>
+            </div>
+            <span class="sk-pct" style="color:#5b9cf6;">72%</span>
+          </div>
+          <p class="sk-desc">Type-safe development. I use roblox-ts to bring strict types into Studio — cleaner, scalable architecture.</p>
+          <div class="sk-bar"><div class="sk-fill" style="--pct:72%; --nc:#5b9cf6;"></div></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- BUILDER -->
+  <section class="builder" id="builder">
+    <div class="container">
+      <div class="section-tag reveal">
+        <span class="tag-num">03</span>
+        <span class="tag-line"></span>
+        <span class="tag-label">BUILDER</span>
+      </div>
+      <div class="builder-grid">
+        <div class="builder-left reveal">
+          <h2 class="display-heading">I BUILD<br /><em>THE WORLD.</em></h2>
+          <p>
+            Most developers only script. I do both. Before a single line of Lua is written,
+            I'm in Studio placing parts, shaping terrain, tuning the atmosphere.
+            The world has to feel right first.
+          </p>
+          <p>
+            Build quality matters as much as code quality. A great mechanic inside an ugly map
+            is still a bad game. I don't let that happen.
+          </p>
+        </div>
+        <div class="builder-right reveal">
+          <div class="builder-items">
+            <div class="b-item">
+              <span class="b-icon">◈</span>
+              <div>
+                <strong>Terrain &amp; Environments</strong>
+                <p>Custom maps built from scratch — not template edits.</p>
+              </div>
+            </div>
+            <div class="b-item">
+              <span class="b-icon">◈</span>
+              <div>
+                <strong>Lighting &amp; Atmosphere</strong>
+                <p>Tone, mood, and visual direction locked in with Studio's lighting.</p>
+              </div>
+            </div>
+            <div class="b-item">
+              <span class="b-icon">◈</span>
+              <div>
+                <strong>UI / ScreenGui Design</strong>
+                <p>Responsive, clean game interfaces that match the game's style.</p>
+              </div>
+            </div>
+            <div class="b-item">
+              <span class="b-icon">◈</span>
+              <div>
+                <strong>Modular Architecture</strong>
+                <p>Parts and models structured so they're reusable and easy to update.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="section-tag reveal">
+        <span class="tag-num">04</span>
+        <span class="tag-line"></span>
+        <span class="tag-label">CONTACT</span>
+      </div>
+      <h2 class="display-heading reveal">LET'S<br /><em>CONNECT.</em></h2>
+      <p class="contact-sub reveal">Have a project, collab, or just want to talk? Find me here.</p>
+
+      <div class="contact-row">
+        <a href="https://discord.com/users/1516042928873537586" target="_blank" rel="noopener"
+           class="contact-card reveal" id="link-discord">
+          <div class="cc-num">01</div>
+          <div class="cc-icon discord-col">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+            </svg>
+          </div>
+          <div class="cc-info">
+            <span class="cc-platform">Discord</span>
+            <span class="cc-handle">@Milky</span>
+          </div>
+          <span class="cc-arrow">↗</span>
+        </a>
+
+        <a href="https://www.roblox.com/users/10493876484/profile" target="_blank" rel="noopener"
+           class="contact-card reveal" id="link-roblox">
+          <div class="cc-num">02</div>
+          <div class="cc-icon roblox-col">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M4.516 0L0 19.484 19.484 24 24 4.516 4.516 0zm10.34 15.65l-5.516-1.38 1.38-5.516 5.516 1.38-1.38 5.516z"/>
+            </svg>
+          </div>
+          <div class="cc-info">
+            <span class="cc-platform">Roblox</span>
+            <span class="cc-handle">Milky</span>
+          </div>
+          <span class="cc-arrow">↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-logo">MILKY<span class="logo-dot">.</span>DEV</span>
+        <span class="footer-copy">&copy; 2026 — ALL RIGHTS RESERVED</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
