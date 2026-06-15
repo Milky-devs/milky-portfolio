@@ -5,7 +5,7 @@ const path = require('path');
 const PORT = 8000;
 
 http.createServer((req, res) => {
-    let filePath = '.' + req.url;
+    let filePath = '.' + req.url.split('?')[0];
     if (filePath == './') filePath = './index.html';
 
     const extname = String(path.extname(filePath)).toLowerCase();
