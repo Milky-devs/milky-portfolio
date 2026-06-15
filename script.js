@@ -31,6 +31,64 @@ function onYouTubeIframeAPIReady() {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // --- UI Sound Engine (Web Audio API Synthesizer) ---
+  class UISoundManager {
+    constructor() {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.enabled = true;
+    }
+
+    resume() {
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+    }
+
+    playHover() {
+      if (!this.enabled) return;
+      this.resume();
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1000, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1500, this.ctx.currentTime + 0.05);
+      
+      gain.gain.setValueAtTime(0, this.ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.03, this.ctx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+      
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.05);
+    }
+
+    playClick() {
+      if (!this.enabled) return;
+      this.resume();
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.1);
+      
+      gain.gain.setValueAtTime(0, this.ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.15, this.ctx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+      
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.15);
+    }
+  }
+
+  const soundEngine = new UISoundManager();
+  
+  // Bind sounds to interactable elements
+  document.querySelectorAll('a, button, .social-btn, .btn, .nav-links a').forEach(el => {
+    el.addEventListener('mouseenter', () => soundEngine.playHover());
+    el.addEventListener('mousedown', () => soundEngine.playClick());
+  });
+
   // --- Enter Screen & Autoplay Logic ---
   const enterScreen = document.getElementById('enterScreen');
   const musicBtn = document.getElementById('musicBtn');
