@@ -7,8 +7,8 @@
   <title>Milky.dev</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=4" />
 </head>
 <body>
 
@@ -17,14 +17,17 @@
 
   <!-- ENTER SCREEN (For Autoplay) -->
   <div id="enterScreen" class="enter-screen">
-    <span class="enter-text">[ Click anywhere to enter ]</span>
+    <div class="enter-content">
+      <div class="logo-pulse">milky.dev</div>
+      <span class="enter-text">[ Click anywhere to enter ]</span>
+    </div>
   </div>
 
-  <!-- Ambient Mesh Gradient Background -->
-  <div class="bg-mesh">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+  <!-- Ambient Animated Gradient Background -->
+  <div class="aurora-bg">
+    <div class="aurora-blob aurora-1"></div>
+    <div class="aurora-blob aurora-2"></div>
+    <div class="aurora-blob aurora-3"></div>
   </div>
   <div class="grid-overlay"></div>
   <div class="noise-overlay"></div>
@@ -34,9 +37,8 @@
     <div class="nav-container">
       <a href="#hero" class="nav-logo">milky<span class="dot">.</span>dev</a>
       <ul class="nav-links" id="navLinks">
-        <li><a href="#about">About</a></li>
-        <li><a href="#skills">Skills</a></li>
-        <li><a href="#builder">Builder</a></li>
+        <li><a href="#bento">Dashboard</a></li>
+        <li><a href="#skills">Stack</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
       <button class="menu-btn" id="menuBtn" aria-label="Toggle Menu">
@@ -46,35 +48,42 @@
   </nav>
 
   <!-- FLOATING MUSIC BUTTON -->
-  <button id="musicBtn" class="music-btn" aria-label="Play Music">
-    <div class="equalizer" id="equalizer">
-      <span></span><span></span><span></span>
-    </div>
-    <span id="musicText">Play Vibe</span>
-  </button>
+  <div class="floating-music-wrapper">
+    <button id="musicBtn" class="music-btn" aria-label="Play Music">
+      <div class="vinyl-icon" id="vinylIcon">
+         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+      </div>
+      <div class="music-info">
+        <span id="musicText" class="music-title">Play Vibe</span>
+        <div class="equalizer" id="equalizer">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </button>
+  </div>
   <div id="ytplayer-container" style="position:fixed; opacity:0; pointer-events:none; left:-9999px; top:-9999px; width:200px; height:200px;"></div>
 
   <!-- HERO SECTION -->
   <section class="hero" id="hero">
     <div class="container hero-container">
       <div class="hero-content">
-        <div class="status-badge reveal">
-          <span class="status-dot"></span>
-          <span class="status-text">Available for work</span>
+        <div class="status-pill reveal">
+          <span class="pulse-dot"></span>
+          <span class="status-text">Available for new projects</span>
         </div>
         
         <h1 class="hero-title reveal" style="transition-delay: 0.1s;">
-          Building digital<br />
-          <span class="text-gradient">experiences.</span>
+          Crafting digital<br />
+          <span class="text-gradient">masterpieces.</span>
         </h1>
         
         <p class="hero-subtitle reveal" style="transition-delay: 0.2s;">
-          I'm Milky, a software engineer and Roblox developer. I specialize in scalable systems, immersive world-building, and clean code architecture.
+          I'm Milky, a software engineer and Roblox architect. I specialize in scalable systems, immersive world-building, and high-end code architecture.
         </p>
 
         <div class="hero-actions reveal" style="transition-delay: 0.3s;">
-          <a href="#contact" class="btn btn-primary">Start a project</a>
-          <a href="#skills" class="btn btn-secondary">Explore my stack</a>
+          <a href="#contact" class="btn btn-glow">Let's Talk <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+          <a href="#bento" class="btn btn-glass">Explore Work</a>
         </div>
       </div>
     </div>
@@ -84,236 +93,186 @@
     </div>
   </section>
 
-  <!-- ABOUT SECTION -->
-  <section class="about section" id="about">
+  <!-- BENTO DASHBOARD SECTION -->
+  <section class="section" id="bento">
     <div class="container">
-      <!-- DISCORD LIVE STATUS CARD -->
-      <div class="discord-presence-container reveal" style="transition-delay: 0.1s; margin-bottom: 48px;">
-        <div class="discord-card" id="discordCard">
-          <div class="discord-header">
-            <div class="discord-avatar-wrapper">
-              <img id="discordAvatar" src="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png" alt="Avatar" class="discord-avatar" />
-              <div id="discordStatusDot" class="discord-status-dot offline"></div>
-            </div>
-            <div class="discord-user-info">
-              <div class="discord-names">
-                <span id="discordDisplayName" class="discord-display-name">Milky</span>
-                <span id="discordUsername" class="discord-username">@milky</span>
-              </div>
-              <div id="discordStatusText" class="discord-status-text">Offline</div>
-            </div>
-          </div>
-          <div class="discord-body">
-            <div id="discordCustomStatus" class="discord-custom-status" style="display: none;">
-              <span class="status-emoji"></span> <span class="status-text"></span>
-            </div>
-            <div id="discordActivity" class="discord-activity" style="display: none;">
-              <div class="activity-header">Playing</div>
-              <div class="activity-content">
-                <div class="activity-img-wrapper" id="activityImgWrapper">
-                  <img id="activityImage" class="activity-image" src="" alt="Activity Image" />
-                  <img id="activitySmallImage" class="activity-small-image" src="" alt="" style="display: none;" />
-                </div>
-                <div class="activity-details">
-                  <div id="activityName" class="activity-name">Game</div>
-                  <div id="activityDetails" class="activity-details-text">Details</div>
-                  <div id="activityState" class="activity-state-text">State</div>
-                </div>
-              </div>
-            </div>
-            <div id="discordSpotify" class="discord-spotify" style="display: none;">
-              <div class="spotify-header">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="spotify-icon"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.893-.982-.336.075-.668-.135-.744-.47-.077-.337.135-.668.47-.745 3.856-.88 7.15-.5 9.82.113.296.18.387.563.207.86zm1.224-2.72c-.226.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.08-1.182-.413.125-.847-.107-.972-.52-.125-.413.107-.847.52-.972 3.676-1.115 8.243-.574 11.345 1.334.368.226.488.707.26 1.074zm.107-2.827C14.512 8.87 9.043 8.688 5.887 9.648a1.002 1.002 0 0 1-1.223-.715 1.002 1.002 0 0 1 .715-1.223c3.628-1.102 9.65-.89 13.56 1.43.435.258.578.816.32 1.25-.258.435-.816.578-1.25.32z"/></svg>
-                Listening to Spotify
-              </div>
-              <div class="spotify-content">
-                <img id="spotifyAlbumArt" class="spotify-album-art" src="" alt="Album Art" />
-                <div class="spotify-details">
-                  <div id="spotifyTrack" class="spotify-track">Track Title</div>
-                  <div id="spotifyArtist" class="spotify-artist">by Artist</div>
-                  <div id="spotifyAlbum" class="spotify-album">on Album</div>
-                  <div class="spotify-progress-bar">
-                    <div id="spotifyProgress" class="spotify-progress"></div>
+      
+      <div class="bento-grid">
+        
+        <!-- BENTO 1: ABOUT (LARGE) -->
+        <div class="bento-card col-span-2 row-span-2 reveal bento-hover">
+           <div class="bento-inner">
+             <div class="bento-header-badge">01. OVERVIEW</div>
+             <h3 class="bento-title">About Me</h3>
+             <p class="bento-desc">
+               Bridging the gap between complex backend logic and seamless user experiences. With a strong foundation in Roblox Studio, I don't just script mechanics—I architect entire game systems. 
+               <br><br>
+               Beyond the engine, I write <strong class="highlight">TypeScript</strong> and <strong class="highlight">Java</strong> to build robust web tools and backend architectures. Clean code, scalability, and performance are non-negotiable.
+             </p>
+             <div class="bento-stats">
+               <div class="b-stat">
+                 <h4>4+</h4>
+                 <span>Years Exp.</span>
+               </div>
+               <div class="b-stat">
+                 <h4>100%</h4>
+                 <span>Success Rate</span>
+               </div>
+             </div>
+           </div>
+        </div>
+
+        <!-- BENTO 2: DISCORD PRESENCE -->
+        <div class="bento-card col-span-1 row-span-2 reveal bento-hover discord-bento" style="transition-delay: 0.1s;">
+           <div class="bento-inner p-0">
+             <div class="discord-card-v2" id="discordCard">
+                <div class="dc-banner"></div>
+                <div class="dc-profile">
+                  <div class="dc-avatar-wrapper">
+                    <img id="discordAvatar" src="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png" alt="Avatar" class="dc-avatar" />
+                    <div id="discordStatusDot" class="dc-status-dot offline"></div>
+                  </div>
+                  <div class="dc-info">
+                    <span id="discordDisplayName" class="dc-display-name">Milky</span>
+                    <span id="discordUsername" class="dc-username">@milky</span>
                   </div>
                 </div>
-              </div>
+                
+                <div class="dc-body">
+                  <div id="discordCustomStatus" class="dc-custom-status" style="display: none;">
+                    <span class="status-emoji"></span> <span class="status-text"></span>
+                  </div>
+
+                  <div id="discordActivity" class="dc-activity" style="display: none;">
+                    <div class="activity-header-label">Playing</div>
+                    <div class="activity-flex">
+                      <div class="activity-img-wrapper" id="activityImgWrapper">
+                        <img id="activityImage" class="activity-image" src="" alt="Activity Image" />
+                        <img id="activitySmallImage" class="activity-small-image" src="" alt="" style="display: none;" />
+                      </div>
+                      <div class="activity-details">
+                        <div id="activityName" class="activity-name">Game</div>
+                        <div id="activityDetails" class="activity-details-text">Details</div>
+                        <div id="activityState" class="activity-state-text">State</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="discordSpotify" class="dc-spotify" style="display: none;">
+                    <div class="spotify-header-label">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="#1DB954"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.893-.982-.336.075-.668-.135-.744-.47-.077-.337.135-.668.47-.745 3.856-.88 7.15-.5 9.82.113.296.18.387.563.207.86zm1.224-2.72c-.226.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.08-1.182-.413.125-.847-.107-.972-.52-.125-.413.107-.847.52-.972 3.676-1.115 8.243-.574 11.345 1.334.368.226.488.707.26 1.074zm.107-2.827C14.512 8.87 9.043 8.688 5.887 9.648a1.002 1.002 0 0 1-1.223-.715 1.002 1.002 0 0 1 .715-1.223c3.628-1.102 9.65-.89 13.56 1.43.435.258.578.816.32 1.25-.258.435-.816.578-1.25.32z"/></svg>
+                      Listening to Spotify
+                    </div>
+                    <div class="spotify-flex">
+                      <img id="spotifyAlbumArt" class="spotify-album-art" src="" alt="Album Art" />
+                      <div class="spotify-details">
+                        <div id="spotifyTrack" class="spotify-track">Track Title</div>
+                        <div id="spotifyArtist" class="spotify-artist">by Artist</div>
+                        <div class="spotify-progress-bar">
+                          <div id="spotifyProgress" class="spotify-progress"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+             </div>
+           </div>
+        </div>
+
+        <!-- BENTO 3: ARCHITECTURE (CODE SNIPPET) -->
+        <div class="bento-card col-span-2 row-span-1 reveal bento-hover visual-box" style="transition-delay: 0.2s;">
+           <div class="code-header"><span>workflow.config.ts</span><span class="code-dots"><i></i><i></i><i></i></span></div>
+           <pre class="code-block"><code><span class="kw">export const</span> <span class="fn">MilkyWorkflow</span> = {
+  <span class="str">architect</span>: <span class="val">"Scalable Systems"</span>,
+  <span class="str">stack</span>: [<span class="val">"Luau"</span>, <span class="val">"TypeScript"</span>, <span class="val">"Java"</span>],
+  <span class="str">compromise</span>: <span class="kw">false</span>,
+  <span class="str">quality</span>: <span class="val">"Premium"</span>,
+  <span class="str">execute</span>: () => {
+    <span class="kw">return</span> <span class="class">Promise</span>.<span class="fn">resolve</span>(<span class="val">"Excellence Delivered"</span>);
+  }
+};</code></pre>
+        </div>
+
+        <!-- BENTO 4: PRIMARY STACK -->
+        <div class="bento-card col-span-1 row-span-1 reveal bento-hover primary-stack-box" style="transition-delay: 0.3s;">
+            <div class="stack-icons">
+               <div class="icon-blob"></div>
+               <svg class="glow-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </div>
-          </div>
+            <div class="stack-text">
+               <h4>Lua & TS</h4>
+               <span>Primary Stack</span>
+            </div>
         </div>
-      </div>
 
-      <div class="section-header reveal">
-        <h2 class="section-title">About Me</h2>
-        <p class="section-desc">Engineering meets design.</p>
-      </div>
-
-      <div class="about-grid">
-        <div class="about-text reveal">
-          <p>
-            I focus on bridging the gap between complex backend logic and seamless user experiences. With a strong foundation in Roblox Studio, I don't just script mechanics—I architect entire game systems.
-          </p>
-          <p>
-            Beyond the engine, I write <strong>TypeScript</strong> and <strong>Java</strong> to build robust web tools and backend architectures. Clean code, scalability, and performance are non-negotiable in my workflow.
-          </p>
-        </div>
-        
-        <div class="about-stats reveal">
-          <div class="stat-card">
-            <h3>4+</h3>
-            <p>Years Experience</p>
-          </div>
-          <div class="stat-card">
-            <h3>Lua/TS</h3>
-            <p>Primary Stack</p>
-          </div>
-          <div class="stat-card">
-            <h3>100%</h3>
-            <p>Client Satisfaction</p>
-          </div>
-        </div>
       </div>
     </div>
   </section>
 
   <!-- SKILLS SECTION -->
-  <section class="skills section" id="skills">
+  <section class="section" id="skills">
     <div class="container">
       <div class="section-header reveal">
         <h2 class="section-title">Technical Arsenal</h2>
-        <p class="section-desc">Tools and languages I use daily.</p>
+        <p class="section-desc">Tools, languages, and environments I master.</p>
       </div>
 
       <div class="skills-grid">
-        <div class="skill-card reveal">
-          <div class="skill-header">
-            <div class="skill-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            </div>
-            <div>
-              <h3 class="skill-name">Roblox Builder</h3>
-              <p class="skill-level">Expert</p>
-            </div>
+        <div class="skill-card reveal bento-hover">
+          <div class="skill-icon-wrapper">
+             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           </div>
+          <h3 class="skill-name">Roblox Builder</h3>
           <p class="skill-detail">Map design, terrain sculpting, lighting optimization, and modular environment construction.</p>
         </div>
 
-        <div class="skill-card reveal">
-          <div class="skill-header">
-            <div class="skill-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            </div>
-            <div>
-              <h3 class="skill-name">Lua / Luau</h3>
-              <p class="skill-level">Advanced</p>
-            </div>
+        <div class="skill-card reveal bento-hover" style="transition-delay: 0.1s;">
+          <div class="skill-icon-wrapper">
+             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
           </div>
+          <h3 class="skill-name">Luau Mastery</h3>
           <p class="skill-detail">Core game loops, client-server networking, OOP patterns, and performant data management.</p>
         </div>
 
-        <div class="skill-card reveal">
-          <div class="skill-header">
-            <div class="skill-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-            </div>
-            <div>
-              <h3 class="skill-name">Roblox Studio</h3>
-              <p class="skill-level">Advanced</p>
-            </div>
+        <div class="skill-card reveal bento-hover" style="transition-delay: 0.2s;">
+          <div class="skill-icon-wrapper">
+             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
+          <h3 class="skill-name">Roblox Studio</h3>
           <p class="skill-detail">Complete pipeline mastery: from initial prototyping and UI layout to final game publishing.</p>
         </div>
 
-        <div class="skill-card reveal">
-          <div class="skill-header">
-            <div class="skill-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-            </div>
-            <div>
-              <h3 class="skill-name">Java</h3>
-              <p class="skill-level">Intermediate</p>
-            </div>
+        <div class="skill-card reveal bento-hover" style="transition-delay: 0.3s;">
+          <div class="skill-icon-wrapper">
+             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
           </div>
-          <p class="skill-detail">Object-oriented backend design, complex algorithmic logic, and strong software architecture fundamentals.</p>
-        </div>
-
-        <div class="skill-card reveal">
-          <div class="skill-header">
-            <div class="skill-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <div>
-              <h3 class="skill-name">TypeScript</h3>
-              <p class="skill-level">Intermediate</p>
-            </div>
-          </div>
-          <p class="skill-detail">Strict type-safety, scalable web interfaces, and bringing modern software practices to Roblox via roblox-ts.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- BUILDER SECTION -->
-  <section class="builder section" id="builder">
-    <div class="container">
-      <div class="builder-wrapper reveal">
-        <div class="builder-content">
-          <h2 class="section-title">Beyond Code</h2>
-          <p class="builder-desc">
-            A great game isn't just about flawless code—it's about how it feels. I am as comfortable shaping terrain and tuning lighting as I am writing backend server logic.
-          </p>
-          <ul class="builder-list">
-            <li>
-              <span class="check">✓</span>
-              <span><strong>Custom Environments:</strong> Built entirely from scratch.</span>
-            </li>
-            <li>
-              <span class="check">✓</span>
-              <span><strong>Atmospherics:</strong> Lighting, fog, and particle systems.</span>
-            </li>
-            <li>
-              <span class="check">✓</span>
-              <span><strong>UI/UX:</strong> Clean, responsive user interfaces.</span>
-            </li>
-          </ul>
-        </div>
-        <div class="builder-visual">
-          <div class="visual-box">
-            <div class="code-header">
-              <span>architecture.config</span>
-            </div>
-            <pre class="code-block"><code>{
-  "focus": "Quality",
-  "workflow": [
-    "Design",
-    "Build",
-    "Script",
-    "Polish"
-  ],
-  "compromise": false
-}</code></pre>
-          </div>
+          <h3 class="skill-name">Backend Arch</h3>
+          <p class="skill-detail">Java and TS powered backend design, complex logic, and strong software architecture fundamentals.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- CONTACT SECTION -->
-  <section class="contact section" id="contact">
+  <section class="section" id="contact">
     <div class="container">
-      <div class="contact-box reveal">
-        <div class="contact-text">
-          <h2 class="section-title">Ready to build?</h2>
-          <p>Let's create something exceptional together. Reach out via your preferred platform.</p>
-        </div>
-        <div class="contact-links">
-          <a href="https://discord.com/users/1380218516677857291" target="_blank" rel="noopener" class="social-btn" id="discordContactBtn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-            <span id="discordContactText">Discord @Milky</span>
-          </a>
-          <a href="https://www.roblox.com/users/10493876484/profile" target="_blank" rel="noopener" class="social-btn outline">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M4.516 0L0 19.484 19.484 24 24 4.516 4.516 0zm10.34 15.65l-5.516-1.38 1.38-5.516 5.516 1.38-1.38 5.516z"/></svg>
-            Roblox Profile
-          </a>
+      <div class="contact-box reveal bento-hover">
+        <div class="contact-glow"></div>
+        <div class="contact-content-wrapper">
+          <div class="contact-text">
+            <h2 class="section-title">Let's build something.</h2>
+            <p>Ready to create an exceptional digital experience? Drop me a message.</p>
+          </div>
+          <div class="contact-links">
+            <a href="https://discord.com/users/1380218516677857291" target="_blank" rel="noopener" class="social-btn discord-btn" id="discordContactBtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+              <span id="discordContactText">Message on Discord</span>
+            </a>
+            <a href="https://www.roblox.com/users/10493876484/profile" target="_blank" rel="noopener" class="social-btn roblox-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M4.516 0L0 19.484 19.484 24 24 4.516 4.516 0zm10.34 15.65l-5.516-1.38 1.38-5.516 5.516 1.38-1.38 5.516z"/></svg>
+              Roblox Profile
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -322,12 +281,12 @@
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container footer-content">
-      <span class="footer-logo">milky.dev</span>
-      <span class="footer-copy">© 2026 Milky. All rights reserved.</span>
+      <span class="footer-logo">milky<span class="dot" style="color:var(--accent)">.</span>dev</span>
+      <span class="footer-copy">© 2026 Milky. Designed for the future.</span>
     </div>
   </footer>
 
   <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="script.js?v=3"></script>
+  <script src="script.js?v=4"></script>
 </body>
 </html>

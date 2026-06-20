@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
       player.playVideo();
       isPlaying = true;
       musicText.textContent = "Pause Vibe";
-      equalizer.classList.add('playing');
+      musicBtn.classList.add('playing');
     } else {
       // Eğer API biraz geç yüklendiyse 1 saniye bekleyip başlat
       setTimeout(() => {
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
           player.playVideo();
           isPlaying = true;
           musicText.textContent = "Pause Vibe";
-          equalizer.classList.add('playing');
+          musicBtn.classList.add('playing');
         }
       }, 1000);
     }
@@ -129,12 +129,12 @@ document.addEventListener('DOMContentLoaded', () => {
       // Müziği duraklat (Kaldığı yeri hafızada tutar)
       player.pauseVideo();
       musicText.textContent = "Play Vibe";
-      equalizer.classList.remove('playing');
+      musicBtn.classList.remove('playing');
     } else {
       // Müziği oynat (Kaldığı yerden devam eder)
       player.playVideo();
       musicText.textContent = "Pause Vibe";
-      equalizer.classList.add('playing');
+      musicBtn.classList.add('playing');
     }
     isPlaying = !isPlaying;
   });
@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
   revealElements.forEach(el => revealObserver.observe(el));
 
   // --- Interactive Spotlight & 3D Tilt Effect ---
-  const cards = document.querySelectorAll('.skill-card, .stat-card, .visual-box, .contact-box');
+  const cards = document.querySelectorAll('.bento-card, .skill-card, .contact-box');
   
   cards.forEach(card => {
     card.addEventListener('mousemove', (e) => {
@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusDot = document.getElementById("discordStatusDot");
     const statusTextEl = document.getElementById("discordStatusText");
     if (statusDot && statusTextEl) {
-      statusDot.className = `discord-status-dot ${status}`;
+      statusDot.className = `dc-status-dot ${status}`;
       
       let statusLabel = "Offline";
       if (status === "online") statusLabel = "Online";
