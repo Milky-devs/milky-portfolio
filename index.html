@@ -204,6 +204,37 @@
               </div>
             </div>
 
+            <!-- V2 COMPONENT SELECT MENU OPTIONS -->
+            <div class="field-group">
+              <label class="custom-checkbox">
+                <input type="checkbox" id="selectMenuToggle" />
+                <span class="checkbox-box">
+                  <span class="material-symbols-outlined check-mark">check</span>
+                </span>
+                <span class="checkbox-text">
+                  <span class="material-symbols-outlined text-icon">list_alt</span> <strong>İnteraktif Seçim Menüsü (Select Menu Component)</strong> Ekle
+                </span>
+              </label>
+            </div>
+
+            <div id="selectMenuConfigRow" class="field-group-sub" style="display: none;">
+              <div class="field-group">
+                <label for="selectMenuPlaceholder">
+                  <span class="material-symbols-outlined field-icon">rule</span> Menü Başlığı / İpucu Metni
+                </label>
+                <input type="text" id="selectMenuPlaceholder" placeholder="Örn: Bir duyuru kategorisi seçin..." class="form-control" value="Bir seçenek seçin..." />
+              </div>
+              <div class="field-group mt-2">
+                <label>
+                  <span class="material-symbols-outlined field-icon">list</span> Seçenek 1 & Seçenek 2
+                </label>
+                <div class="grid-2-col">
+                  <input type="text" id="selectOpt1" placeholder="Seçenek 1 Adı" class="form-control" value="📌 Sunucu Kuralları" />
+                  <input type="text" id="selectOpt2" placeholder="Seçenek 2 Adı" class="form-control" value="🎉 Rol Bilgilendirme" />
+                </div>
+              </div>
+            </div>
+
             <div class="field-group">
               <label for="webhookUrlInput">
                 <span class="material-symbols-outlined field-icon">webhook</span> Discord Webhook URL *
@@ -270,6 +301,12 @@
                 <div id="previewV2Buttons" class="dc-buttons-preview-row">
                   <span class="dc-button-preview" id="previewBtn1">🌐 Web Sitemiz</span>
                   <span class="dc-button-preview" id="previewBtn2">💬 Destek Sunucusu</span>
+                </div>
+
+                <!-- LIVE PREVIEW V2 SELECT MENU -->
+                <div id="previewSelectMenu" class="dc-select-preview-box" style="display: none;">
+                  <span id="previewSelectPlaceholder">Bir seçenek seçin...</span>
+                  <span class="material-symbols-outlined icon-xs">expand_more</span>
                 </div>
 
               </div>
@@ -395,7 +432,7 @@
 
   <div id="toastContainer" class="toast-area"></div>
 
-  <!-- SCRIPT WITH FORCE CACHE BUSTER V6000 -->
-  <script src="script.js?v=6000"></script>
+  <!-- SCRIPT WITH FORCE CACHE BUSTER V7000 -->
+  <script src="script.js?v=7000"></script>
 </body>
 </html>

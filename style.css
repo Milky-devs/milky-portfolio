@@ -490,6 +490,25 @@ body {
   background: var(--primary-hover);
 }
 
+.dc-button-preview:hover {
+  background: #686d73;
+}
+
+.dc-select-preview-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #2f3136;
+  border: 1px solid #202225;
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: #dcddde;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
 .btn-full {
   width: 100%;
 }

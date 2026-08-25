@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODERATION PANEL — DISCORD WEBHOOK ENGINE (BULLETPROOF BUTTON VALIDATION)
+   MODERATION PANEL — DISCORD WEBHOOK ENGINE WITH V2 BUTTONS & SELECT MENUS
    ========================================================================== */
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
@@ -90,7 +90,7 @@ window.closeSetupModal = function() {
 window.updateLiveDiscordPreview = function() {
   const profile = window.getProfile() || { username: 'crystaltears0', discordId: '', avatarUrl: DEFAULT_AVATAR };
   let avatar = profile.avatarUrl;
-  if (!avatar || typeof avatar !== 'string' || avatar.trim() === '' || avatar.startsWith('data:')) {
+  if (!avatar || typeof avatar !== 'string' || avatar.trim() === '' || !isValidHttpUrl(avatar)) {
     avatar = DEFAULT_AVATAR;
   }
 
@@ -146,7 +146,7 @@ window.updateLiveDiscordPreview = function() {
     previewFooterText.innerHTML = `• <span class="dc-user-tag">${tagStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
   }
 
-  // V2 Component Buttons Live Preview Update
+  // --- V2 Component Buttons Live Preview Update ---
   const buttonsToggle = document.getElementById('buttonsToggle');
   const buttonsConfigRow = document.getElementById('buttonsConfigRow');
   const previewV2Buttons = document.getElementById('previewV2Buttons');
@@ -177,6 +177,21 @@ window.updateLiveDiscordPreview = function() {
     }
   } else {
     if (previewV2Buttons) previewV2Buttons.style.display = 'none';
+  }
+
+  // --- V2 Select Menu Live Preview Update ---
+  const selectMenuToggle = document.getElementById('selectMenuToggle');
+  const selectMenuConfigRow = document.getElementById('selectMenuConfigRow');
+  const previewSelectMenu = document.getElementById('previewSelectMenu');
+  const previewSelectPlaceholder = document.getElementById('previewSelectPlaceholder');
+
+  const isSelectMenu = selectMenuToggle ? selectMenuToggle.checked : false;
+  if (selectMenuConfigRow) selectMenuConfigRow.style.display = isSelectMenu ? 'block' : 'none';
+  if (previewSelectMenu) previewSelectMenu.style.display = isSelectMenu ? 'flex' : 'none';
+
+  if (isSelectMenu && previewSelectPlaceholder) {
+    const placeholderVal = document.getElementById('selectMenuPlaceholder')?.value.trim() || 'Bir seçenek seçin...';
+    previewSelectPlaceholder.textContent = placeholderVal;
   }
 };
 
@@ -245,6 +260,8 @@ window.buildCurrentPayload = function() {
   const annImageUrl = document.getElementById('annImageUrl')?.value.trim() || '';
   const isEveryone = document.getElementById('everyoneToggle')?.checked || false;
   const isButtons = document.getElementById('buttonsToggle')?.checked || false;
+  const isSelectMenu = document.getElementById('selectMenuToggle')?.checked || false;
+
   const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#1E3A8A';
   const colorInt = parseInt(selectedColorHex.replace('#', ''), 16) || 0x1E3A8A;
 
@@ -286,7 +303,9 @@ window.buildCurrentPayload = function() {
     embeds: [embedObj]
   };
 
-  // Strictly Validate Link Buttons before adding to components
+  const actionRows = [];
+
+  // V2 Component Buttons (ActionRow 1)
   if (isButtons) {
     const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
     const b1Url = document.getElementById('btn1Url')?.value.trim() || '';
@@ -301,8 +320,41 @@ window.buildCurrentPayload = function() {
       buttonsList.push({ type: 2, style: 5, label: b2Label, url: b2Url.trim() });
     }
     if (buttonsList.length > 0) {
-      payload.components = [{ type: 1, components: buttonsList }];
+      actionRows.push({ type: 1, components: buttonsList });
     }
+  }
+
+  // V2 Component Select Menu (ActionRow 2)
+  if (isSelectMenu) {
+    const placeholderText = document.getElementById('selectMenuPlaceholder')?.value.trim() || 'Bir seçenek seçin...';
+    const opt1Text = document.getElementById('selectOpt1')?.value.trim() || '📌 Sunucu Kuralları';
+    const opt2Text = document.getElementById('selectOpt2')?.value.trim() || '🎉 Rol Bilgilendirme';
+
+    const selectOptions = [];
+    if (opt1Text) {
+      selectOptions.push({ label: opt1Text, value: 'opt_1' });
+    }
+    if (opt2Text) {
+      selectOptions.push({ label: opt2Text, value: 'opt_2' });
+    }
+
+    if (selectOptions.length > 0) {
+      actionRows.push({
+        type: 1,
+        components: [
+          {
+            type: 3, // String Select Menu Component
+            custom_id: 'v2_select_menu_announcement',
+            placeholder: placeholderText,
+            options: selectOptions
+          }
+        ]
+      });
+    }
+  }
+
+  if (actionRows.length > 0) {
+    payload.components = actionRows;
   }
 
   return payload;
@@ -588,9 +640,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const btn1Url = document.getElementById('btn1Url');
   const btn2Label = document.getElementById('btn2Label');
   const btn2Url = document.getElementById('btn2Url');
+
+  const selectMenuToggle = document.getElementById('selectMenuToggle');
+  const selectMenuPlaceholder = document.getElementById('selectMenuPlaceholder');
+  const selectOpt1 = document.getElementById('selectOpt1');
+  const selectOpt2 = document.getElementById('selectOpt2');
+
   const setupUsernameInput = document.getElementById('setupUsername');
 
-  [annTitleInput, annMessageInput, annImageUrlInput, everyoneToggleInput, buttonsToggle, btn1Label, btn1Url, btn2Label, btn2Url, setupUsernameInput].forEach(input => {
+  [
+    annTitleInput, annMessageInput, annImageUrlInput, everyoneToggleInput,
+    buttonsToggle, btn1Label, btn1Url, btn2Label, btn2Url,
+    selectMenuToggle, selectMenuPlaceholder, selectOpt1, selectOpt2,
+    setupUsernameInput
+  ].forEach(input => {
     if (input) {
       input.addEventListener('input', window.updateLiveDiscordPreview);
       input.addEventListener('change', window.updateLiveDiscordPreview);
