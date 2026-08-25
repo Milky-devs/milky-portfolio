@@ -204,7 +204,7 @@ window.handleProfileSubmit = function(event) {
   return false;
 };
 
-// --- Build Official Components V2 Payload (flags: 32768) WITH TOP SEPARATOR LINE ---
+// --- Build Official Components V2 Payload (@everyone INSIDE CONTAINER) ---
 window.buildCurrentPayload = function() {
   const profile = window.getProfile() || { username: 'Sunucu Duyurusu', discordId: '', avatarUrl: DEFAULT_AVATAR };
   const annTitle = document.getElementById('annTitle')?.value.trim() || 'Sunucu Duyurusu';
@@ -225,22 +225,31 @@ window.buildCurrentPayload = function() {
     finalAvatar = DEFAULT_AVATAR;
   }
 
-  // --- DISCORD V2 CONTAINER STRUCTURE (TITLE + TOP SEPARATOR + DESCRIPTION + BOTTOM SEPARATOR + FOOTER) ---
-  const containerChildComponents = [
-    {
-      type: 10, // TextDisplay Title (# Title)
-      content: `# ${annTitle}`
-    },
-    {
-      type: 14, // Separator Line ABOVE description text!
-      spacing: 1,
-      divider: true
-    },
-    {
-      type: 10, // TextDisplay Description Text
-      content: annMessage
-    }
-  ];
+  const containerChildComponents = [];
+
+  // @everyone TAG INSIDE CONTAINER!
+  if (isEveryone) {
+    containerChildComponents.push({
+      type: 10, // TextDisplay
+      content: "@everyone"
+    });
+  }
+
+  containerChildComponents.push({
+    type: 10, // TextDisplay Title (# Title)
+    content: `# ${annTitle}`
+  });
+
+  containerChildComponents.push({
+    type: 14, // Separator Line ABOVE description text!
+    spacing: 1,
+    divider: true
+  });
+
+  containerChildComponents.push({
+    type: 10, // TextDisplay Description Text
+    content: annMessage
+  });
 
   if (isValidHttpUrl(annImageUrl)) {
     containerChildComponents.push({ type: 14, spacing: 1, divider: true });
@@ -256,25 +265,17 @@ window.buildCurrentPayload = function() {
     content: `• ${authorMentionStr}, Sunucu Yetkilisi`
   });
 
-  const rootComponents = [];
-  if (isEveryone) {
-    rootComponents.push({
-      type: 10, // TextDisplay
-      content: "@everyone"
-    });
-  }
-
-  rootComponents.push({
-    type: 17, // Container
-    accent_color: colorInt,
-    components: containerChildComponents
-  });
-
   return {
     username: profile.username || "Sunucu Duyurusu",
     avatar_url: finalAvatar,
     flags: 32768, // IS_COMPONENTS_V2
-    components: rootComponents
+    components: [
+      {
+        type: 17, // Container
+        accent_color: colorInt,
+        components: containerChildComponents
+      }
+    ]
   };
 };
 
