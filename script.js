@@ -1,5 +1,5 @@
 /* =========================================
-   MILKY.DEV — DISCORD V2 WEBHOOK HUB ENGINE
+   MILKY.DEV — DISCORD V2 ADMIN CONTROL ENGINE
 ========================================= */
 
 const ComponentType = {
@@ -17,36 +17,93 @@ const V2Flags = {
   IsComponentsV2: 32768,
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+const PROFILE_STORAGE_KEY = 'milky_admin_profile';
+const HISTORY_STORAGE_KEY = 'milky_ann_history';
 
-  // --- Utility: Toast Notifications ---
-  function showToast(text, type = 'success') {
-    const toastContainer = document.getElementById('toastContainer');
-    if (!toastContainer) return;
+// --- Toast Notification Helper ---
+function showToast(text, type = 'success') {
+  const toastContainer = document.getElementById('toastContainer');
+  if (!toastContainer) return;
 
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
-      <span style="font-size: 1.2rem;">${type === 'success' ? '✅' : '❌'}</span>
-      <div>${text}</div>
-    `;
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <span style="font-size: 1.2rem;">${type === 'success' ? '✅' : '❌'}</span>
+    <div>${text}</div>
+  `;
 
-    toastContainer.appendChild(toast);
+  toastContainer.appendChild(toast);
 
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(50px)';
-      toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-      setTimeout(() => toast.remove(), 300);
-    }, 4000);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(50px)';
+    toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+// --- Global Modal Triggers ---
+window.openSetupModal = function() {
+  const modalOverlay = document.getElementById('profileSetupModal');
+  const setupUsernameInput = document.getElementById('setupUsername');
+  const setupPasswordInput = document.getElementById('setupPassword');
+  const setupAvatarUrlInput = document.getElementById('setupAvatarUrl');
+  const setupAvatarPreview = document.getElementById('setupAvatarPreview');
+
+  const currentProfile = getProfile();
+  if (currentProfile) {
+    if (setupUsernameInput) setupUsernameInput.value = currentProfile.username || '';
+    if (setupPasswordInput) setupPasswordInput.value = currentProfile.password || '';
+    if (setupAvatarUrlInput) setupAvatarUrlInput.value = currentProfile.avatarUrl || '';
+    if (setupAvatarPreview) setupAvatarPreview.src = currentProfile.avatarUrl || 'https://cdn.discordapp.net/embed/avatars/0.png';
   }
 
-  // --- LocalStorage Keys ---
-  const PROFILE_STORAGE_KEY = 'milky_admin_profile';
-  const HISTORY_STORAGE_KEY = 'milky_ann_history';
+  if (modalOverlay) {
+    modalOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+};
 
-  // --- DOM Elements ---
+window.closeSetupModal = function() {
   const modalOverlay = document.getElementById('profileSetupModal');
+  if (modalOverlay) {
+    modalOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+};
+
+function getProfile() {
+  try {
+    const data = localStorage.getItem(PROFILE_STORAGE_KEY);
+    return data ? JSON.parse(data) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function applyProfileToDOM(profile) {
+  if (!profile) return;
+  const name = profile.username || 'Admin';
+  const avatar = profile.avatarUrl || 'https://cdn.discordapp.net/embed/avatars/0.png';
+
+  const headerUserAvatar = document.getElementById('headerUserAvatar');
+  const headerUsername = document.getElementById('headerUsername');
+  const activeUserAvatar = document.getElementById('activeUserAvatar');
+  const activeUsername = document.getElementById('activeUsername');
+
+  if (headerUserAvatar) headerUserAvatar.src = avatar;
+  if (headerUsername) headerUsername.textContent = name;
+  if (activeUserAvatar) activeUserAvatar.src = avatar;
+  if (activeUsername) activeUsername.textContent = name;
+
+  if (typeof updateLiveDiscordPreview === 'function') {
+    updateLiveDiscordPreview();
+  }
+}
+
+// --- DOM Content Loaded Engine ---
+document.addEventListener('DOMContentLoaded', () => {
+
   const profileForm = document.getElementById('profileForm');
   const setupUsernameInput = document.getElementById('setupUsername');
   const setupPasswordInput = document.getElementById('setupPassword');
@@ -56,14 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const setupAvatarUrlInput = document.getElementById('setupAvatarUrl');
   const setupAvatarPreview = document.getElementById('setupAvatarPreview');
   const avatarPills = document.querySelectorAll('.avatar-pill');
-
-  const headerUserAvatar = document.getElementById('headerUserAvatar');
-  const headerUsername = document.getElementById('headerUsername');
-  const activeUserAvatar = document.getElementById('activeUserAvatar');
-  const activeUsername = document.getElementById('activeUsername');
-
-  const openProfileBtn = document.getElementById('openProfileBtn');
-  const editProfileQuickBtn = document.getElementById('editProfileQuickBtn');
 
   // --- Password Eye Icon Toggle ---
   if (togglePasswordBtn && setupPasswordInput) {
@@ -89,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (setupAvatarUrlInput) setupAvatarUrlInput.value = dataUrl;
           if (setupAvatarPreview) setupAvatarPreview.src = dataUrl;
           avatarPills.forEach(p => p.classList.remove('active'));
-          showToast('Fotoğraf galeriden başarıyla seçildi!', 'success');
+          showToast('Fotoğraf galeriden yüklendi!', 'success');
           updateLiveDiscordPreview();
         };
         reader.readAsDataURL(file);
@@ -97,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Preset Avatar Selection ---
+  // --- Preset Avatars ---
   avatarPills.forEach(pill => {
     pill.addEventListener('click', () => {
       avatarPills.forEach(p => p.classList.remove('active'));
@@ -121,66 +170,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Profile Storage Operations ---
-  function getProfile() {
-    try {
-      const data = localStorage.getItem(PROFILE_STORAGE_KEY);
-      return data ? JSON.parse(data) : null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  function applyProfileToDOM(profile) {
-    if (!profile) return;
-    const name = profile.username || 'Admin';
-    const avatar = profile.avatarUrl || 'https://cdn.discordapp.net/embed/avatars/0.png';
-
-    if (headerUserAvatar) headerUserAvatar.src = avatar;
-    if (headerUsername) headerUsername.textContent = name;
-    if (activeUserAvatar) activeUserAvatar.src = avatar;
-    if (activeUsername) activeUsername.textContent = name;
-
-    updateLiveDiscordPreview();
-  }
-
-  function openSetupModal() {
-    const currentProfile = getProfile();
-    if (currentProfile) {
-      if (setupUsernameInput) setupUsernameInput.value = currentProfile.username || '';
-      if (setupPasswordInput) setupPasswordInput.value = currentProfile.password || '';
-      if (setupAvatarUrlInput) setupAvatarUrlInput.value = currentProfile.avatarUrl || '';
-      if (setupAvatarPreview) setupAvatarPreview.src = currentProfile.avatarUrl || 'https://cdn.discordapp.net/embed/avatars/0.png';
-    }
-    if (modalOverlay) {
-      modalOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-  }
-
-  function closeSetupModal() {
-    if (modalOverlay) {
-      modalOverlay.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-  }
-
+  // Initial Onboarding Check
   const savedProfile = getProfile();
   if (!savedProfile) {
-    openSetupModal();
+    window.openSetupModal();
   } else {
     applyProfileToDOM(savedProfile);
   }
-
-  if (openProfileBtn) openProfileBtn.addEventListener('click', openSetupModal);
-  if (editProfileQuickBtn) editProfileQuickBtn.addEventListener('click', openSetupModal);
 
   if (profileForm) {
     profileForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const username = setupUsernameInput.value.trim();
       const password = setupPasswordInput.value.trim();
-      let avatarUrl = setupAvatarUrlInput.value.trim();
+      let avatarUrl = setupAvatarUrlInput ? setupAvatarUrlInput.value.trim() : '';
 
       if (!username || !password) {
         showToast('Kullanıcı adı ve şifrenizi doldurun.', 'error');
@@ -195,8 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
 
       applyProfileToDOM(profileData);
-      closeSetupModal();
-      showToast(`Profil kaydedildi! Hoş geldiniz, ${username}.`, 'success');
+      window.closeSetupModal();
+      showToast(`Profiliniz kaydedildi! Hoş geldiniz, ${username}.`, 'success');
     });
   }
 
@@ -217,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewFooterAvatar = document.getElementById('previewFooterAvatar');
   const previewFooterText = document.getElementById('previewFooterText');
 
-  function updateLiveDiscordPreview() {
+  window.updateLiveDiscordPreview = function() {
     const profile = getProfile() || { username: 'Milky Admin', avatarUrl: 'https://cdn.discordapp.net/embed/avatars/0.png' };
     
     if (previewAvatar) previewAvatar.src = profile.avatarUrl;
@@ -251,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         previewImage.style.display = 'none';
       }
     }
-  }
+  };
 
   [annTitleInput, annMessageInput, annImageUrlInput, everyoneToggleInput, setupUsernameInput].forEach(input => {
     if (input) {
@@ -390,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const profile = getProfile();
       if (!profile) {
         showToast('Lütfen önce profilinizi oluşturun.', 'error');
-        openSetupModal();
+        window.openSetupModal();
         return;
       }
 
@@ -422,13 +425,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const colorInt = parseInt(selectedColorHex.replace('#', ''), 16);
 
-      // Discord API prohibits data: URIs for avatar_url
       let finalAvatarUrl = profile.avatarUrl;
       if (!finalAvatarUrl || finalAvatarUrl.startsWith('data:')) {
         finalAvatarUrl = 'https://cdn.discordapp.net/embed/avatars/0.png';
       }
 
-      // Rich Embed Structure
       const embedObj = {
         title: annTitle || "📢 Yönetici Duyurusu",
         description: annMessage,
@@ -444,13 +445,12 @@ document.addEventListener('DOMContentLoaded', () => {
         embedObj.image = { url: annImageUrl };
       }
 
-      // Discord Components V2 Container Components
       const v2ContainerComponents = [
         {
-          type: ComponentType.Section, // 9
+          type: ComponentType.Section,
           components: [
             {
-              type: ComponentType.TextDisplay, // 10
+              type: ComponentType.TextDisplay,
               content: `## ${annTitle || '📢 Yönetici Duyurusu'}\n\n${annMessage}`
             }
           ]
@@ -459,19 +459,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (annImageUrl) {
         v2ContainerComponents.push({
-          type: ComponentType.Separator, // 14
+          type: ComponentType.Separator,
           divider: true,
           spacing: 1
         });
         v2ContainerComponents.push({
-          type: ComponentType.Media, // 12
+          type: ComponentType.Media,
           items: [
             { media: { url: annImageUrl } }
           ]
         });
       }
 
-      // Primary V2 Webhook Payload
       const v2Payload = {
         username: profile.username || "Milky Admin",
         avatar_url: finalAvatarUrl,
@@ -479,7 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
         flags: V2Flags.IsComponentsV2,
         components: [
           {
-            type: ComponentType.Container, // 17
+            type: ComponentType.Container,
             accent_color: colorInt,
             components: v2ContainerComponents
           }
@@ -487,7 +486,6 @@ document.addEventListener('DOMContentLoaded', () => {
         embeds: [embedObj]
       };
 
-      // Standard Fallback Payload (In case channel webhook doesn't support V2 flags)
       const standardPayload = {
         username: profile.username || "Milky Admin",
         avatar_url: finalAvatarUrl,
@@ -502,9 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify(v2Payload)
         });
 
-        // Fallback to standard payload if V2 flags error occurs
         if (!response.ok && response.status !== 204) {
-          console.warn("V2 Webhook dispatch failed, retrying with standard rich embed payload...");
           response = await fetch(webhookUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -528,12 +524,9 @@ document.addEventListener('DOMContentLoaded', () => {
           if (annImageUrlInput) annImageUrlInput.value = '';
           updateLiveDiscordPreview();
         } else {
-          const errText = await response.text();
-          console.error("Webhook Error Response:", errText);
-          showToast(`Webhook hatası (${response.status}). Lütfen URL'yi kontrol edin.`, 'error');
+          showToast(`Webhook gönderilemedi (${response.status}). URL'yi kontrol edin.`, 'error');
         }
       } catch (err) {
-        console.error("Webhook Dispatch Error:", err);
         showToast('Bağlantı hatası: Duyuru iletilemedi.', 'error');
       } finally {
         if (sendBtn) {

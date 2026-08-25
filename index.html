@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=20" />
+  <link rel="stylesheet" href="style.css?v=25" />
 </head>
 <body>
 
@@ -16,7 +16,7 @@
     <div class="container header-inner">
       <div class="logo">milky<span>.admin</span></div>
       <div class="header-actions">
-        <button type="button" class="header-profile-btn" id="openProfileBtn">
+        <button type="button" class="header-profile-btn" id="openProfileBtn" onclick="openSetupModal()">
           <img id="headerUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Profile" />
           <span id="headerUsername">Giriş Yap</span>
         </button>
@@ -49,7 +49,7 @@
           <button type="button" class="template-btn" data-template="urgent">
             <span class="tpl-icon">🚨</span>
             <div class="tpl-text">
-              <strong>Acil Uarı</strong>
+              <strong>Acil Uyarı</strong>
               <span>Kritik duyuru</span>
             </div>
           </button>
@@ -73,7 +73,7 @@
               <span class="admin-badge"><span class="badge-pulse"></span> Discord V2 Webhook</span>
               <h2 class="admin-title">Duyuru Paneli</h2>
             </div>
-            <div class="active-profile-card" id="editProfileQuickBtn" style="cursor: pointer;">
+            <div class="active-profile-card" id="editProfileQuickBtn" onclick="openSetupModal()" style="cursor: pointer;">
               <img id="activeUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="User Avatar" class="active-avatar" />
               <div class="active-user-meta">
                 <span id="activeUsername" class="active-name">Giriş Yapılmadı</span>
@@ -200,6 +200,8 @@
   <!-- PROFILE SETUP MODAL -->
   <div class="modal-overlay" id="profileSetupModal">
     <div class="modal-card">
+      <button type="button" class="modal-close-btn" onclick="closeSetupModal()" title="Kapat">✕</button>
+      
       <div class="modal-header">
         <div class="modal-badge">🔒 Yönetici Girişi & Profil Kurulumu</div>
         <h2 class="modal-title">Profilinizi Oluşturun</h2>
@@ -267,6 +269,6 @@
 
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="script.js?v=20"></script>
+  <script src="script.js?v=25"></script>
 </body>
 </html>

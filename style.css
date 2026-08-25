@@ -709,7 +709,7 @@ button {
   padding: 20px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s ease;
 }
 
 .modal-overlay.active {
@@ -718,19 +718,44 @@ button {
 }
 
 .modal-card {
-  background: rgba(22, 22, 28, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  background: rgba(22, 22, 28, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 24px;
   max-width: 500px;
   width: 100%;
   padding: 36px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
   transform: scale(0.92);
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .modal-overlay.active .modal-card {
   transform: scale(1);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 23, 68, 0.2);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
 }
 
 .modal-header {
