@@ -96,7 +96,7 @@ window.closeSetupModal = function() {
   }
 };
 
-// --- Live Preview Engine (1:1 Discord Components V2 Preview) ---
+// --- Live Preview Engine ---
 window.updateLiveDiscordPreview = function() {
   const profile = window.getProfile() || { username: 'crystaltears0', discordId: '', avatarUrl: DEFAULT_AVATAR };
   let avatar = profile.avatarUrl;
@@ -273,7 +273,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- OFFICIAL DISCORD COMPONENTS V2 WEBHOOK DISPATCH HANDLER ---
+// --- DISCORD WEBHOOK DISPATCH HANDLER ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -316,7 +316,7 @@ window.handleAnnouncementSubmit = async function(event) {
   if (sendBtn) {
     sendBtn.disabled = true;
     sendBtn.style.opacity = '0.7';
-    sendBtn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> V2 Webhook Gönderiliyor...';
+    sendBtn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> Discord\'a Gönderiliyor...';
   }
 
   const colorInt = parseInt(selectedColorHex.replace('#', ''), 16) || 0x1E3A8A;
@@ -332,12 +332,7 @@ window.handleAnnouncementSubmit = async function(event) {
     authorMentionStr = `<@${profile.discordId.trim()}> (${profile.username})`;
   }
 
-  // ==========================================
-  // OFFICIAL DISCORD COMPONENTS V2 PAYLOAD (flags: 32768)
-  // Per spec: No top-level 'content' or 'embeds' when flags: 32768 is set.
-  // ==========================================
-  
-  // Internal container components
+  // --- Official Components V2 Payload (flags: 32768) ---
   const containerComponents = [
     {
       type: ComponentType.Section, // 9
@@ -354,7 +349,6 @@ window.handleAnnouncementSubmit = async function(event) {
     }
   ];
 
-  // Optional Banner Image inside Container
   if (annImageUrl && annImageUrl.startsWith('http')) {
     containerComponents.push({
       type: ComponentType.Separator, // 14
@@ -372,7 +366,6 @@ window.handleAnnouncementSubmit = async function(event) {
     });
   }
 
-  // Separator & Footer Author Info Section
   containerComponents.push({
     type: ComponentType.Separator, // 14
     spacing: 1,
@@ -388,10 +381,7 @@ window.handleAnnouncementSubmit = async function(event) {
     ]
   });
 
-  // Top-level V2 Components array
   const rootComponents = [];
-
-  // @everyone ping as top-level TextDisplay component BEFORE the Container
   if (isEveryone) {
     rootComponents.push({
       type: ComponentType.TextDisplay, // 10
@@ -399,14 +389,12 @@ window.handleAnnouncementSubmit = async function(event) {
     });
   }
 
-  // Container Component (17)
   rootComponents.push({
     type: ComponentType.Container, // 17
     accent_color: colorInt,
     components: containerComponents
   });
 
-  // Pure V2 Webhook Payload
   const pureV2Payload = {
     username: profile.username || "Sunucu Duyurusu",
     avatar_url: finalAvatarUrl,
@@ -414,7 +402,7 @@ window.handleAnnouncementSubmit = async function(event) {
     components: rootComponents
   };
 
-  // Fallback Rich Embed Payload (If webhook endpoint does not support V2 flags)
+  // Fallback Rich Embed Payload (Clean Footer without broken icon)
   const fallbackEmbedObj = {
     title: annTitle || "Sunucu Duyurusu",
     description: annMessage,
@@ -428,10 +416,11 @@ window.handleAnnouncementSubmit = async function(event) {
       }
     ],
     footer: {
-      text: `Sunucu Duyurusu • Yetkili: ${profile.username}`,
-      icon_url: finalAvatarUrl
+      text: `Sunucu Duyurusu • Yetkili: ${profile.username}`
+      // Clean footer text with NO broken image icon
     }
   };
+
   if (annImageUrl && annImageUrl.startsWith('http')) {
     fallbackEmbedObj.image = { url: annImageUrl };
   }
@@ -444,16 +433,13 @@ window.handleAnnouncementSubmit = async function(event) {
   };
 
   try {
-    // 1st Attempt: Send Pure Components V2 Payload (flags: 32768)
     let response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(pureV2Payload)
     });
 
-    // 2nd Attempt: Fallback to Rich Embed Payload if V2 is rejected by endpoint
     if (!response.ok && response.status !== 204) {
-      console.warn("V2 Payload returned HTTP", response.status, "— retrying with fallback embed payload.");
       response = await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -462,7 +448,7 @@ window.handleAnnouncementSubmit = async function(event) {
     }
 
     if (response.ok || response.status === 204) {
-      window.showToast('🎉 V2 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
+      window.showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
       
       window.saveHistory({
         title: annTitle || 'Sunucu Duyurusu',
