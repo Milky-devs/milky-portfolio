@@ -98,7 +98,7 @@ window.closeSetupModal = function() {
 
 // --- Live Preview Engine ---
 window.updateLiveDiscordPreview = function() {
-  const profile = window.getProfile() || { username: 'Milky Admin', avatarUrl: DEFAULT_AVATAR };
+  const profile = window.getProfile() || { username: 'Sunucu Duyurusu', avatarUrl: DEFAULT_AVATAR };
   let avatar = profile.avatarUrl;
   if (!avatar || typeof avatar !== 'string' || avatar.trim() === '') {
     avatar = DEFAULT_AVATAR;
@@ -116,9 +116,9 @@ window.updateLiveDiscordPreview = function() {
   const previewFooterText = document.getElementById('previewFooterText');
 
   if (previewAvatar) previewAvatar.src = avatar;
-  if (previewUsername) previewUsername.textContent = profile.username || 'Milky Admin';
+  if (previewUsername) previewUsername.textContent = profile.username || 'Sunucu Duyurusu';
   if (previewFooterAvatar) previewFooterAvatar.src = avatar;
-  if (previewFooterText) previewFooterText.textContent = `Milky Admin Panel • Yetkili: ${profile.username || 'Admin'}`;
+  if (previewFooterText) previewFooterText.textContent = `Milky Sunucu Duyurusu • Yetkili: ${profile.username || 'Yetkili'}`;
 
   const now = new Date();
   const timeStr = `Bugün ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -134,7 +134,7 @@ window.updateLiveDiscordPreview = function() {
 
   const annTitleInput = document.getElementById('annTitle');
   const titleVal = annTitleInput ? annTitleInput.value.trim() : '';
-  if (previewTitle) previewTitle.textContent = titleVal || '📢 Yönetici Duyurusu';
+  if (previewTitle) previewTitle.textContent = titleVal || '📢 Sunucu Duyurusu';
 
   const annMessageInput = document.getElementById('annMessage');
   const messageVal = annMessageInput ? annMessageInput.value.trim() : '';
@@ -155,7 +155,7 @@ window.updateLiveDiscordPreview = function() {
 // --- Apply Profile to UI ---
 window.applyProfileToDOM = function(profile) {
   if (!profile) return;
-  const name = profile.username || 'Admin';
+  const name = profile.username || 'Sunucu Yetkilisi';
   let avatar = profile.avatarUrl;
   if (!avatar || typeof avatar !== 'string' || avatar.trim() === '') {
     avatar = DEFAULT_AVATAR;
@@ -241,7 +241,7 @@ window.renderHistoryList = function() {
         <div class="history-color-badge" style="background-color: ${item.color || '#5865F2'};"></div>
         <div class="history-details">
           <strong>${item.title || 'Duyuru'}</strong>
-          <span>Yetkili: ${item.sender || 'Admin'} • ${item.date}</span>
+          <span>Yetkili: ${item.sender || 'Sunucu Yetkilisi'} • ${item.date}</span>
         </div>
       </div>
       <button type="button" class="btn-sm btn-edit-profile resend-btn" data-index="${idx}">Tekrar Doldur</button>
@@ -365,14 +365,14 @@ window.handleAnnouncementSubmit = async function(event) {
     components: [
       {
         type: ComponentType.TextDisplay, // 10
-        content: `- *Milky Admin Panel • Yetkili: ${profile.username}*`
+        content: `- *Milky Sunucu Duyurusu • Yetkili: ${profile.username}*`
       }
     ]
   });
 
-  // Pure V2 Webhook Payload (flags: 32768, Container: 17)
+  // Pure V2 Webhook Payload
   const pureV2Payload = {
-    username: profile.username || "Milky Admin",
+    username: profile.username || "Sunucu Duyurusu",
     avatar_url: finalAvatarUrl,
     content: isEveryone ? "@everyone" : null,
     flags: V2Flags.IsComponentsV2,
@@ -385,21 +385,21 @@ window.handleAnnouncementSubmit = async function(event) {
     ]
   };
 
-  // Embed Payload (Fallback if channel rejects V2 flags)
+  // Fallback Embed Payload
   const embedObj = {
-    title: annTitle || "📢 Yönetici Duyurusu",
+    title: annTitle || "📢 Sunucu Duyurusu",
     description: annMessage,
     color: colorInt,
     timestamp: new Date().toISOString(),
     footer: {
-      text: `Milky Admin Panel • Yetkili: ${profile.username}`,
+      text: `Milky Sunucu Duyurusu • Yetkili: ${profile.username}`,
       icon_url: finalAvatarUrl
     }
   };
   if (annImageUrl) embedObj.image = { url: annImageUrl };
 
   const fallbackPayload = {
-    username: profile.username || "Milky Admin",
+    username: profile.username || "Sunucu Duyurusu",
     avatar_url: finalAvatarUrl,
     content: isEveryone ? "@everyone" : null,
     flags: V2Flags.IsComponentsV2,
@@ -421,7 +421,6 @@ window.handleAnnouncementSubmit = async function(event) {
     });
 
     if (!response.ok && response.status !== 204) {
-      console.warn("Retrying with combined payload...");
       response = await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -433,7 +432,7 @@ window.handleAnnouncementSubmit = async function(event) {
       window.showToast('🎉 V2 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
       
       window.saveHistory({
-        title: annTitle || 'Yönetici Duyurusu',
+        title: annTitle || 'Sunucu Duyurusu',
         message: annMessage,
         color: selectedColorHex,
         sender: profile.username,

@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Milky — Admin & Discord Webhook V2 Center</title>
+  <title>Milky — Sunucu Duyuru & Discord Webhook V2 Center</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=35" />
+  <link rel="stylesheet" href="style.css?v=40" />
 </head>
 <body>
 
   <!-- HEADER -->
   <header class="header">
     <div class="container header-inner">
-      <div class="logo">milky<span>.admin</span></div>
+      <div class="logo">milky<span>.duyuru</span></div>
       <div class="header-actions">
         <button type="button" class="header-profile-btn" id="openProfileBtn" onclick="openSetupModal()">
           <img id="headerUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Profile" />
@@ -24,7 +24,7 @@
     </div>
   </header>
 
-  <!-- MAIN ADMIN CONTENT -->
+  <!-- MAIN CONTENT -->
   <main class="main-content">
     <div class="container">
 
@@ -71,7 +71,7 @@
           <div class="admin-header">
             <div>
               <span class="admin-badge"><span class="badge-pulse"></span> Discord V2 Webhook</span>
-              <h2 class="admin-title">Duyuru Paneli</h2>
+              <h2 class="admin-title">Sunucu Duyuru Paneli</h2>
             </div>
             <div class="active-profile-card" id="editProfileQuickBtn" onclick="openSetupModal()" style="cursor: pointer;">
               <img id="activeUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="User Avatar" class="active-avatar" />
@@ -139,7 +139,7 @@
 
             <div class="form-actions">
               <button type="button" onclick="handleAnnouncementSubmit(event)" id="sendAnnBtn" class="btn btn-primary btn-glow">
-                Duyuruyu Discord'a Gönder (V2 Webhook)
+                Sunucu Duyurusunu Discord'a Gönder (V2 Webhook)
               </button>
             </div>
           </form>
@@ -157,7 +157,7 @@
               <img id="previewAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Avatar" class="dc-avatar" />
               <div class="dc-content-wrap">
                 <div class="dc-header">
-                  <span id="previewUsername" class="dc-username">Milky Admin</span>
+                  <span id="previewUsername" class="dc-username">Sunucu Duyurusu</span>
                   <span class="dc-bot-tag">BOT</span>
                   <span id="previewTime" class="dc-timestamp">Bugün 18:30</span>
                 </div>
@@ -167,12 +167,12 @@
                 <div class="dc-embed" id="previewEmbedCard">
                   <div id="previewEmbedColorBar" class="dc-embed-color" style="background-color: #5865F2;"></div>
                   <div class="dc-embed-inner">
-                    <div id="previewTitle" class="dc-embed-title">📢 Yönetici Duyurusu</div>
+                    <div id="previewTitle" class="dc-embed-title">📢 Sunucu Duyurusu</div>
                     <div id="previewMessage" class="dc-embed-desc">Duyuru metniniz burada görünür...</div>
                     <img id="previewImage" class="dc-embed-image" src="" alt="Preview" style="display: none;" />
                     <div class="dc-embed-footer">
                       <img id="previewFooterAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" class="dc-footer-img" alt="" />
-                      <span id="previewFooterText" class="dc-footer-text">Milky Admin Panel</span>
+                      <span id="previewFooterText" class="dc-footer-text">Milky Sunucu Duyurusu</span>
                     </div>
                   </div>
                 </div>
@@ -203,7 +203,7 @@
       <button type="button" class="modal-close-btn" onclick="closeSetupModal()" title="Kapat">✕</button>
       
       <div class="modal-header">
-        <div class="modal-badge">🔒 Yönetici Girişi & Profil Kurulumu</div>
+        <div class="modal-badge">🔒 Sunucu Yetkili Girişi & Profil Kurulumu</div>
         <h2 class="modal-title">Profilinizi Oluşturun</h2>
       </div>
 
@@ -269,7 +269,6 @@
 
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- SCRIPT PLACED AT VERY END OF BODY -->
-  <script src="script.js?v=35"></script>
+  <script src="script.js?v=40"></script>
 </body>
 </html>
