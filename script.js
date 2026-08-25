@@ -1,21 +1,6 @@
-/* =========================================
-   MILKY.DEV — DISCORD V2 & EMBED WEBHOOK ENGINE v60
-========================================= */
-
-const ComponentType = {
-  ActionRow: 1,
-  Button: 2,
-  Section: 9,
-  TextDisplay: 10,
-  Thumbnail: 11,
-  Media: 12,
-  Separator: 14,
-  Container: 17,
-};
-
-const V2Flags = {
-  IsComponentsV2: 32768,
-};
+/* ==========================================================================
+   MODERATION PANEL — ANNOUNCEMENT SYSTEM JS ENGINE v100
+   ========================================================================== */
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
 const HISTORY_STORAGE_KEY = 'milky_ann_history';
@@ -30,9 +15,11 @@ window.showToast = function(text, type = 'success') {
   }
 
   const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
+  toast.className = `toast-item ${type}`;
   toast.innerHTML = `
-    <span style="font-size: 1.2rem;">${type === 'success' ? '✅' : '❌'}</span>
+    <span class="material-symbols-outlined" style="color: ${type === 'success' ? '#10b981' : '#ef4444'}; font-size: 20px;">
+      ${type === 'success' ? 'check_circle' : 'error'}
+    </span>
     <div>${text}</div>
   `;
 
@@ -40,9 +27,9 @@ window.showToast = function(text, type = 'success') {
 
   setTimeout(() => {
     toast.style.opacity = '0';
-    toast.style.transform = 'translateX(50px)';
-    toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-    setTimeout(() => toast.remove(), 300);
+    toast.style.transform = 'translateX(30px)';
+    toast.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    setTimeout(() => toast.remove(), 200);
   }, 4000);
 };
 
@@ -79,9 +66,6 @@ window.openSetupModal = function() {
 
   if (modalOverlay) {
     modalOverlay.classList.add('active');
-    modalOverlay.style.display = 'flex';
-    modalOverlay.style.opacity = '1';
-    modalOverlay.style.pointerEvents = 'auto';
     document.body.style.overflow = 'hidden';
   }
 };
@@ -91,9 +75,6 @@ window.closeSetupModal = function() {
   const modalOverlay = document.getElementById('profileSetupModal');
   if (modalOverlay) {
     modalOverlay.classList.remove('active');
-    modalOverlay.style.display = 'none';
-    modalOverlay.style.opacity = '0';
-    modalOverlay.style.pointerEvents = 'none';
     document.body.style.overflow = '';
   }
 };
@@ -153,7 +134,7 @@ window.updateLiveDiscordPreview = function() {
   if (previewFooterText) {
     const usernameStr = profile.username || 'crystaltears0';
     const tagStr = profile.discordId ? `@${profile.discordId}` : `@${usernameStr}`;
-    previewFooterText.innerHTML = `• <span class="v2-user-badge">${tagStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
+    previewFooterText.innerHTML = `• <span class="dc-user-tag">${tagStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
   }
 };
 
@@ -238,20 +219,20 @@ window.renderHistoryList = function() {
 
   const list = window.getHistory();
   if (list.length === 0) {
-    historyListContainer.innerHTML = '<div class="history-empty">Henüz duyuru gönderilmedi.</div>';
+    historyListContainer.innerHTML = '<div class="empty-history-box">Henüz duyuru gönderilmedi.</div>';
     return;
   }
 
   historyListContainer.innerHTML = list.map((item, idx) => `
-    <div class="history-item">
-      <div class="history-meta-left">
-        <div class="history-color-badge" style="background-color: ${item.color || '#1E3A8A'};"></div>
-        <div class="history-details">
+    <div class="history-card-item">
+      <div class="history-card-left">
+        <div class="history-color-indicator" style="background-color: ${item.color || '#1E3A8A'};"></div>
+        <div class="history-card-info">
           <strong>${item.title || 'Duyuru'}</strong>
           <span>Yetkili: ${item.sender || 'Sunucu Yetkilisi'} • ${item.date}</span>
         </div>
       </div>
-      <button type="button" class="btn-sm btn-edit-profile resend-btn" data-index="${idx}">Tekrar Doldur</button>
+      <button type="button" class="btn-ghost-danger resend-btn" data-index="${idx}" style="color: var(--text-main); border-color: var(--border-color);">Tekrar Doldur</button>
     </div>
   `).join('');
 
@@ -316,7 +297,7 @@ window.handleAnnouncementSubmit = async function(event) {
   if (sendBtn) {
     sendBtn.disabled = true;
     sendBtn.style.opacity = '0.7';
-    sendBtn.innerHTML = '⏳ Discord\'a Gönderiliyor...';
+    sendBtn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> Discord\'a Gönderiliyor...';
   }
 
   const colorInt = parseInt(selectedColorHex.replace('#', ''), 16) || 0x1E3A8A;
@@ -326,11 +307,9 @@ window.handleAnnouncementSubmit = async function(event) {
     finalAvatarUrl = DEFAULT_AVATAR;
   }
 
-  // Tag Mention string for Discord (e.g. <@1380218516677857291> or @username)
   const authorTag = profile.discordId ? `<@${profile.discordId}>` : `@${profile.username}`;
   const footerMentionStr = `• ${authorTag} (${profile.username}), Sunucu Yetkilisi`;
 
-  // Standard Embed Object with V2 Layout formatting inside Embed Body
   const embedObj = {
     title: annTitle || "Sunucu Duyurusu",
     description: `${annMessage}\n\n---\n${footerMentionStr}`,
@@ -346,7 +325,6 @@ window.handleAnnouncementSubmit = async function(event) {
     embedObj.image = { url: annImageUrl };
   }
 
-  // Discord Payload (With @everyone mention ABOVE the Embed)
   const payload = {
     username: profile.username || "Sunucu Duyurusu",
     avatar_url: finalAvatarUrl,
@@ -377,8 +355,6 @@ window.handleAnnouncementSubmit = async function(event) {
       if (annImageUrlInput) annImageUrlInput.value = '';
       window.updateLiveDiscordPreview();
     } else {
-      const errTxt = await response.text();
-      console.error("Webhook Error:", errTxt);
       window.showToast(`Webhook hatası (${response.status}). URL'yi kontrol edin.`, 'error');
     }
   } catch (err) {
@@ -404,13 +380,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const setupAvatarFileInput = document.getElementById('setupAvatarFile');
   const setupAvatarUrlInput = document.getElementById('setupAvatarUrl');
   const setupAvatarPreview = document.getElementById('setupAvatarPreview');
-  const avatarPills = document.querySelectorAll('.avatar-pill');
+  const avatarPills = document.querySelectorAll('.avatar-chip');
 
   if (togglePasswordBtn && setupPasswordInput) {
     togglePasswordBtn.addEventListener('click', () => {
-      const type = setupPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      setupPasswordInput.setAttribute('type', type);
-      togglePasswordBtn.textContent = type === 'password' ? '👁️' : '🙈';
+      const isPass = setupPasswordInput.getAttribute('type') === 'password';
+      setupPasswordInput.setAttribute('type', isPass ? 'text' : 'password');
+      const eyeIcon = document.getElementById('eyeIcon');
+      if (eyeIcon) {
+        eyeIcon.textContent = isPass ? 'visibility_off' : 'visibility';
+      }
     });
   }
 
@@ -500,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     urgent: {
       title: "Acil Duyuru",
-      message: "Önemli Güvenlik / Sistem Uyarısı:\n\nLütfen tüm yetkililer ve üyeler dikkat etsin! Yetkisiz işlemler ve şüpheli erişim istekleri sistem tarafından otomatik olarak engellenmektedir.",
+      message: "Önemli Güvenlik / Sistem Uyarısı:\n\nLütfen tüm yetkililer meşgul etmesin! Şüpheli erişim istekleri sistem tarafından engellenmektedir.",
       color: "#FFFFFF",
       everyone: true
     },
@@ -512,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  document.querySelectorAll('.template-btn').forEach(btn => {
+  document.querySelectorAll('.template-card').forEach(btn => {
     btn.addEventListener('click', () => {
       const tplKey = btn.getAttribute('data-template');
       const tpl = templates[tplKey];
