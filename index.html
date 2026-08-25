@@ -3,61 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="description" content="Milky — Senior Software Engineer & Admin Discord Webhook Portal." />
-  <title>Milky.dev — Admin Command & Discord Webhook Center</title>
+  <meta name="description" content="Milky Admin & Discord Webhook Control Hub" />
+  <title>Milky.dev — Admin Control Center</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=12" />
+  <link rel="stylesheet" href="style.css?v=15" />
 </head>
 <body>
 
-  <!-- HEADER -->
+  <!-- MINIMAL ADMIN HEADER -->
   <header class="header">
     <div class="container header-inner">
-      <a href="#" class="logo">milky<span>.dev</span></a>
-      <nav class="nav">
-        <a href="#adminPanel" class="nav-admin-badge"><span class="badge-dot"></span> Duyuru Paneli</a>
-        <a href="#templatesSection">Şablonlar</a>
-        <a href="#historySection">Duyuru Geçmişi</a>
-      </nav>
+      <div class="logo">milky<span>.admin</span></div>
       
       <div class="header-actions">
         <button class="header-profile-btn" id="openProfileBtn" title="Profil Ayarlarını Düzenle">
           <img id="headerUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Profile" />
           <span id="headerUsername">Giriş Yap</span>
         </button>
-        <button class="music-toggle" id="musicBtn" title="Müzik Aç/Kapat">
-          <span id="musicText">Audio: Off</span>
-          <div class="equalizer" id="equalizer">
-            <span></span><span></span><span></span>
-          </div>
-        </button>
       </div>
     </div>
   </header>
 
-  <div id="ytplayer-container" style="position:fixed; opacity:0; pointer-events:none; left:-9999px; top:-9999px; width:20px; height:20px;"></div>
-
-  <!-- HERO BANNER -->
-  <section class="hero">
+  <!-- PURE ADMIN DASHBOARD CONTAINER -->
+  <main class="main-content">
     <div class="container">
-      <div class="hero-content reveal">
-        <div class="hero-tag">⚡ Admin & Mod Command Hub</div>
-        <h1 class="hero-title">
-          Discord Duyuru Yayınlama <br />
-          & Canlı Yönetim Paneli
-        </h1>
-        <p class="hero-subtitle">
-          Kendi profil fotoğrafınız ve adınızla Discord sunucunuza anında canlı önizlemeli V2 duyurular gönderin.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ADMIN & MOD ANNOUNCEMENT PANEL -->
-  <section class="section admin-panel" id="adminPanel">
-    <div class="container reveal">
       
       <!-- QUICK TEMPLATES BAR -->
       <div class="templates-wrapper" id="templatesSection">
@@ -97,14 +68,14 @@
       </div>
 
       <!-- MAIN DASHBOARD GRID (FORM + LIVE PREVIEW) -->
-      <div class="dashboard-grid">
+      <div class="dashboard-grid" id="adminPanel">
         
         <!-- LEFT COLUMN: ANNOUNCEMENT FORM -->
         <div class="admin-card">
           <div class="admin-header">
             <div class="admin-title-wrap">
               <span class="admin-badge"><span class="badge-pulse"></span> V2 Webhook Portal</span>
-              <h2 class="admin-title">Duyuru Oluştur</h2>
+              <h2 class="admin-title">Discord Duyuru Paneli</h2>
             </div>
             <div class="active-profile-card">
               <img id="activeUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="User Avatar" class="active-avatar" />
@@ -236,12 +207,12 @@
       </div>
 
     </div>
-  </section>
+  </main>
 
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container footer-inner">
-      <span>milky.dev admin center</span>
+      <span>milky.admin control center</span>
       <span class="copyright">© 2026. All rights reserved.</span>
     </div>
   </footer>
@@ -272,15 +243,12 @@
         <div class="form-group">
           <label>Profil Fotoğrafınızı Yükleyin veya Seçin *</label>
           
-          <!-- FILE UPLOAD DROPZONE -->
+          <!-- PROMINENT FILE UPLOAD BUTTON -->
           <div class="file-upload-box">
             <input type="file" id="setupAvatarFile" accept="image/*" class="file-input-hidden" />
-            <label for="setupAvatarFile" class="file-upload-label">
+            <label for="setupAvatarFile" class="file-upload-btn">
               <span class="upload-icon">📁</span>
-              <div class="upload-text">
-                <strong>Galeriden / Dosyadan Fotoğraf Seç</strong>
-                <span>Cihazınızdan bir resim yükleyin (.png, .jpg)</span>
-              </div>
+              <span>Cihazınızdan / Galerinizden Fotoğraf Seç</span>
             </label>
           </div>
 
@@ -323,6 +291,6 @@
   <!-- TOAST NOTIFICATIONS CONTAINER -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="script.js?v=12"></script>
+  <script src="script.js?v=15"></script>
 </body>
 </html>
