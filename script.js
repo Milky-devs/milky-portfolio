@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODERATION PANEL — DISCORD WEBHOOK ENGINE (DISCOHOOK 100% COMPATIBLE)
+   MODERATION PANEL — DISCORD WEBHOOK ENGINE (BULLETPROOF BUTTON VALIDATION)
    ========================================================================== */
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
@@ -32,6 +32,13 @@ window.showToast = function(text, type = 'success') {
     setTimeout(() => toast.remove(), 200);
   }, 4000);
 };
+
+// --- Helper: Validate URL ---
+function isValidHttpUrl(string) {
+  if (!string || typeof string !== 'string') return false;
+  const trimmed = string.trim();
+  return trimmed.startsWith('http://') || trimmed.startsWith('https://');
+}
 
 // --- Read Profile ---
 window.getProfile = function() {
@@ -123,7 +130,7 @@ window.updateLiveDiscordPreview = function() {
   const annImageUrlInput = document.getElementById('annImageUrl');
   const imageVal = annImageUrlInput ? annImageUrlInput.value.trim() : '';
   if (previewImage) {
-    if (imageVal && imageVal.startsWith('http')) {
+    if (isValidHttpUrl(imageVal)) {
       previewImage.src = imageVal;
       previewImage.style.display = 'block';
     } else {
@@ -148,20 +155,28 @@ window.updateLiveDiscordPreview = function() {
 
   const isButtons = buttonsToggle ? buttonsToggle.checked : false;
   if (buttonsConfigRow) buttonsConfigRow.style.display = isButtons ? 'block' : 'none';
-  if (previewV2Buttons) previewV2Buttons.style.display = isButtons ? 'flex' : 'none';
 
   if (isButtons) {
     const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
+    const b1Url = document.getElementById('btn1Url')?.value.trim() || '';
     const b2Label = document.getElementById('btn2Label')?.value.trim() || '';
+    const b2Url = document.getElementById('btn2Url')?.value.trim() || '';
+
+    const validB1 = b1Label && isValidHttpUrl(b1Url);
+    const validB2 = b2Label && isValidHttpUrl(b2Url);
+
+    if (previewV2Buttons) previewV2Buttons.style.display = (validB1 || validB2) ? 'flex' : 'none';
 
     if (previewBtn1) {
       previewBtn1.textContent = b1Label;
-      previewBtn1.style.display = b1Label ? 'inline-flex' : 'none';
+      previewBtn1.style.display = validB1 ? 'inline-flex' : 'none';
     }
     if (previewBtn2) {
       previewBtn2.textContent = b2Label;
-      previewBtn2.style.display = b2Label ? 'inline-flex' : 'none';
+      previewBtn2.style.display = validB2 ? 'inline-flex' : 'none';
     }
+  } else {
+    if (previewV2Buttons) previewV2Buttons.style.display = 'none';
   }
 };
 
@@ -170,7 +185,7 @@ window.applyProfileToDOM = function(profile) {
   if (!profile) return;
   const name = profile.username || 'Sunucu Yetkilisi';
   let avatar = profile.avatarUrl;
-  if (!avatar || typeof avatar !== 'string' || avatar.trim() === '' || avatar.startsWith('data:')) {
+  if (!avatar || typeof avatar !== 'string' || avatar.trim() === '' || !isValidHttpUrl(avatar)) {
     avatar = DEFAULT_AVATAR;
   }
 
@@ -209,7 +224,7 @@ window.handleProfileSubmit = function(event) {
     return false;
   }
 
-  if (!avatarUrl) {
+  if (!avatarUrl || !isValidHttpUrl(avatarUrl)) {
     avatarUrl = DEFAULT_AVATAR;
   }
 
@@ -222,7 +237,7 @@ window.handleProfileSubmit = function(event) {
   return false;
 };
 
-// --- Build Current Discohook Payload ---
+// --- Build Current Discohook Payload (Strict Validation) ---
 window.buildCurrentPayload = function() {
   const profile = window.getProfile() || { username: 'Sunucu Duyurusu', discordId: '', avatarUrl: DEFAULT_AVATAR };
   const annTitle = document.getElementById('annTitle')?.value.trim() || 'Sunucu Duyurusu';
@@ -255,29 +270,35 @@ window.buildCurrentPayload = function() {
     }
   };
 
-  if (annImageUrl && annImageUrl.startsWith('http')) {
+  if (isValidHttpUrl(annImageUrl)) {
     embedObj.image = { url: annImageUrl };
+  }
+
+  let finalAvatar = profile.avatarUrl;
+  if (!isValidHttpUrl(finalAvatar)) {
+    finalAvatar = DEFAULT_AVATAR;
   }
 
   const payload = {
     username: profile.username || "Sunucu Duyurusu",
-    avatar_url: profile.avatarUrl || DEFAULT_AVATAR,
+    avatar_url: finalAvatar,
     content: isEveryone ? "@everyone" : null,
     embeds: [embedObj]
   };
 
+  // Strictly Validate Link Buttons before adding to components
   if (isButtons) {
     const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
-    const b1Url = document.getElementById('btn1Url')?.value.trim() || 'https://milky-devs.github.io/milky-portfolio/';
-    const b2Label = document.getElementById('btn2Label')?.value.trim();
-    const b2Url = document.getElementById('btn2Url')?.value.trim();
+    const b1Url = document.getElementById('btn1Url')?.value.trim() || '';
+    const b2Label = document.getElementById('btn2Label')?.value.trim() || '';
+    const b2Url = document.getElementById('btn2Url')?.value.trim() || '';
 
     const buttonsList = [];
-    if (b1Label && b1Url) {
-      buttonsList.push({ type: 2, style: 5, label: b1Label, url: b1Url });
+    if (b1Label && isValidHttpUrl(b1Url)) {
+      buttonsList.push({ type: 2, style: 5, label: b1Label, url: b1Url.trim() });
     }
-    if (b2Label && b2Url) {
-      buttonsList.push({ type: 2, style: 5, label: b2Label, url: b2Url });
+    if (b2Label && isValidHttpUrl(b2Url)) {
+      buttonsList.push({ type: 2, style: 5, label: b2Label, url: b2Url.trim() });
     }
     if (buttonsList.length > 0) {
       payload.components = [{ type: 1, components: buttonsList }];
@@ -425,7 +446,7 @@ window.handleAnnouncementSubmit = async function(event) {
     return false;
   }
 
-  if (!webhookUrl) {
+  if (!webhookUrl || !isValidHttpUrl(webhookUrl)) {
     window.showToast('Geçerli bir Discord Webhook URL girin.', 'error');
     return false;
   }
