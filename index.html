@@ -312,22 +312,27 @@
 
                 <div id="previewContentMention" class="dc-ping-text">@everyone</div>
 
-                <div class="dc-embed-container" id="previewEmbedCard">
-                  <div id="previewEmbedColorBar" class="dc-side-bar" style="background-color: #1E3A8A;"></div>
-                  <div class="dc-embed-body">
-                    <h1 id="previewTitle" class="dc-v2-header">Sunucu Duyurusu</h1>
-                    <div class="dc-divider"></div>
-                    <div id="previewMessage" class="dc-v2-text">Duyuru metniniz burada görünür...</div>
-                    <img id="previewImage" class="dc-v2-image" src="" alt="Preview" style="display: none;" />
-                    <div class="dc-divider"></div>
-                    <div id="previewFooterText" class="dc-v2-footer">• <span class="dc-user-tag">@Admin</span> (Admin), Sunucu Yetkilisi</div>
-                  </div>
-                </div>
+                <!-- DISCORD V2 CONTAINER LIVE PREVIEW -->
+                <div class="dc-v2-container-card" id="previewEmbedCard">
+                  <div class="dc-embed-color-bar" id="previewEmbedColorBar"></div>
+                  <div class="dc-v2-container-inner">
+                    <h1 class="dc-v2-title" id="previewTitle">Acil Duyuru</h1>
+                    <div class="dc-v2-description" id="previewMessage">Duyuru metniniz burada görünür...</div>
+                    
+                    <img id="previewImage" class="dc-embed-image" src="" alt="Duyuru Görseli" style="display: none;" />
+                    
+                    <div class="dc-v2-divider"></div>
 
-                <!-- LIVE PREVIEW V2 COMPONENT BUTTONS ROW -->
-                <div id="previewV2Buttons" class="dc-buttons-preview-row">
-                  <span class="dc-button-preview" id="previewBtn1">🌐 Web Sitemiz</span>
-                  <span class="dc-button-preview" id="previewBtn2">💬 Destek Sunucusu</span>
+                    <div class="dc-v2-author-tag" id="previewFooterText">
+                      • <span class="dc-user-tag">@crystaltears0</span> (Crystal), Sunucu Yetkilisi
+                    </div>
+
+                    <!-- LIVE PREVIEW V2 COMPONENT BUTTONS ROW -->
+                    <div id="previewV2Buttons" class="dc-buttons-preview-row">
+                      <span class="dc-button-preview" id="previewBtn1">🌐 Web Sitemiz</span>
+                      <span class="dc-button-preview" id="previewBtn2">💬 Destek Sunucusu</span>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- LIVE PREVIEW V2 SELECT MENU -->
@@ -459,7 +464,7 @@
 
   <div id="toastContainer" class="toast-area"></div>
 
-  <!-- SCRIPT WITH FORCE CACHE BUSTER V12000 -->
-  <script src="script.js?v=12000"></script>
+  <!-- SCRIPT WITH FORCE CACHE BUSTER V13000 -->
+  <script src="script.js?v=13000"></script>
 </body>
 </html>

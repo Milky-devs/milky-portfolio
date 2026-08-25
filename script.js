@@ -259,7 +259,7 @@ window.buildCurrentPayload = function() {
     finalAvatar = DEFAULT_AVATAR;
   }
 
-  // --- PERFECT DISCORD V2 CONTAINER STRUCTURE (TextDisplay 10 + Container 17) ---
+  // --- PERFECT DISCORD V2 CONTAINER STRUCTURE ---
   const containerChildComponents = [
     {
       type: 10, // TextDisplay (Title + Description)
@@ -317,7 +317,7 @@ window.buildCurrentPayload = function() {
   };
 };
 
-// --- DISCORD WEBHOOK DISPATCH HANDLER WITH ?with_components=true ---
+// --- DISCORD WEBHOOK DISPATCH HANDLER ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -347,7 +347,7 @@ window.handleAnnouncementSubmit = async function(event) {
     return false;
   }
 
-  // --- MANDATORY DISCORD V2 PARAMETER ---
+  // Mandatory V2 Webhook parameter ?with_components=true
   if (!webhookUrl.includes('with_components=true')) {
     webhookUrl += webhookUrl.includes('?') ? '&with_components=true' : '?with_components=true';
   }
@@ -511,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const templates = {
     maintenance: {
       title: "Sunucu Bakımı",
-      message: "Sunucumuz sistem bakımı ve optimizasyon çalışmaları için kısa süreliğine bakıma alınmıştır. Güncelleme tamamlandığında bilgilendirme yapılacaktır.\n\nAnlayışınız için teşekkür ederiz!",
+      message: "Sunucumuz sistem bakımı meşgul çalışmalar için kısa süreliğine bakıma alınmıştır. Güncelleme tamamlandığında bilgilendirme yapılacaktır.\n\nAnlayışınız için teşekkür ederiz!",
       color: "#1E3A8A",
       everyone: true
     },

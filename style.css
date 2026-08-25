@@ -689,6 +689,58 @@ body {
   font-weight: 500;
 }
 
+.dc-v2-container-card {
+  display: flex;
+  background: #2b2d31;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  margin-top: 8px;
+}
+
+.dc-embed-color-bar {
+  width: 4px;
+  background-color: var(--accent-blue);
+  flex-shrink: 0;
+}
+
+.dc-v2-container-inner {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.dc-v2-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.dc-v2-description {
+  font-size: 14px;
+  color: #dbdee1;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.dc-v2-divider {
+  height: 1px;
+  background-color: #3f4147;
+  width: 100%;
+  margin: 2px 0;
+}
+
+.dc-v2-author-tag {
+  font-size: 13px;
+  color: #949ba4;
+}
+
 .dc-embed-container {
   background: #2b2d31;
   border-radius: 8px;
