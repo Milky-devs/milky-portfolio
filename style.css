@@ -1,5 +1,5 @@
 /* =========================================
-   MILKY.DEV — DISCORD V2 ADMIN CONTROL HUB
+   MODERATION PANEL — ANNOUNCEMENT SYSTEM
 ========================================= */
 :root {
   --bg-main: #0a0a0c;
@@ -9,7 +9,7 @@
   --border-hover: rgba(255, 255, 255, 0.25);
   --text-primary: #f0f0f5;
   --text-secondary: #9090a0;
-  --accent-blue: #5865F2;
+  --accent-blue: #2563EB;
   --accent-green: #00E676;
   --accent-red: #FF1744;
   --accent-cyan: #00B0FF;
@@ -78,6 +78,7 @@ button {
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text-primary);
+  text-transform: uppercase;
 }
 
 .logo span {
@@ -161,13 +162,14 @@ button {
 }
 
 .template-btn:hover {
-  background: rgba(88, 101, 242, 0.12);
+  background: rgba(37, 99, 235, 0.15);
   border-color: var(--accent-blue);
   transform: translateY(-2px);
 }
 
 .tpl-icon {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
+  color: #ffffff;
 }
 
 .tpl-text {
@@ -203,11 +205,12 @@ button {
   overflow: hidden;
 }
 
+/* SOLID CLEAN BLUE LINE ON TOP */
 .admin-card::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--accent-cyan));
+  background: #2563EB;
 }
 
 .admin-header {
@@ -228,7 +231,7 @@ button {
   font-size: 0.75rem;
   font-family: var(--font-mono);
   color: var(--accent-blue);
-  background: rgba(88, 101, 242, 0.1);
+  background: rgba(37, 99, 235, 0.12);
   padding: 4px 10px;
   border-radius: 12px;
   margin-bottom: 6px;
@@ -324,7 +327,7 @@ button {
 .form-input:focus {
   outline: none;
   border-color: var(--accent-blue);
-  box-shadow: 0 0 14px rgba(88, 101, 242, 0.3);
+  box-shadow: 0 0 14px rgba(37, 99, 235, 0.3);
   background: rgba(0, 0, 0, 0.7);
 }
 
@@ -400,7 +403,7 @@ button {
 .checkbox-container input:checked ~ .checkmark {
   background-color: var(--accent-blue);
   border-color: var(--accent-blue);
-  box-shadow: 0 0 10px rgba(88, 101, 242, 0.5);
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
 }
 
 .checkmark:after {
@@ -434,14 +437,14 @@ button {
 }
 
 .btn-glow {
-  background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
   color: #ffffff;
-  box-shadow: 0 4px 20px rgba(88, 101, 242, 0.4);
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
 }
 
 .btn-glow:hover {
-  background: linear-gradient(135deg, #4752C4 0%, #3b44a3 100%);
-  box-shadow: 0 6px 25px rgba(88, 101, 242, 0.6);
+  background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
+  box-shadow: 0 6px 25px rgba(37, 99, 235, 0.6);
   transform: translateY(-2px);
 }
 
@@ -579,7 +582,7 @@ button {
 .dc-embed-color {
   width: 4px;
   flex-shrink: 0;
-  background-color: #5865F2;
+  background-color: #1E3A8A;
   transition: background-color 0.2s ease;
 }
 
@@ -824,8 +827,8 @@ button {
   justify-content: center;
   gap: 10px;
   width: 100%;
-  background: rgba(88, 101, 242, 0.15);
-  border: 2px dashed rgba(88, 101, 242, 0.6);
+  background: rgba(37, 99, 235, 0.15);
+  border: 2px dashed rgba(37, 99, 235, 0.6);
   padding: 14px;
   border-radius: 12px;
   color: var(--text-primary);
@@ -836,9 +839,9 @@ button {
 }
 
 .file-upload-btn:hover {
-  background: rgba(88, 101, 242, 0.25);
+  background: rgba(37, 99, 235, 0.25);
   border-color: var(--accent-blue);
-  box-shadow: 0 0 16px rgba(88, 101, 242, 0.4);
+  box-shadow: 0 0 16px rgba(37, 99, 235, 0.4);
 }
 
 .avatar-presets {
@@ -870,7 +873,7 @@ button {
 }
 
 .avatar-pill.active, .avatar-pill:hover {
-  background: rgba(88, 101, 242, 0.15);
+  background: rgba(37, 99, 235, 0.15);
   border-color: var(--accent-blue);
   color: #ffffff;
 }

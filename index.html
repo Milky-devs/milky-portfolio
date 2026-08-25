@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Milky — Sunucu Duyuru & Discord Webhook V2 Center</title>
+  <title>Moderation Panel — Announcement System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=60" />
+  <link rel="stylesheet" href="style.css?v=70" />
 </head>
 <body>
 
   <!-- HEADER -->
   <header class="header">
     <div class="container header-inner">
-      <div class="logo">milky<span>.duyuru</span></div>
+      <div class="logo">Moderation<span> Panel</span></div>
       <div class="header-actions">
         <button type="button" class="header-profile-btn" id="openProfileBtn" onclick="openSetupModal()">
           <img id="headerUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Profile" />
@@ -30,31 +30,31 @@
 
       <!-- QUICK TEMPLATES -->
       <div class="templates-wrapper">
-        <div class="templates-label">⚡ HIZLI DUYURU ŞABLONLARI</div>
+        <div class="templates-label">❖ HIZLI DUYURU ŞABLONLARI</div>
         <div class="templates-grid">
           <button type="button" class="template-btn" data-template="maintenance">
-            <span class="tpl-icon">🛠️</span>
+            <span class="tpl-icon">⚙</span>
             <div class="tpl-text">
               <strong>Sunucu Bakımı</strong>
               <span>Bakım bildirimi</span>
             </div>
           </button>
           <button type="button" class="template-btn" data-template="update">
-            <span class="tpl-icon">🎉</span>
+            <span class="tpl-icon">✦</span>
             <div class="tpl-text">
               <strong>Yeni Güncelleme</strong>
               <span>Versiyon notları</span>
             </div>
           </button>
           <button type="button" class="template-btn" data-template="urgent">
-            <span class="tpl-icon">🚨</span>
+            <span class="tpl-icon">⚡</span>
             <div class="tpl-text">
               <strong>Acil Uyarı</strong>
               <span>Kritik duyuru</span>
             </div>
           </button>
           <button type="button" class="template-btn" data-template="rules">
-            <span class="tpl-icon">📌</span>
+            <span class="tpl-icon">◈</span>
             <div class="tpl-text">
               <strong>Kurallar & Bilgi</strong>
               <span>Genel bilgilendirme</span>
@@ -70,14 +70,14 @@
         <div class="admin-card">
           <div class="admin-header">
             <div>
-              <span class="admin-badge"><span class="badge-pulse"></span> Discord V2 Webhook</span>
+              <span class="admin-badge"><span class="badge-pulse"></span> Announcement System</span>
               <h2 class="admin-title">Sunucu Duyuru Paneli</h2>
             </div>
             <div class="active-profile-card" id="editProfileQuickBtn" onclick="openSetupModal()" style="cursor: pointer;">
               <img id="activeUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="User Avatar" class="active-avatar" />
               <div class="active-user-meta">
                 <span id="activeUsername" class="active-name">Giriş Yapılmadı</span>
-                <span class="active-role">✏️ Profili Düzenle</span>
+                <span class="active-role">◈ Profili Düzenle</span>
               </div>
             </div>
           </div>
@@ -124,7 +124,7 @@
               <label class="checkbox-container">
                 <input type="checkbox" id="everyoneToggle" checked />
                 <span class="checkmark"></span>
-                <span class="checkbox-label">📢 <strong>@everyone</strong> Etiketini Mesajın Üstüne Ekle</span>
+                <span class="checkbox-label">✦ <strong>@everyone</strong> Etiketini Mesajın Üstüne Ekle</span>
               </label>
             </div>
 
@@ -135,7 +135,7 @@
 
             <div class="form-actions">
               <button type="button" onclick="handleAnnouncementSubmit(event)" id="sendAnnBtn" class="btn btn-primary btn-glow">
-                Sunucu Duyurusunu Discord'a Gönder (V2 Webhook)
+                Sunucu Duyurusunu Discord'a Gönder
               </button>
             </div>
           </form>
@@ -144,7 +144,7 @@
         <!-- LIVE DISCORD PREVIEW -->
         <div class="preview-card-wrap">
           <div class="preview-header">
-            <span class="preview-badge">💬 Canlı Discord Önizlemesi</span>
+            <span class="preview-badge">❖ Canlı Discord Önizlemesi</span>
             <span class="preview-status">V2 Real-time</span>
           </div>
 
@@ -181,7 +181,7 @@
       <!-- ANNOUNCEMENT HISTORY LOGS -->
       <div class="history-wrapper">
         <div class="history-header">
-          <h3 class="history-title">📜 Duyuru Gönderim Geçmişi</h3>
+          <h3 class="history-title">❖ Duyuru Gönderim Geçmişi</h3>
           <button type="button" id="clearHistoryBtn" class="btn-sm btn-outline-danger">Temizle</button>
         </div>
         <div id="annHistoryList" class="history-list">
@@ -227,7 +227,7 @@
           <div class="file-upload-box">
             <input type="file" id="setupAvatarFile" accept="image/*" class="file-input-hidden" />
             <label for="setupAvatarFile" class="file-upload-btn">
-              📁 Galerinizden Fotoğraf Seç
+              <span>✦ Cihazınızdan Fotoğraf Seç</span>
             </label>
           </div>
 
@@ -269,6 +269,6 @@
 
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="script.js?v=60"></script>
+  <script src="script.js?v=70"></script>
 </body>
 </html>
