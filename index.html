@@ -7,7 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=25" />
+  <link rel="stylesheet" href="style.css?v=30" />
+  <script src="script.js?v=30"></script>
 </head>
 <body>
 
@@ -82,7 +83,7 @@
             </div>
           </div>
 
-          <form id="announcementForm" class="announcement-form">
+          <form id="announcementForm" class="announcement-form" onsubmit="handleAnnouncementSubmit(event); return false;">
             <div class="form-group">
               <label for="annTitle">Duyuru Başlığı</label>
               <input type="text" id="annTitle" placeholder="Örn: 🚀 Versiyon 2.0 Güncellemesi Yayınlandı!" class="form-input" />
@@ -269,6 +270,5 @@
 
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="script.js?v=25"></script>
 </body>
 </html>
