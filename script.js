@@ -1,11 +1,11 @@
 /* =========================================
-   MILKY.DEV - SENIOR ARCHITECT (MINIMALIST)
+   MILKY.DEV — ADMIN COMMAND & DISCORD HUB v2
 ========================================= */
 
-// --- Scroll Reveal Animation ---
 document.addEventListener('DOMContentLoaded', () => {
+
+  // --- Scroll Reveal Animation ---
   const revealElements = document.querySelectorAll('.reveal');
-  
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -13,281 +13,74 @@ document.addEventListener('DOMContentLoaded', () => {
         revealObserver.unobserve(entry.target);
       }
     });
-  }, {
-    threshold: 0.1,
-    rootMargin: "0px 0px -50px 0px"
-  });
+  }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
 
   revealElements.forEach(el => revealObserver.observe(el));
-});
 
-// --- YouTube Background Music ---
-let player;
-let isPlaying = false;
-let isReady = false;
+  // --- YouTube Background Music ---
+  let player;
+  let isPlaying = false;
+  let isReady = false;
 
-// Dynamically load YT API
-const tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-const firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+  const tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  const firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-window.onYouTubeIframeAPIReady = function() {
-  player = new YT.Player('ytplayer-container', {
-    height: '20', width: '20', videoId: 'QzVWsHJdmb4',
-    playerVars: { 
-      'autoplay': 1, 
-      'controls': 0, 
-      'showinfo': 0, 
-      'rel': 0, 
-      'loop': 1, 
-      'playlist': 'QzVWsHJdmb4',
-      'origin': window.location.origin 
-    },
-    events: {
-      'onReady': (event) => { 
-        isReady = true;
-        // Try to play immediately (browser might block)
-        event.target.playVideo();
+  window.onYouTubeIframeAPIReady = function() {
+    player = new YT.Player('ytplayer-container', {
+      height: '20', width: '20', videoId: 'QzVWsHJdmb4',
+      playerVars: { 
+        'autoplay': 1, 'controls': 0, 'showinfo': 0, 'rel': 0, 
+        'loop': 1, 'playlist': 'QzVWsHJdmb4', 'origin': window.location.origin 
       },
-      'onStateChange': (event) => {
-        // 1 = PLAYING
-        if (event.data === 1) {
-          isPlaying = true;
-          const musicBtn = document.getElementById('musicBtn');
-          const musicText = document.getElementById('musicText');
-          if (musicBtn) musicBtn.classList.add('playing');
-          if (musicText) musicText.textContent = "Audio: On";
+      events: {
+        'onReady': (event) => { isReady = true; event.target.playVideo(); },
+        'onStateChange': (event) => {
+          if (event.data === 1) {
+            isPlaying = true;
+            const musicBtn = document.getElementById('musicBtn');
+            const musicText = document.getElementById('musicText');
+            if (musicBtn) musicBtn.classList.add('playing');
+            if (musicText) musicText.textContent = "Audio: On";
+          }
         }
-      },
-      'onError': (e) => console.error("YT Error:", e.data)
-    }
-  });
-};
+      }
+    });
+  };
 
-document.addEventListener('DOMContentLoaded', () => {
   const musicBtn = document.getElementById('musicBtn');
   const musicText = document.getElementById('musicText');
-
   if (musicBtn) {
     musicBtn.addEventListener('click', () => {
       if (!isReady || !player) return;
-
       if (isPlaying) {
         player.pauseVideo();
         isPlaying = false;
-        musicText.textContent = "Audio: Off";
+        if (musicText) musicText.textContent = "Audio: Off";
         musicBtn.classList.remove('playing');
       } else {
         player.playVideo();
         isPlaying = true;
-        musicText.textContent = "Audio: On";
+        if (musicText) musicText.textContent = "Audio: On";
         musicBtn.classList.add('playing');
       }
     });
   }
 
-  // --- Header Scroll Effect ---
+  // --- Header Scroll Glass Effect ---
   const header = document.querySelector('.header');
   window.addEventListener('scroll', () => {
     if (window.scrollY > 50) {
-      header.style.background = 'rgba(10, 10, 10, 0.95)';
-      header.style.borderBottom = '1px solid rgba(255, 255, 255, 0.1)';
+      header.style.background = 'rgba(10, 10, 12, 0.95)';
     } else {
-      header.style.background = 'rgba(10, 10, 10, 0.8)';
-      header.style.borderBottom = '1px solid var(--border)';
+      header.style.background = 'rgba(10, 10, 12, 0.85)';
     }
   });
 
-  // --- Discord Lanyard API Integration ---
-  const DISCORD_USER_ID = "1380218516677857291";
-  let spotifyInterval = null;
-
-  function initDiscordPresence(userId) {
-    const ws = new WebSocket("wss://api.lanyard.rest/socket");
-    let heartbeatInterval = null;
-
-    ws.onopen = () => {
-      // Socket opened
-    };
-
-    ws.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      if (msg.op === 1) {
-        heartbeatInterval = setInterval(() => {
-          ws.send(JSON.stringify({ op: 3 }));
-        }, msg.d.heartbeat_interval);
-
-        ws.send(JSON.stringify({ op: 2, d: { subscribe_to_id: userId } }));
-      }
-      if (msg.t === "INIT_STATE" || msg.t === "PRESENCE_UPDATE") {
-        updatePresenceDOM(msg.d);
-      }
-    };
-
-    ws.onclose = () => {
-      if (heartbeatInterval) clearInterval(heartbeatInterval);
-      setTimeout(() => initDiscordPresence(userId), 5000); // Reconnect
-    };
-  }
-
-  function updatePresenceDOM(data) {
-    if (!data) return;
-
-    if (spotifyInterval) {
-      clearInterval(spotifyInterval);
-      spotifyInterval = null;
-    }
-
-    const user = data.discord_user;
-    const status = data.discord_status;
-    const spotify = data.spotify;
-    const activities = data.activities || [];
-
-    // Profile updates
-    const avatarImg = document.getElementById("discordAvatar");
-    if (avatarImg) {
-      avatarImg.src = user.avatar ? 
-        `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256` : 
-        `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id.slice(-4)) % 6}.png`;
-    }
-
-    const dispNameEl = document.getElementById("discordDisplayName");
-    if (dispNameEl) dispNameEl.textContent = user.global_name || user.username || "Milky";
-
-    const usernameEl = document.getElementById("discordUsername");
-    if (usernameEl) usernameEl.textContent = `@${user.username}`;
-
-    const statusDot = document.getElementById("discordStatusDot");
-    if (statusDot) {
-      statusDot.className = `pc-status-dot ${status}`;
-    }
-
-    // Custom Status
-    const customStatusEl = document.getElementById("discordCustomStatus");
-    const customStatus = activities.find(act => act.type === 4);
-    if (customStatusEl) {
-      if (customStatus && (customStatus.state || customStatus.emoji)) {
-        customStatusEl.style.display = "flex";
-        const emojiEl = customStatusEl.querySelector(".status-emoji");
-        const textEl = customStatusEl.querySelector(".status-text");
-
-        if (emojiEl) {
-          if (customStatus.emoji && customStatus.emoji.id) {
-            emojiEl.innerHTML = `<img src="https://cdn.discordapp.com/emojis/${customStatus.emoji.id}.${customStatus.emoji.animated ? 'gif' : 'png'}?size=44" style="width: 20px; height: 20px; vertical-align: middle;" />`;
-          } else if (customStatus.emoji && customStatus.emoji.name) {
-            emojiEl.textContent = customStatus.emoji.name;
-          } else {
-            emojiEl.textContent = "";
-          }
-        }
-        if (textEl) textEl.textContent = customStatus.state || "";
-      } else {
-        customStatusEl.style.display = "none";
-      }
-    }
-
-    // Spotify
-    const spotifyEl = document.getElementById("discordSpotify");
-    if (spotifyEl) {
-      if (data.listening_to_spotify && spotify) {
-        spotifyEl.style.display = "flex";
-        const artEl = document.getElementById("spotifyAlbumArt");
-        const trackEl = document.getElementById("spotifyTrack");
-        const artistEl = document.getElementById("spotifyArtist");
-        const progressEl = document.getElementById("spotifyProgress");
-
-        if (artEl) artEl.src = spotify.album_art_url || "";
-        if (trackEl) trackEl.textContent = spotify.song || "Unknown Track";
-        if (artistEl) artistEl.textContent = spotify.artist || "Unknown Artist";
-
-        if (progressEl && spotify.timestamps) {
-          const start = spotify.timestamps.start;
-          const end = spotify.timestamps.end;
-          const duration = end - start;
-
-          const updateProgress = () => {
-            const now = Date.now();
-            const elapsed = Math.max(0, Math.min(duration, now - start));
-            const percent = (elapsed / duration) * 100;
-            progressEl.style.width = `${percent}%`;
-          };
-
-          updateProgress();
-          spotifyInterval = setInterval(updateProgress, 1000);
-        }
-      } else {
-        spotifyEl.style.display = "none";
-      }
-    }
-
-    // Game Activity
-    const activityEl = document.getElementById("discordActivity");
-    const gameActivity = activities.find(act => act.type !== 4 && act.name !== "Spotify");
-
-    if (activityEl) {
-      if (gameActivity) {
-        activityEl.style.display = "flex";
-        const actName = document.getElementById("activityName");
-        const actDetails = document.getElementById("activityDetails");
-        const actState = document.getElementById("activityState");
-        const actImage = document.getElementById("activityImage");
-        const actSmallImage = document.getElementById("activitySmallImage");
-
-        if (actName) actName.textContent = gameActivity.name || "Game";
-        if (actDetails) actDetails.textContent = gameActivity.details || "";
-        if (actState) actState.textContent = gameActivity.state || "";
-
-        // Use large image if available, else try to use the application icon, else fallback
-        let imageUrl = "https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png";
-        
-        if (gameActivity.assets && gameActivity.assets.large_image) {
-          const assetId = gameActivity.assets.large_image;
-          imageUrl = assetId.startsWith("mp:external/") ? `https://media.discordapp.net/${assetId.replace("mp:external/", "")}` : `https://cdn.discordapp.com/app-assets/${gameActivity.application_id}/${assetId}.png`;
-        } else if (gameActivity.application_id) {
-          // If no large image but we have an app ID, use the app's icon
-          imageUrl = `https://dcdn.dstn.to/app-icons/${gameActivity.application_id}`;
-        }
-        
-        actImage.style.display = "block";
-        actImage.src = imageUrl;
-
-        if (gameActivity.assets && gameActivity.assets.small_image) {
-          actSmallImage.style.display = "block";
-          const smallAssetId = gameActivity.assets.small_image;
-          actSmallImage.src = smallAssetId.startsWith("mp:external/") ? `https://media.discordapp.net/${smallAssetId.replace("mp:external/", "")}` : `https://cdn.discordapp.com/app-assets/${gameActivity.application_id}/${smallAssetId}.png`;
-        } else {
-          actSmallImage.style.display = "none";
-        }
-      } else {
-        activityEl.style.display = "none";
-      }
-    }
-  }
-
-  initDiscordPresence(DISCORD_USER_ID);
-
   // =========================================
-  // ADMIN & MOD PROFILE ONBOARDING SYSTEM
+  // UTILITY: TOAST NOTIFICATIONS
   // =========================================
-  const STORAGE_KEY = 'milky_admin_profile';
-
-  const modalOverlay = document.getElementById('profileSetupModal');
-  const profileForm = document.getElementById('profileForm');
-  const setupUsernameInput = document.getElementById('setupUsername');
-  const setupPasswordInput = document.getElementById('setupPassword');
-  const setupAvatarUrlInput = document.getElementById('setupAvatarUrl');
-  const avatarPills = document.querySelectorAll('.avatar-pill');
-
-  const headerUserAvatar = document.getElementById('headerUserAvatar');
-  const headerUsername = document.getElementById('headerUsername');
-  const activeUserAvatar = document.getElementById('activeUserAvatar');
-  const activeUsername = document.getElementById('activeUsername');
-
-  const openProfileBtn = document.getElementById('openProfileBtn');
-  const editProfileQuickBtn = document.getElementById('editProfileQuickBtn');
-
-  // Utility Toast Notifications
   function showToast(text, type = 'success') {
     const toastContainer = document.getElementById('toastContainer');
     if (!toastContainer) return;
@@ -309,31 +102,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 4000);
   }
 
-  // Get Saved Profile
-  function getProfile() {
-    try {
-      const data = localStorage.getItem(STORAGE_KEY);
-      return data ? JSON.parse(data) : null;
-    } catch (e) {
-      console.error("Storage error:", e);
-      return null;
-    }
+  // =========================================
+  // PROFILE & ONBOARDING SYSTEM
+  // =========================================
+  const PROFILE_STORAGE_KEY = 'milky_admin_profile';
+  const HISTORY_STORAGE_KEY = 'milky_ann_history';
+
+  const modalOverlay = document.getElementById('profileSetupModal');
+  const profileForm = document.getElementById('profileForm');
+  const setupUsernameInput = document.getElementById('setupUsername');
+  const setupPasswordInput = document.getElementById('setupPassword');
+  const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+  
+  const setupAvatarFileInput = document.getElementById('setupAvatarFile');
+  const setupAvatarUrlInput = document.getElementById('setupAvatarUrl');
+  const setupAvatarPreview = document.getElementById('setupAvatarPreview');
+  const avatarPills = document.querySelectorAll('.avatar-pill');
+
+  const headerUserAvatar = document.getElementById('headerUserAvatar');
+  const headerUsername = document.getElementById('headerUsername');
+  const activeUserAvatar = document.getElementById('activeUserAvatar');
+  const activeUsername = document.getElementById('activeUsername');
+
+  const openProfileBtn = document.getElementById('openProfileBtn');
+  const editProfileQuickBtn = document.getElementById('editProfileQuickBtn');
+
+  // Eye Icon Password Toggle
+  if (togglePasswordBtn && setupPasswordInput) {
+    togglePasswordBtn.addEventListener('click', () => {
+      const type = setupPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      setupPasswordInput.setAttribute('type', type);
+      togglePasswordBtn.textContent = type === 'password' ? '👁️' : '🙈';
+    });
   }
 
-  // Update UI Elements with Profile Info
-  function applyProfileToDOM(profile) {
-    if (!profile) return;
-
-    const name = profile.username || 'Admin';
-    const avatar = profile.avatarUrl || 'https://cdn.discordapp.net/embed/avatars/0.png';
-
-    if (headerUserAvatar) headerUserAvatar.src = avatar;
-    if (headerUsername) headerUsername.textContent = name;
-    if (activeUserAvatar) activeUserAvatar.src = avatar;
-    if (activeUsername) activeUsername.textContent = name;
+  // Local File Upload Reader for Avatar
+  if (setupAvatarFileInput) {
+    setupAvatarFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        if (!file.type.startsWith('image/')) {
+          showToast('Lütfen geçerli bir resim dosyası seçin.', 'error');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const dataUrl = evt.target.result;
+          if (setupAvatarUrlInput) setupAvatarUrlInput.value = dataUrl;
+          if (setupAvatarPreview) setupAvatarPreview.src = dataUrl;
+          avatarPills.forEach(p => p.classList.remove('active'));
+          showToast('Fotoğraf galeriden başarıyla seçildi!', 'success');
+          updateLiveDiscordPreview();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
   }
 
-  // Avatar Pill Quick Selector
+  // Avatar Preset Pills Selection
   avatarPills.forEach(pill => {
     pill.addEventListener('click', () => {
       avatarPills.forEach(p => p.classList.remove('active'));
@@ -341,26 +167,63 @@ document.addEventListener('DOMContentLoaded', () => {
       const url = pill.getAttribute('data-url');
       if (setupAvatarUrlInput && url) {
         setupAvatarUrlInput.value = url;
+        if (setupAvatarPreview) setupAvatarPreview.src = url;
+        updateLiveDiscordPreview();
       }
     });
   });
 
-  // Open Modal Helper
+  // Avatar URL Input typing listener
+  if (setupAvatarUrlInput) {
+    setupAvatarUrlInput.addEventListener('input', () => {
+      const url = setupAvatarUrlInput.value.trim();
+      if (url && setupAvatarPreview) {
+        setupAvatarPreview.src = url;
+        updateLiveDiscordPreview();
+      }
+    });
+  }
+
+  // Read Profile
+  function getProfile() {
+    try {
+      const data = localStorage.getItem(PROFILE_STORAGE_KEY);
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  // Apply Profile to DOM Elements
+  function applyProfileToDOM(profile) {
+    if (!profile) return;
+    const name = profile.username || 'Admin';
+    const avatar = profile.avatarUrl || 'https://cdn.discordapp.net/embed/avatars/0.png';
+
+    if (headerUserAvatar) headerUserAvatar.src = avatar;
+    if (headerUsername) headerUsername.textContent = name;
+    if (activeUserAvatar) activeUserAvatar.src = avatar;
+    if (activeUsername) activeUsername.textContent = name;
+
+    updateLiveDiscordPreview();
+  }
+
+  // Open/Close Modal
   function openSetupModal() {
     const currentProfile = getProfile();
     if (currentProfile) {
       if (setupUsernameInput) setupUsernameInput.value = currentProfile.username || '';
       if (setupPasswordInput) setupPasswordInput.value = currentProfile.password || '';
       if (setupAvatarUrlInput) setupAvatarUrlInput.value = currentProfile.avatarUrl || '';
+      if (setupAvatarPreview) setupAvatarPreview.src = currentProfile.avatarUrl || 'https://cdn.discordapp.net/embed/avatars/0.png';
     }
-
     if (modalOverlay) {
       modalOverlay.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
   }
 
-  // Close Modal Helper
   function closeSetupModal() {
     if (modalOverlay) {
       modalOverlay.classList.remove('active');
@@ -368,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Mandatory Initial Onboarding Check
+  // Initial Onboarding Check
   const savedProfile = getProfile();
   if (!savedProfile) {
     openSetupModal();
@@ -376,30 +239,28 @@ document.addEventListener('DOMContentLoaded', () => {
     applyProfileToDOM(savedProfile);
   }
 
-  // Manual Edit Profile Triggers
   if (openProfileBtn) openProfileBtn.addEventListener('click', openSetupModal);
   if (editProfileQuickBtn) editProfileQuickBtn.addEventListener('click', openSetupModal);
 
-  // Handle Profile Form Submission (Save Profile)
+  // Save Profile Form
   if (profileForm) {
     profileForm.addEventListener('submit', (e) => {
       e.preventDefault();
-
       const username = setupUsernameInput.value.trim();
       const password = setupPasswordInput.value.trim();
       let avatarUrl = setupAvatarUrlInput.value.trim();
+
+      if (!username || !password) {
+        showToast('Lütfen kullanıcı adı ve şifrenizi doldurun.', 'error');
+        return;
+      }
 
       if (!avatarUrl) {
         avatarUrl = 'https://cdn.discordapp.net/embed/avatars/0.png';
       }
 
-      if (!username || !password) {
-        showToast('Lütfen kullanıcı adı ve şifrenizi girin.', 'error');
-        return;
-      }
-
       const profileData = { username, password, avatarUrl };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(profileData));
+      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
 
       applyProfileToDOM(profileData);
       closeSetupModal();
@@ -408,7 +269,205 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =========================================
-  // DISCORD ANNOUNCEMENT WEBHOOK SYSTEM (V2)
+  // CANLI DISCORD MESAJ ÖNİZLEMESİ (LIVE PREVIEW ENGINE)
+  // =========================================
+  const annTitleInput = document.getElementById('annTitle');
+  const annMessageInput = document.getElementById('annMessage');
+  const annImageUrlInput = document.getElementById('annImageUrl');
+  const everyoneToggleInput = document.getElementById('everyoneToggle');
+
+  const previewAvatar = document.getElementById('previewAvatar');
+  const previewUsername = document.getElementById('previewUsername');
+  const previewTime = document.getElementById('previewTime');
+  const previewContentMention = document.getElementById('previewContentMention');
+  const previewEmbedColorBar = document.getElementById('previewEmbedColorBar');
+  const previewTitle = document.getElementById('previewTitle');
+  const previewMessage = document.getElementById('previewMessage');
+  const previewImage = document.getElementById('previewImage');
+  const previewFooterAvatar = document.getElementById('previewFooterAvatar');
+  const previewFooterText = document.getElementById('previewFooterText');
+
+  function updateLiveDiscordPreview() {
+    const profile = getProfile() || { username: 'Milky Admin', avatarUrl: 'https://cdn.discordapp.net/embed/avatars/0.png' };
+    
+    // Avatar & Username
+    if (previewAvatar) previewAvatar.src = profile.avatarUrl;
+    if (previewUsername) previewUsername.textContent = profile.username || 'Milky Admin';
+    if (previewFooterAvatar) previewFooterAvatar.src = profile.avatarUrl;
+    if (previewFooterText) previewFooterText.textContent = `Milky Admin Panel • Yetkili: ${profile.username || 'Admin'}`;
+
+    // Timestamp
+    const now = new Date();
+    const timeStr = `Bugün ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    if (previewTime) previewTime.textContent = timeStr;
+
+    // Mention
+    if (previewContentMention && everyoneToggleInput) {
+      previewContentMention.style.display = everyoneToggleInput.checked ? 'inline-block' : 'none';
+    }
+
+    // Embed Color
+    const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#5865F2';
+    if (previewEmbedColorBar) previewEmbedColorBar.style.backgroundColor = selectedColorHex;
+
+    // Title
+    const titleVal = annTitleInput ? annTitleInput.value.trim() : '';
+    if (previewTitle) previewTitle.textContent = titleVal || '📢 Yönetici Duyurusu';
+
+    // Message Text
+    const messageVal = annMessageInput ? annMessageInput.value.trim() : '';
+    if (previewMessage) {
+      previewMessage.textContent = messageVal || 'Duyuru metni buraya yazıldıkça canlı olarak bu alanda görünecektir...';
+    }
+
+    // Optional Banner Image
+    const imageVal = annImageUrlInput ? annImageUrlInput.value.trim() : '';
+    if (previewImage) {
+      if (imageVal) {
+        previewImage.src = imageVal;
+        previewImage.style.display = 'block';
+      } else {
+        previewImage.style.display = 'none';
+      }
+    }
+  }
+
+  // Attach Input Listeners for Real-time Update
+  [annTitleInput, annMessageInput, annImageUrlInput, everyoneToggleInput, setupUsernameInput].forEach(input => {
+    if (input) {
+      input.addEventListener('input', updateLiveDiscordPreview);
+      input.addEventListener('change', updateLiveDiscordPreview);
+    }
+  });
+
+  document.querySelectorAll('input[name="embedColor"]').forEach(radio => {
+    radio.addEventListener('change', updateLiveDiscordPreview);
+  });
+
+  // Initial Preview Draw
+  updateLiveDiscordPreview();
+
+  // =========================================
+  // QUICK ANNOUNCEMENT TEMPLATES
+  // =========================================
+  const templates = {
+    maintenance: {
+      title: "🛠️ Sunucu Bakımı & Güncelleme",
+      message: "Sunucumuz sistem optimizasyonları ve yeni güncellemeler için kısa süreli bakım moduna alınmıştır. Güncelleme tamamlandığında tekrar bilgilendirme yapılacaktır.\n\nAnlayışınız için teşekkür ederiz!",
+      color: "#FFEA00",
+      everyone: true
+    },
+    update: {
+      title: "🎉 Yeni Güncelleme Notları v2.0",
+      message: "Sistemlerimizde büyük yenilikler yayınlandı!\n\n✨ Öne Çıkan Yenilikler:\n- Geliştirilmiş Canlı Yönetim Paneli\n- Yüksek Hızlı Sunucu Performansı & Güvenlik\n- Yeni Arayüz Temaları ve Hata Düzeltmeleri\n\nKeyifli kullanımlar dileriz!",
+      color: "#00E676",
+      everyone: true
+    },
+    urgent: {
+      title: "🚨 KANALSAL ACİL DUYURU",
+      message: "Önemli Güvenlik / Sistem Uyarısı:\n\nLütfen tüm yetkililer ve üyeler dikkat etsin! Yetkisiz işlemler ve şüpheli erişim istekleri sistem tarafından otomatik olarak engellenmektedir. Güvenliğiniz için şifrelerinizi kimseyle paylaşmayın.",
+      color: "#FF1744",
+      everyone: true
+    },
+    rules: {
+      title: "📌 Sunucu Kuralları & Genel Bilgilendirme",
+      message: "Sunucumuz içerisinde huzurlu ve kaliteli bir ortam sağlamak için kurallara uymak zorunludur.\n\n- Saygılı ve seviyeli iletişim kurun.\n- Reklam ve spam kesinlikle yasaktır.\n- Yetkili ekibimizin uyarılarına riayet ediniz.",
+      color: "#00B0FF",
+      everyone: false
+    }
+  };
+
+  document.querySelectorAll('.template-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tplKey = btn.getAttribute('data-template');
+      const tpl = templates[tplKey];
+      if (!tpl) return;
+
+      if (annTitleInput) annTitleInput.value = tpl.title;
+      if (annMessageInput) annMessageInput.value = tpl.message;
+      if (everyoneToggleInput) everyoneToggleInput.checked = tpl.everyone;
+
+      const targetRadio = document.querySelector(`input[name="embedColor"][value="${tpl.color}"]`);
+      if (targetRadio) targetRadio.checked = true;
+
+      updateLiveDiscordPreview();
+      showToast(`"${tpl.title}" şablonu başarıyla dolduruldu!`, 'success');
+    });
+  });
+
+  // =========================================
+  // ANNOUNCEMENT LOG HISTORY
+  // =========================================
+  function getHistory() {
+    try {
+      const data = localStorage.getItem(HISTORY_STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveHistory(item) {
+    const list = getHistory();
+    list.unshift(item);
+    if (list.length > 20) list.pop(); // keep last 20
+    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list));
+    renderHistoryList();
+  }
+
+  function renderHistoryList() {
+    const historyListContainer = document.getElementById('annHistoryList');
+    if (!historyListContainer) return;
+
+    const list = getHistory();
+    if (list.length === 0) {
+      historyListContainer.innerHTML = '<div class="history-empty">Henüz kaydedilmiş bir duyuru geçmişi bulunmuyor.</div>';
+      return;
+    }
+
+    historyListContainer.innerHTML = list.map((item, idx) => `
+      <div class="history-item">
+        <div class="history-meta-left">
+          <div class="history-color-badge" style="background-color: ${item.color || '#5865F2'};"></div>
+          <div class="history-details">
+            <strong>${item.title || 'Duyuru'}</strong>
+            <span>Yetkili: ${item.sender || 'Admin'} • ${item.date}</span>
+          </div>
+        </div>
+        <button type="button" class="btn-sm btn-edit-profile resend-btn" data-index="${idx}">Tekrar Doldur</button>
+      </div>
+    `).join('');
+
+    // Re-send click handlers
+    document.querySelectorAll('.resend-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-index'));
+        const item = list[idx];
+        if (item) {
+          if (annTitleInput) annTitleInput.value = item.title || '';
+          if (annMessageInput) annMessageInput.value = item.message || '';
+          const targetRadio = document.querySelector(`input[name="embedColor"][value="${item.color}"]`);
+          if (targetRadio) targetRadio.checked = true;
+          updateLiveDiscordPreview();
+          showToast('Geçmiş duyuru formu tekrar dolduruldu!', 'success');
+        }
+      });
+    });
+  }
+
+  const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+  if (clearHistoryBtn) {
+    clearHistoryBtn.addEventListener('click', () => {
+      localStorage.removeItem(HISTORY_STORAGE_KEY);
+      renderHistoryList();
+      showToast('Duyuru geçmişi temizlendi.', 'success');
+    });
+  }
+
+  renderHistoryList();
+
+  // =========================================
+  // V2 DISCORD ANNOUNCEMENT WEBHOOK DISPATCHER
   // =========================================
   const announcementForm = document.getElementById('announcementForm');
 
@@ -418,14 +477,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const profile = getProfile();
       if (!profile) {
-        showToast('Duyuru atmadan önce profil oluşturmanız gerekmektedir.', 'error');
+        showToast('Duyuru göndermeden önce profil oluşturmanız gerekmektedir.', 'error');
         openSetupModal();
         return;
       }
 
-      const annTitle = document.getElementById('annTitle').value.trim();
-      const annMessage = document.getElementById('annMessage').value.trim();
-      const isEveryone = document.getElementById('everyoneToggle').checked;
+      const annTitle = annTitleInput.value.trim();
+      const annMessage = annMessageInput.value.trim();
+      const annImageUrl = annImageUrlInput ? annImageUrlInput.value.trim() : '';
+      const isEveryone = everyoneToggleInput.checked;
       const webhookUrl = document.getElementById('webhookUrlInput').value.trim();
       const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#5865F2';
 
@@ -448,26 +508,30 @@ document.addEventListener('DOMContentLoaded', () => {
         sendBtn.innerHTML = '⏳ Discord\'a Gönderiliyor...';
       }
 
-      // Convert Hex Color to Decimal Integer for Discord API Embed
       const colorInt = parseInt(selectedColorHex.replace('#', ''), 16);
 
-      // Build V2 Payload with User's custom Profile Name & Avatar
+      // Embed Object Construction
+      const embedObj = {
+        title: annTitle || "📢 Yönetici Duyurusu",
+        description: annMessage,
+        color: colorInt,
+        timestamp: new Date().toISOString(),
+        footer: {
+          text: `Milky Admin Panel • Yetkili: ${profile.username}`,
+          icon_url: profile.avatarUrl.startsWith('data:') ? undefined : profile.avatarUrl
+        }
+      };
+
+      if (annImageUrl) {
+        embedObj.image = { url: annImageUrl };
+      }
+
+      // V2 Webhook Payload
       const payload = {
         username: profile.username || "Milky Admin",
-        avatar_url: profile.avatarUrl || "https://cdn.discordapp.net/embed/avatars/0.png",
+        avatar_url: profile.avatarUrl.startsWith('data:') ? undefined : profile.avatarUrl,
         content: isEveryone ? "@everyone" : null,
-        embeds: [
-          {
-            title: annTitle || "📢 Yönetici Duyurusu",
-            description: annMessage,
-            color: colorInt,
-            timestamp: new Date().toISOString(),
-            footer: {
-              text: `Milky Admin Panel • Yetkili: ${profile.username}`,
-              icon_url: profile.avatarUrl
-            }
-          }
-        ]
+        embeds: [embedObj]
       };
 
       try {
@@ -479,16 +543,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (response.ok || response.status === 204) {
           showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
-          document.getElementById('annMessage').value = '';
-          document.getElementById('annTitle').value = '';
+          
+          // Save to Log History
+          saveHistory({
+            title: annTitle || 'Yönetici Duyurusu',
+            message: annMessage,
+            color: selectedColorHex,
+            sender: profile.username,
+            date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          });
+
+          annMessageInput.value = '';
+          annTitleInput.value = '';
+          if (annImageUrlInput) annImageUrlInput.value = '';
+          updateLiveDiscordPreview();
         } else {
-          const errData = await response.text();
-          console.error("Webhook Response Error:", errData);
-          showToast('Webhook gönderimi başarısız oldu. Webhook URL\'yi kontrol edin.', 'error');
+          const errText = await response.text();
+          console.error("Webhook Error Response:", errText);
+          showToast('Webhook gönderimi başarısız. Lütfen URL\'yi kontrol edin.', 'error');
         }
       } catch (err) {
-        console.error("Webhook Fetch Error:", err);
-        showToast('Baglantı hatası: Duyuru iletilemedi.', 'error');
+        console.error("Webhook Dispatch Error:", err);
+        showToast('Bağlantı hatası: Duyuru iletilemedi.', 'error');
       } finally {
         if (sendBtn) {
           sendBtn.disabled = false;
@@ -498,5 +574,5 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
 
+});
