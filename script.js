@@ -1,10 +1,11 @@
 /* ==========================================================================
-   MODERATION PANEL — DISCORD WEBHOOK ENGINE WITH SMART V2 FALLBACK
+   MODERATION PANEL — DISCORD WEBHOOK & JAVA BOT API DISPATCH ENGINE
    ========================================================================== */
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
 const HISTORY_STORAGE_KEY = 'milky_ann_history';
 const DEFAULT_AVATAR = 'https://cdn.discordapp.net/embed/avatars/0.png';
+const JAVA_BOT_API_URL = 'http://localhost:8080/api/announce';
 
 // --- Toast Notification Helper ---
 window.showToast = function(text, type = 'success') {
@@ -146,7 +147,7 @@ window.updateLiveDiscordPreview = function() {
     previewFooterText.innerHTML = `• <span class="dc-user-tag">${tagStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
   }
 
-  // V2 Component Buttons Live Preview Update
+  // --- V2 Component Buttons Live Preview Update ---
   const buttonsToggle = document.getElementById('buttonsToggle');
   const buttonsConfigRow = document.getElementById('buttonsConfigRow');
   const previewV2Buttons = document.getElementById('previewV2Buttons');
@@ -179,7 +180,7 @@ window.updateLiveDiscordPreview = function() {
     if (previewV2Buttons) previewV2Buttons.style.display = 'none';
   }
 
-  // V2 Select Menu Live Preview Update
+  // --- V2 Select Menu Live Preview Update ---
   const selectMenuToggle = document.getElementById('selectMenuToggle');
   const selectMenuConfigRow = document.getElementById('selectMenuConfigRow');
   const previewSelectMenu = document.getElementById('previewSelectMenu');
@@ -252,7 +253,7 @@ window.handleProfileSubmit = function(event) {
   return false;
 };
 
-// --- Build Standard Embed Payload ---
+// --- Build Standard Payload ---
 window.buildStandardPayload = function() {
   const profile = window.getProfile() || { username: 'Sunucu Duyurusu', discordId: '', avatarUrl: DEFAULT_AVATAR };
   const annTitle = document.getElementById('annTitle')?.value.trim() || 'Sunucu Duyurusu';
@@ -556,7 +557,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- DISCORD WEBHOOK DISPATCH HANDLER WITH SMART FALLBACK ---
+// --- DISCORD WEBHOOK DISPATCH HANDLER (WITH JAVA BOT SERVICE INTEGRATION) ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -595,30 +596,54 @@ window.handleAnnouncementSubmit = async function(event) {
     sendBtn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> Discord\'a Gönderiliyor...';
   }
 
-  const primaryPayload = window.buildCurrentPayload();
+  const payload = window.buildCurrentPayload();
 
   try {
-    // 1st Attempt: Primary payload
-    let response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(primaryPayload)
-    });
-
-    // 2nd Attempt: Smart Fallback if V2 flags (32768) is rejected by Webhook URL
-    if (!response.ok && response.status !== 204 && primaryPayload.flags === 32768) {
-      console.warn("V2 Payload returned HTTP", response.status, "— executing smart fallback to Standard Embed Payload.");
-      const fallbackPayload = window.buildStandardPayload();
-      response = await fetch(webhookUrl, {
+    // 1st Attempt: Send via Java Bot Service API if local Java Bot is active
+    let isSent = false;
+    try {
+      const javaResponse = await fetch(JAVA_BOT_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(fallbackPayload)
+        body: JSON.stringify(payload)
       });
+      if (javaResponse.ok) {
+        isSent = true;
+        window.showToast('☕ Duyuru Java Discord Bot Servisi üzerinden başarıyla gönderildi!', 'success');
+      }
+    } catch (javaErr) {
+      console.log("Java Bot Service local API unreachable — using direct Webhook dispatch.");
     }
 
-    if (response.ok || response.status === 200 || response.status === 204) {
-      window.showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
-      
+    // 2nd Attempt: Direct Webhook Dispatch
+    if (!isSent) {
+      let response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok && response.status !== 204 && payload.flags === 32768) {
+        console.warn("V2 Payload returned HTTP", response.status, "— fallback to Standard Embed Payload.");
+        const fallbackPayload = window.buildStandardPayload();
+        response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(fallbackPayload)
+        });
+      }
+
+      if (response.ok || response.status === 200 || response.status === 204) {
+        isSent = true;
+        window.showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
+      } else {
+        const errTxt = await response.text();
+        console.error("Webhook Error:", response.status, errTxt);
+        window.showToast(`Webhook yanıtı: ${response.status}. Lütfen URL'yi kontrol edin.`, 'error');
+      }
+    }
+
+    if (isSent) {
       window.saveHistory({
         title: document.getElementById('annTitle')?.value.trim() || 'Sunucu Duyurusu',
         message: annMessage,
@@ -633,11 +658,8 @@ window.handleAnnouncementSubmit = async function(event) {
       if (annTitleInput) annTitleInput.value = 'Sunucu Duyurusu';
       if (annImageUrlInput) annImageUrlInput.value = '';
       window.updateLiveDiscordPreview();
-    } else {
-      const errTxt = await response.text();
-      console.error("Webhook Error:", response.status, errTxt);
-      window.showToast(`Webhook yanıtı: ${response.status}. Lütfen URL'yi kontrol edin.`, 'error');
     }
+
   } catch (err) {
     console.error("Dispatch Exception:", err);
     window.showToast('Ağ/Tarayıcı Engeli: İletişim kurulamadı (AdBlocker kapatmayı deneyin).', 'error');
