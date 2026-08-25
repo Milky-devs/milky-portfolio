@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODERATION PANEL — DISCORD WEBHOOK ENGINE WITH V2 BUTTONS & SELECT MENUS
+   MODERATION PANEL — DISCORD WEBHOOK ENGINE (DISCOHOOK STANDARD & V2 CONTAINER)
    ========================================================================== */
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
@@ -252,9 +252,11 @@ window.handleProfileSubmit = function(event) {
   return false;
 };
 
-// --- Build Current Discohook Payload (Strict Validation) ---
+// --- Build Current Discohook Payload (Supports Standard vs Components Mode) ---
 window.buildCurrentPayload = function() {
   const profile = window.getProfile() || { username: 'Sunucu Duyurusu', discordId: '', avatarUrl: DEFAULT_AVATAR };
+  const formatMode = document.querySelector('input[name="messageFormatMode"]:checked')?.value || 'standard';
+
   const annTitle = document.getElementById('annTitle')?.value.trim() || 'Sunucu Duyurusu';
   const annMessage = document.getElementById('annMessage')?.value.trim() || '';
   const annImageUrl = document.getElementById('annImageUrl')?.value.trim() || '';
@@ -270,6 +272,76 @@ window.buildCurrentPayload = function() {
     authorMentionStr = `<@${profile.discordId.trim()}> (${profile.username})`;
   }
 
+  let finalAvatar = profile.avatarUrl;
+  if (!isValidHttpUrl(finalAvatar)) {
+    finalAvatar = DEFAULT_AVATAR;
+  }
+
+  // --- DISCOHOOK COMPONENTS-BASED MESSAGE (V2 CONTAINER MODE) ---
+  if (formatMode === 'components') {
+    const v2ContainerComponents = [
+      {
+        type: 9, // Section
+        components: [
+          { type: 10, content: `# ${annTitle}` },
+          { type: 10, content: annMessage }
+        ]
+      }
+    ];
+
+    if (isValidHttpUrl(annImageUrl)) {
+      v2ContainerComponents.push({ type: 14, spacing: 1, divider: true });
+      v2ContainerComponents.push({
+        type: 12, // MediaGallery
+        items: [{ media: { url: annImageUrl } }]
+      });
+    }
+
+    v2ContainerComponents.push({ type: 14, spacing: 1, divider: true });
+    v2ContainerComponents.push({
+      type: 9, // Section
+      components: [
+        { type: 10, content: `• ${authorMentionStr}, Sunucu Yetkilisi` }
+      ]
+    });
+
+    const rootComponents = [];
+
+    if (isEveryone) {
+      rootComponents.push({
+        type: 10, // TextDisplay
+        content: "@everyone"
+      });
+    }
+
+    rootComponents.push({
+      type: 17, // Container
+      accent_color: colorInt,
+      components: v2ContainerComponents
+    });
+
+    // Add V2 ActionRow buttons/select if toggled
+    if (isButtons) {
+      const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
+      const b1Url = document.getElementById('btn1Url')?.value.trim() || '';
+      const b2Label = document.getElementById('btn2Label')?.value.trim() || '';
+      const b2Url = document.getElementById('btn2Url')?.value.trim() || '';
+
+      const buttonsList = [];
+      if (b1Label && isValidHttpUrl(b1Url)) buttonsList.push({ type: 2, style: 5, label: b1Label, url: b1Url.trim() });
+      if (b2Label && isValidHttpUrl(b2Url)) buttonsList.push({ type: 2, style: 5, label: b2Label, url: b2Url.trim() });
+      if (buttonsList.length > 0) rootComponents.push({ type: 1, components: buttonsList });
+    }
+
+    return {
+      username: profile.username || "Sunucu Duyurusu",
+      avatar_url: finalAvatar,
+      flags: 32768, // IS_COMPONENTS_V2
+      components: rootComponents
+    };
+  }
+
+  // --- STANDARD DISCOHOOK EMBED MESSAGE ---
   const embedObj = {
     title: annTitle,
     description: annMessage,
@@ -291,11 +363,6 @@ window.buildCurrentPayload = function() {
     embedObj.image = { url: annImageUrl };
   }
 
-  let finalAvatar = profile.avatarUrl;
-  if (!isValidHttpUrl(finalAvatar)) {
-    finalAvatar = DEFAULT_AVATAR;
-  }
-
   const payload = {
     username: profile.username || "Sunucu Duyurusu",
     avatar_url: finalAvatar,
@@ -305,7 +372,6 @@ window.buildCurrentPayload = function() {
 
   const actionRows = [];
 
-  // V2 Component Buttons (ActionRow 1)
   if (isButtons) {
     const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
     const b1Url = document.getElementById('btn1Url')?.value.trim() || '';
@@ -313,37 +379,26 @@ window.buildCurrentPayload = function() {
     const b2Url = document.getElementById('btn2Url')?.value.trim() || '';
 
     const buttonsList = [];
-    if (b1Label && isValidHttpUrl(b1Url)) {
-      buttonsList.push({ type: 2, style: 5, label: b1Label, url: b1Url.trim() });
-    }
-    if (b2Label && isValidHttpUrl(b2Url)) {
-      buttonsList.push({ type: 2, style: 5, label: b2Label, url: b2Url.trim() });
-    }
-    if (buttonsList.length > 0) {
-      actionRows.push({ type: 1, components: buttonsList });
-    }
+    if (b1Label && isValidHttpUrl(b1Url)) buttonsList.push({ type: 2, style: 5, label: b1Label, url: b1Url.trim() });
+    if (b2Label && isValidHttpUrl(b2Url)) buttonsList.push({ type: 2, style: 5, label: b2Label, url: b2Url.trim() });
+    if (buttonsList.length > 0) actionRows.push({ type: 1, components: buttonsList });
   }
 
-  // V2 Component Select Menu (ActionRow 2)
   if (isSelectMenu) {
     const placeholderText = document.getElementById('selectMenuPlaceholder')?.value.trim() || 'Bir seçenek seçin...';
     const opt1Text = document.getElementById('selectOpt1')?.value.trim() || '📌 Sunucu Kuralları';
     const opt2Text = document.getElementById('selectOpt2')?.value.trim() || '🎉 Rol Bilgilendirme';
 
     const selectOptions = [];
-    if (opt1Text) {
-      selectOptions.push({ label: opt1Text, value: 'opt_1' });
-    }
-    if (opt2Text) {
-      selectOptions.push({ label: opt2Text, value: 'opt_2' });
-    }
+    if (opt1Text) selectOptions.push({ label: opt1Text, value: 'opt_1' });
+    if (opt2Text) selectOptions.push({ label: opt2Text, value: 'opt_2' });
 
     if (selectOptions.length > 0) {
       actionRows.push({
         type: 1,
         components: [
           {
-            type: 3, // String Select Menu Component
+            type: 3,
             custom_id: 'v2_select_menu_announcement',
             placeholder: placeholderText,
             options: selectOptions
@@ -383,6 +438,14 @@ window.pasteDiscohookJSON = async function() {
     if (!parsed || typeof parsed !== 'object') {
       window.showToast('Geçersiz JSON formatı.', 'error');
       return;
+    }
+
+    if (parsed.flags === 32768) {
+      const compRadio = document.querySelector('input[name="messageFormatMode"][value="components"]');
+      if (compRadio) compRadio.checked = true;
+    } else {
+      const stdRadio = document.querySelector('input[name="messageFormatMode"][value="standard"]');
+      if (stdRadio) stdRadio.checked = true;
     }
 
     if (parsed.content) {
@@ -525,7 +588,7 @@ window.handleAnnouncementSubmit = async function(event) {
       window.showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
       
       window.saveHistory({
-        title: payload.embeds[0]?.title || 'Sunucu Duyurusu',
+        title: document.getElementById('annTitle')?.value.trim() || 'Sunucu Duyurusu',
         message: annMessage,
         color: document.querySelector('input[name="embedColor"]:checked')?.value || '#1E3A8A',
         sender: profile.username,
@@ -660,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  document.querySelectorAll('input[name="embedColor"]').forEach(radio => {
+  document.querySelectorAll('input[name="embedColor"], input[name="messageFormatMode"]').forEach(radio => {
     radio.addEventListener('change', window.updateLiveDiscordPreview);
   });
 
