@@ -256,7 +256,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- BULLETPROOF DISCORD WEBHOOK DISPATCH HANDLER (HTTP 204 GUARANTEED) ---
+// --- BULLETPROOF DISCORD WEBHOOK DISPATCH HANDLER ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -315,7 +315,7 @@ window.handleAnnouncementSubmit = async function(event) {
     authorMentionStr = `<@${profile.discordId.trim()}> (${profile.username})`;
   }
 
-  // Bulletproof Payload (DISCOHOOK / DISCORD WEBHOOK STANDARD)
+  // Verified Webhook Payload Structure
   const embedObj = {
     title: annTitle || "Sunucu Duyurusu",
     description: annMessage,
@@ -351,7 +351,7 @@ window.handleAnnouncementSubmit = async function(event) {
       body: JSON.stringify(payload)
     });
 
-    if (response.ok || response.status === 204) {
+    if (response.ok || response.status === 200 || response.status === 204) {
       window.showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
       
       window.saveHistory({
@@ -369,11 +369,11 @@ window.handleAnnouncementSubmit = async function(event) {
     } else {
       const errTxt = await response.text();
       console.error("Webhook Error:", response.status, errTxt);
-      window.showToast(`Webhook hatası (${response.status}). URL'yi kontrol edin.`, 'error');
+      window.showToast(`Webhook yanıtı: ${response.status}. Lütfen URL'yi kontrol edin.`, 'error');
     }
   } catch (err) {
-    console.error("Dispatch Error:", err);
-    window.showToast('Bağlantı hatası: Duyuru iletilemedi.', 'error');
+    console.error("Dispatch Exception:", err);
+    window.showToast('Ağ/Tarayıcı Engeli: İletişim kurulamadı (AdBlocker kapatmayı deneyin).', 'error');
   } finally {
     if (sendBtn) {
       sendBtn.disabled = false;
