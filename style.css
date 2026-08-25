@@ -1,10 +1,10 @@
 /* =========================================
-   MILKY.DEV — PURE ADMIN & DISCORD HUB
+   MILKY.DEV — DISCORD V2 ADMIN CONTROL HUB
 ========================================= */
 :root {
   --bg-main: #0a0a0c;
-  --bg-card: rgba(18, 18, 22, 0.85);
-  --bg-card-hover: rgba(26, 26, 32, 0.95);
+  --bg-card: rgba(18, 18, 22, 0.9);
+  --bg-card-hover: rgba(26, 26, 32, 0.98);
   --border: rgba(255, 255, 255, 0.1);
   --border-hover: rgba(255, 255, 255, 0.25);
   --text-primary: #f0f0f5;
@@ -52,14 +52,12 @@ button {
   padding: 0 24px;
 }
 
-/* =========================================
-   HEADER & NAVIGATION
-========================================= */
+/* HEADER */
 .header {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 1000;
-  background: rgba(10, 10, 12, 0.9);
+  background: rgba(10, 10, 12, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
@@ -118,17 +116,13 @@ button {
   object-fit: cover;
 }
 
-/* =========================================
-   MAIN CONTENT WRAPPER
-========================================= */
+/* MAIN CONTENT */
 .main-content {
   padding-top: 100px;
   padding-bottom: 60px;
 }
 
-/* =========================================
-   TEMPLATES QUICK SELECT
-========================================= */
+/* QUICK TEMPLATES */
 .templates-wrapper {
   margin-bottom: 32px;
   background: rgba(255, 255, 255, 0.02);
@@ -137,17 +131,13 @@ button {
   padding: 20px 24px;
 }
 
-.templates-header {
-  margin-bottom: 12px;
-}
-
 .templates-label {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   color: var(--text-secondary);
-  text-transform: uppercase;
   letter-spacing: 0.05em;
   font-family: var(--font-mono);
+  margin-bottom: 12px;
 }
 
 .templates-grid {
@@ -195,9 +185,7 @@ button {
   color: var(--text-secondary);
 }
 
-/* =========================================
-   DASHBOARD DUAL GRID & FORM
-========================================= */
+/* DASHBOARD GRID */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
@@ -266,6 +254,12 @@ button {
   border: 1px solid var(--border);
   padding: 6px 12px;
   border-radius: 12px;
+  transition: var(--transition);
+}
+
+.active-profile-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .active-avatar {
@@ -287,24 +281,8 @@ button {
 
 .active-role {
   font-size: 0.7rem;
-  color: var(--text-secondary);
+  color: var(--accent-blue);
   font-family: var(--font-mono);
-}
-
-.btn-edit-profile {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.btn-edit-profile:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
 }
 
 .announcement-form {
@@ -491,9 +469,7 @@ button {
   border-color: var(--accent-red);
 }
 
-/* =========================================
-   LIVE DISCORD MOCKUP PREVIEW
-========================================= */
+/* LIVE DISCORD PREVIEW */
 .preview-card-wrap {
   background: #313338;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -652,9 +628,7 @@ button {
   object-fit: cover;
 }
 
-/* =========================================
-   ANNOUNCEMENT LOG HISTORY
-========================================= */
+/* HISTORY LOGS */
 .history-wrapper {
   margin-top: 60px;
   background: var(--bg-card);
@@ -675,11 +649,6 @@ button {
 .history-title {
   font-size: 1.3rem;
   font-weight: 700;
-}
-
-.history-sub {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
 }
 
 .history-list {
@@ -726,9 +695,7 @@ button {
   color: var(--text-secondary);
 }
 
-/* =========================================
-   MANDATORY PROFILE SETUP MODAL & EYE TOGGLE
-========================================= */
+/* MODAL & FILE UPLOAD */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -783,13 +750,6 @@ button {
   margin-bottom: 6px;
 }
 
-.modal-sub {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-/* Password Eye Toggle Input Wrapper */
 .password-input-wrap {
   position: relative;
   display: flex;
@@ -817,7 +777,6 @@ button {
   transform: scale(1.1);
 }
 
-/* PROMINENT FILE UPLOAD BUTTON */
 .file-upload-box {
   margin-top: 6px;
   margin-bottom: 12px;
@@ -833,8 +792,8 @@ button {
   justify-content: center;
   gap: 10px;
   width: 100%;
-  background: rgba(88, 101, 242, 0.12);
-  border: 2px dashed rgba(88, 101, 242, 0.5);
+  background: rgba(88, 101, 242, 0.15);
+  border: 2px dashed rgba(88, 101, 242, 0.6);
   padding: 14px;
   border-radius: 12px;
   color: var(--text-primary);
@@ -845,14 +804,9 @@ button {
 }
 
 .file-upload-btn:hover {
-  background: rgba(88, 101, 242, 0.22);
+  background: rgba(88, 101, 242, 0.25);
   border-color: var(--accent-blue);
-  box-shadow: 0 0 16px rgba(88, 101, 242, 0.3);
-  transform: translateY(-1px);
-}
-
-.upload-icon {
-  font-size: 1.3rem;
+  box-shadow: 0 0 16px rgba(88, 101, 242, 0.4);
 }
 
 .avatar-presets {
@@ -911,9 +865,7 @@ button {
   border: 2px solid var(--accent-blue);
 }
 
-/* =========================================
-   TOAST NOTIFICATIONS
-========================================= */
+/* TOASTS */
 .toast-container {
   position: fixed;
   bottom: 24px;
@@ -953,7 +905,6 @@ button {
   to { opacity: 1; transform: translateX(0); }
 }
 
-/* FOOTER */
 .footer {
   padding: 40px 0;
   border-top: 1px solid var(--border);
@@ -968,17 +919,10 @@ button {
   color: var(--text-secondary);
 }
 
-/* RESPONSIVE DESIGN */
 @media (max-width: 992px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-  .preview-card-wrap {
-    position: static;
-  }
-  .templates-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .preview-card-wrap { position: static; }
+  .templates-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 600px) {

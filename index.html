@@ -3,22 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="description" content="Milky Admin & Discord Webhook Control Hub" />
-  <title>Milky.dev — Admin Control Center</title>
+  <title>Milky — Admin & Discord Webhook V2 Center</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=15" />
+  <link rel="stylesheet" href="style.css?v=20" />
 </head>
 <body>
 
-  <!-- MINIMAL ADMIN HEADER -->
+  <!-- HEADER -->
   <header class="header">
     <div class="container header-inner">
       <div class="logo">milky<span>.admin</span></div>
-      
       <div class="header-actions">
-        <button class="header-profile-btn" id="openProfileBtn" title="Profil Ayarlarını Düzenle">
+        <button type="button" class="header-profile-btn" id="openProfileBtn">
           <img id="headerUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Profile" />
           <span id="headerUsername">Giriş Yap</span>
         </button>
@@ -26,35 +24,33 @@
     </div>
   </header>
 
-  <!-- PURE ADMIN DASHBOARD CONTAINER -->
+  <!-- MAIN ADMIN CONTENT -->
   <main class="main-content">
     <div class="container">
-      
-      <!-- QUICK TEMPLATES BAR -->
-      <div class="templates-wrapper" id="templatesSection">
-        <div class="templates-header">
-          <span class="templates-label">⚡ Hızlı Duyuru Şablonları (Tek Tıkla Doldur)</span>
-        </div>
+
+      <!-- QUICK TEMPLATES -->
+      <div class="templates-wrapper">
+        <div class="templates-label">⚡ HIZLI DUYURU ŞABLONLARI</div>
         <div class="templates-grid">
           <button type="button" class="template-btn" data-template="maintenance">
             <span class="tpl-icon">🛠️</span>
             <div class="tpl-text">
               <strong>Sunucu Bakımı</strong>
-              <span>Bakım & Güncelleme bildirimi</span>
+              <span>Bakım bildirimi</span>
             </div>
           </button>
           <button type="button" class="template-btn" data-template="update">
             <span class="tpl-icon">🎉</span>
             <div class="tpl-text">
               <strong>Yeni Güncelleme</strong>
-              <span>Yayınlanan yenilikler</span>
+              <span>Versiyon notları</span>
             </div>
           </button>
           <button type="button" class="template-btn" data-template="urgent">
             <span class="tpl-icon">🚨</span>
             <div class="tpl-text">
-              <strong>Acil Duyuru</strong>
-              <span>Kritik uyarılarda kullanın</span>
+              <strong>Acil Uarı</strong>
+              <span>Kritik duyuru</span>
             </div>
           </button>
           <button type="button" class="template-btn" data-template="rules">
@@ -67,23 +63,22 @@
         </div>
       </div>
 
-      <!-- MAIN DASHBOARD GRID (FORM + LIVE PREVIEW) -->
-      <div class="dashboard-grid" id="adminPanel">
+      <!-- MAIN DASHBOARD (FORM + LIVE PREVIEW) -->
+      <div class="dashboard-grid">
         
-        <!-- LEFT COLUMN: ANNOUNCEMENT FORM -->
+        <!-- ANNOUNCEMENT FORM -->
         <div class="admin-card">
           <div class="admin-header">
-            <div class="admin-title-wrap">
-              <span class="admin-badge"><span class="badge-pulse"></span> V2 Webhook Portal</span>
-              <h2 class="admin-title">Discord Duyuru Paneli</h2>
+            <div>
+              <span class="admin-badge"><span class="badge-pulse"></span> Discord V2 Webhook</span>
+              <h2 class="admin-title">Duyuru Paneli</h2>
             </div>
-            <div class="active-profile-card">
+            <div class="active-profile-card" id="editProfileQuickBtn" style="cursor: pointer;">
               <img id="activeUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="User Avatar" class="active-avatar" />
               <div class="active-user-meta">
-                <span id="activeUsername" class="active-name">Kullanıcı Tanımsız</span>
-                <span class="active-role">Aktif Yönetici</span>
+                <span id="activeUsername" class="active-name">Giriş Yapılmadı</span>
+                <span class="active-role">✏️ Profili Düzenle</span>
               </div>
-              <button type="button" id="editProfileQuickBtn" class="btn-edit-profile" title="Profili Değiştir">✏️ Düzenle</button>
             </div>
           </div>
 
@@ -125,7 +120,7 @@
             </div>
 
             <div class="form-group">
-              <label for="annImageUrl">Duyuru Görsel / Banner URL (Opsiyonel)</label>
+              <label for="annImageUrl">Banner / Resim URL (Opsiyonel)</label>
               <input type="url" id="annImageUrl" placeholder="https://i.imgur.com/example.png" class="form-input" />
             </div>
 
@@ -138,27 +133,25 @@
             </div>
 
             <div class="form-group">
-              <label for="webhookUrlInput">Target Discord Webhook URL</label>
-              <input type="url" id="webhookUrlInput" class="form-input form-input-sm" value="https://discord.com/api/webhooks/1541841811415498933/EEETUjrXpL51QoEv4ouN3tbklIRL5cFDkMzTOpml-bZwweynLsJ5YJ1yUuEDvSxdXUwd" />
+              <label for="webhookUrlInput">Discord Webhook URL *</label>
+              <input type="url" id="webhookUrlInput" class="form-input form-input-sm" value="https://discord.com/api/webhooks/1541841811415498933/EEETUjrXpL51QoEv4ouN3tbklIRL5cFDkMzTOpml-bZwweynLsJ5YJ1yUuEDvSxdXUwd" required />
             </div>
 
             <div class="form-actions">
               <button type="submit" id="sendAnnBtn" class="btn btn-primary btn-glow">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 Duyuruyu Discord'a Gönder (V2 Webhook)
               </button>
             </div>
           </form>
         </div>
 
-        <!-- RIGHT COLUMN: LIVE DISCORD PREVIEW CARD -->
+        <!-- LIVE DISCORD PREVIEW -->
         <div class="preview-card-wrap">
           <div class="preview-header">
-            <span class="preview-badge">💬 Canlı Discord Mesaj Önizlemesi</span>
-            <span class="preview-status">Real-time Simulation</span>
+            <span class="preview-badge">💬 Canlı Discord Önizlemesi</span>
+            <span class="preview-status">V2 Real-time</span>
           </div>
 
-          <!-- DISCORD CHAT MESSAGE MOCKUP -->
           <div class="discord-mockup" id="discordPreviewCard">
             <div class="discord-msg">
               <img id="previewAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Avatar" class="dc-avatar" />
@@ -171,16 +164,15 @@
                 
                 <div id="previewContentMention" class="dc-mention">@everyone</div>
 
-                <!-- DISCORD EMBED -->
                 <div class="dc-embed" id="previewEmbedCard">
                   <div id="previewEmbedColorBar" class="dc-embed-color" style="background-color: #5865F2;"></div>
                   <div class="dc-embed-inner">
                     <div id="previewTitle" class="dc-embed-title">📢 Yönetici Duyurusu</div>
-                    <div id="previewMessage" class="dc-embed-desc">Duyuru metni buraya yazıldıkça canlı olarak bu alanda görünecektir...</div>
-                    <img id="previewImage" class="dc-embed-image" src="" alt="Banner Preview" style="display: none;" />
+                    <div id="previewMessage" class="dc-embed-desc">Duyuru metniniz burada görünür...</div>
+                    <img id="previewImage" class="dc-embed-image" src="" alt="Preview" style="display: none;" />
                     <div class="dc-embed-footer">
                       <img id="previewFooterAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" class="dc-footer-img" alt="" />
-                      <span id="previewFooterText" class="dc-footer-text">Milky Admin Panel • Yetkili</span>
+                      <span id="previewFooterText" class="dc-footer-text">Milky Admin Panel</span>
                     </div>
                   </div>
                 </div>
@@ -191,39 +183,26 @@
 
       </div>
 
-      <!-- ANNOUNCEMENT LOG HISTORY SECTION -->
-      <div class="history-wrapper" id="historySection">
+      <!-- ANNOUNCEMENT HISTORY LOGS -->
+      <div class="history-wrapper">
         <div class="history-header">
-          <div class="history-title-wrap">
-            <h3 class="history-title">📜 Duyuru Gönderim Geçmişi</h3>
-            <span class="history-sub">Bu cihazdan atılan son duyuruların kayıtları</span>
-          </div>
-          <button type="button" id="clearHistoryBtn" class="btn-sm btn-outline-danger">Geçmişi Temizle</button>
+          <h3 class="history-title">📜 Duyuru Gönderim Geçmişi</h3>
+          <button type="button" id="clearHistoryBtn" class="btn-sm btn-outline-danger">Temizle</button>
         </div>
-
         <div id="annHistoryList" class="history-list">
-          <div class="history-empty">Henüz kaydedilmiş bir duyuru geçmişi bulunmuyor.</div>
+          <div class="history-empty">Henüz duyuru gönderilmedi.</div>
         </div>
       </div>
 
     </div>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="container footer-inner">
-      <span>milky.admin control center</span>
-      <span class="copyright">© 2026. All rights reserved.</span>
-    </div>
-  </footer>
-
-  <!-- MANDATORY PROFILE SETUP MODAL -->
+  <!-- PROFILE SETUP MODAL -->
   <div class="modal-overlay" id="profileSetupModal">
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-badge">🔒 Yönetici Girişi & Profil Kurulumu</div>
         <h2 class="modal-title">Profilinizi Oluşturun</h2>
-        <p class="modal-sub">Discord duyurularınızı kendi adınız ve vesikalık profil fotoğrafınızla atabilmek için bilgilerinizi belirleyin.</p>
       </div>
 
       <form id="profileForm" class="modal-form">
@@ -233,49 +212,47 @@
         </div>
 
         <div class="form-group">
-          <label for="setupPassword">Giriş Şifreniz / PIN *</label>
+          <label for="setupPassword">Giriş Şifreniz *</label>
           <div class="password-input-wrap">
             <input type="password" id="setupPassword" placeholder="••••••••" required class="form-input" />
-            <button type="button" id="togglePasswordBtn" class="btn-toggle-eye" title="Şifreyi Göster/Gizle">👁️</button>
+            <button type="button" id="togglePasswordBtn" class="btn-toggle-eye">👁️</button>
           </div>
         </div>
 
         <div class="form-group">
-          <label>Profil Fotoğrafınızı Yükleyin veya Seçin *</label>
+          <label>Profil Fotoğrafı *</label>
           
-          <!-- PROMINENT FILE UPLOAD BUTTON -->
           <div class="file-upload-box">
             <input type="file" id="setupAvatarFile" accept="image/*" class="file-input-hidden" />
             <label for="setupAvatarFile" class="file-upload-btn">
-              <span class="upload-icon">📁</span>
-              <span>Cihazınızdan / Galerinizden Fotoğraf Seç</span>
+              📁 Galerinizden Fotoğraf Seç
             </label>
           </div>
 
           <div class="avatar-presets">
             <button type="button" class="avatar-pill active" data-url="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png">
-              <img src="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png" alt="Milky Avatar" />
+              <img src="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png" alt="Milky" />
               <span>Milky</span>
             </button>
             <button type="button" class="avatar-pill" data-url="https://cdn.discordapp.net/embed/avatars/0.png">
-              <img src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Blue Avatar" />
+              <img src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Mavi" />
               <span>Mavi</span>
             </button>
             <button type="button" class="avatar-pill" data-url="https://cdn.discordapp.net/embed/avatars/1.png">
-              <img src="https://cdn.discordapp.net/embed/avatars/1.png" alt="Gray Avatar" />
+              <img src="https://cdn.discordapp.net/embed/avatars/1.png" alt="Gri" />
               <span>Gri</span>
             </button>
             <button type="button" class="avatar-pill" data-url="https://cdn.discordapp.net/embed/avatars/4.png">
-              <img src="https://cdn.discordapp.net/embed/avatars/4.png" alt="Red Avatar" />
+              <img src="https://cdn.discordapp.net/embed/avatars/4.png" alt="Kırmızı" />
               <span>Kırmızı</span>
             </button>
           </div>
 
-          <input type="url" id="setupAvatarUrl" placeholder="Veya resim web bağlantısı yapıştırın (https://...)" class="form-input" style="margin-top: 10px;" value="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png" />
+          <input type="url" id="setupAvatarUrl" placeholder="Veya Resim URL Yapıştırın (https://...)" class="form-input" style="margin-top: 10px;" value="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png" />
           
           <div class="avatar-preview-wrap">
-            <span class="preview-label">Seçilen Fotoğraf:</span>
-            <img id="setupAvatarPreview" src="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png" alt="Avatar Preview" class="modal-avatar-preview" />
+            <span class="preview-label">Önizleme:</span>
+            <img id="setupAvatarPreview" src="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png" alt="Preview" class="modal-avatar-preview" />
           </div>
         </div>
 
@@ -288,9 +265,8 @@
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATIONS CONTAINER -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="script.js?v=15"></script>
+  <script src="script.js?v=20"></script>
 </body>
 </html>

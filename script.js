@@ -1,37 +1,25 @@
 /* =========================================
-   MILKY.DEV — PURE ADMIN & DISCORD HUB ENGINE
+   MILKY.DEV — DISCORD V2 WEBHOOK HUB ENGINE
 ========================================= */
+
+const ComponentType = {
+  ActionRow: 1,
+  Button: 2,
+  Section: 9,
+  TextDisplay: 10,
+  Thumbnail: 11,
+  Media: 12,
+  Separator: 14,
+  Container: 17,
+};
+
+const V2Flags = {
+  IsComponentsV2: 32768,
+};
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // --- Scroll Reveal Animation ---
-  const revealElements = document.querySelectorAll('.reveal');
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
-
-  revealElements.forEach(el => revealObserver.observe(el));
-
-  // --- Header Scroll Glass Effect ---
-  const header = document.querySelector('.header');
-  if (header) {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 50) {
-        header.style.background = 'rgba(10, 10, 12, 0.95)';
-      } else {
-        header.style.background = 'rgba(10, 10, 12, 0.85)';
-      }
-    });
-  }
-
-  // =========================================
-  // UTILITY: TOAST NOTIFICATIONS
-  // =========================================
+  // --- Utility: Toast Notifications ---
   function showToast(text, type = 'success') {
     const toastContainer = document.getElementById('toastContainer');
     if (!toastContainer) return;
@@ -53,12 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 4000);
   }
 
-  // =========================================
-  // PROFILE & ONBOARDING SYSTEM
-  // =========================================
+  // --- LocalStorage Keys ---
   const PROFILE_STORAGE_KEY = 'milky_admin_profile';
   const HISTORY_STORAGE_KEY = 'milky_ann_history';
 
+  // --- DOM Elements ---
   const modalOverlay = document.getElementById('profileSetupModal');
   const profileForm = document.getElementById('profileForm');
   const setupUsernameInput = document.getElementById('setupUsername');
@@ -78,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const openProfileBtn = document.getElementById('openProfileBtn');
   const editProfileQuickBtn = document.getElementById('editProfileQuickBtn');
 
-  // Eye Icon Password Toggle
+  // --- Password Eye Icon Toggle ---
   if (togglePasswordBtn && setupPasswordInput) {
     togglePasswordBtn.addEventListener('click', () => {
       const type = setupPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -87,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Local File Upload Reader for Avatar
+  // --- Local File Reader for Avatar Upload ---
   if (setupAvatarFileInput) {
     setupAvatarFileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
@@ -102,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (setupAvatarUrlInput) setupAvatarUrlInput.value = dataUrl;
           if (setupAvatarPreview) setupAvatarPreview.src = dataUrl;
           avatarPills.forEach(p => p.classList.remove('active'));
-          showToast('Fotoğraf galeriden başarıyla yüklendi!', 'success');
+          showToast('Fotoğraf galeriden başarıyla seçildi!', 'success');
           updateLiveDiscordPreview();
         };
         reader.readAsDataURL(file);
@@ -110,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Avatar Preset Pills Selection
+  // --- Preset Avatar Selection ---
   avatarPills.forEach(pill => {
     pill.addEventListener('click', () => {
       avatarPills.forEach(p => p.classList.remove('active'));
@@ -124,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Avatar URL Input typing listener
   if (setupAvatarUrlInput) {
     setupAvatarUrlInput.addEventListener('input', () => {
       const url = setupAvatarUrlInput.value.trim();
@@ -135,18 +121,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Read Profile
+  // --- Profile Storage Operations ---
   function getProfile() {
     try {
       const data = localStorage.getItem(PROFILE_STORAGE_KEY);
       return data ? JSON.parse(data) : null;
     } catch (e) {
-      console.error(e);
       return null;
     }
   }
 
-  // Apply Profile to DOM Elements
   function applyProfileToDOM(profile) {
     if (!profile) return;
     const name = profile.username || 'Admin';
@@ -160,7 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateLiveDiscordPreview();
   }
 
-  // Open/Close Modal
   function openSetupModal() {
     const currentProfile = getProfile();
     if (currentProfile) {
@@ -182,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Initial Onboarding Check
   const savedProfile = getProfile();
   if (!savedProfile) {
     openSetupModal();
@@ -193,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (openProfileBtn) openProfileBtn.addEventListener('click', openSetupModal);
   if (editProfileQuickBtn) editProfileQuickBtn.addEventListener('click', openSetupModal);
 
-  // Save Profile Form
   if (profileForm) {
     profileForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -202,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let avatarUrl = setupAvatarUrlInput.value.trim();
 
       if (!username || !password) {
-        showToast('Lütfen kullanıcı adı ve şifrenizi doldurun.', 'error');
+        showToast('Kullanıcı adı ve şifrenizi doldurun.', 'error');
         return;
       }
 
@@ -215,13 +196,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       applyProfileToDOM(profileData);
       closeSetupModal();
-      showToast(`Profiliniz başarıyla kaydedildi! Hoş geldiniz, ${username}.`, 'success');
+      showToast(`Profil kaydedildi! Hoş geldiniz, ${username}.`, 'success');
     });
   }
 
-  // =========================================
-  // CANLI DISCORD MESAJ ÖNİZLEMESİ (LIVE PREVIEW ENGINE)
-  // =========================================
+  // --- Real-time Live Discord Preview ---
   const annTitleInput = document.getElementById('annTitle');
   const annMessageInput = document.getElementById('annMessage');
   const annImageUrlInput = document.getElementById('annImageUrl');
@@ -241,37 +220,28 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateLiveDiscordPreview() {
     const profile = getProfile() || { username: 'Milky Admin', avatarUrl: 'https://cdn.discordapp.net/embed/avatars/0.png' };
     
-    // Avatar & Username
     if (previewAvatar) previewAvatar.src = profile.avatarUrl;
     if (previewUsername) previewUsername.textContent = profile.username || 'Milky Admin';
     if (previewFooterAvatar) previewFooterAvatar.src = profile.avatarUrl;
     if (previewFooterText) previewFooterText.textContent = `Milky Admin Panel • Yetkili: ${profile.username || 'Admin'}`;
 
-    // Timestamp
     const now = new Date();
     const timeStr = `Bugün ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     if (previewTime) previewTime.textContent = timeStr;
 
-    // Mention
     if (previewContentMention && everyoneToggleInput) {
       previewContentMention.style.display = everyoneToggleInput.checked ? 'inline-block' : 'none';
     }
 
-    // Embed Color
     const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#5865F2';
     if (previewEmbedColorBar) previewEmbedColorBar.style.backgroundColor = selectedColorHex;
 
-    // Title
     const titleVal = annTitleInput ? annTitleInput.value.trim() : '';
     if (previewTitle) previewTitle.textContent = titleVal || '📢 Yönetici Duyurusu';
 
-    // Message Text
     const messageVal = annMessageInput ? annMessageInput.value.trim() : '';
-    if (previewMessage) {
-      previewMessage.textContent = messageVal || 'Duyuru metni buraya yazıldıkça canlı olarak bu alanda görünecektir...';
-    }
+    if (previewMessage) previewMessage.textContent = messageVal || 'Duyuru metniniz burada görünür...';
 
-    // Optional Banner Image
     const imageVal = annImageUrlInput ? annImageUrlInput.value.trim() : '';
     if (previewImage) {
       if (imageVal) {
@@ -283,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Attach Input Listeners for Real-time Update
   [annTitleInput, annMessageInput, annImageUrlInput, everyoneToggleInput, setupUsernameInput].forEach(input => {
     if (input) {
       input.addEventListener('input', updateLiveDiscordPreview);
@@ -295,34 +264,31 @@ document.addEventListener('DOMContentLoaded', () => {
     radio.addEventListener('change', updateLiveDiscordPreview);
   });
 
-  // Initial Preview Draw
   updateLiveDiscordPreview();
 
-  // =========================================
-  // QUICK ANNOUNCEMENT TEMPLATES
-  // =========================================
+  // --- Quick Templates ---
   const templates = {
     maintenance: {
       title: "🛠️ Sunucu Bakımı & Güncelleme",
-      message: "Sunucumuz sistem optimizasyonları ve yeni güncellemeler için kısa süreli bakım moduna alınmıştır. Güncelleme tamamlandığında tekrar bilgilendirme yapılacaktır.\n\nAnlayışınız için teşekkür ederiz!",
+      message: "Sunucumuz sistem bakımı ve optimizasyon çalışmaları için kısa süreliğine bakıma alınmıştır. Güncelleme tamamlandığında bilgilendirme yapılacaktır.\n\nAnlayışınız için teşekkür ederiz!",
       color: "#FFEA00",
       everyone: true
     },
     update: {
       title: "🎉 Yeni Güncelleme Notları v2.0",
-      message: "Sistemlerimizde büyük yenilikler yayınlandı!\n\n✨ Öne Çıkan Yenilikler:\n- Geliştirilmiş Canlı Yönetim Paneli\n- Yüksek Hızlı Sunucu Performansı & Güvenlik\n- Yeni Arayüz Temaları ve Hata Düzeltmeleri\n\nKeyifli kullanımlar dileriz!",
+      message: "Sistemlerimizde büyük yenilikler yayınlandı!\n\n✨ Öne Çıkan Yenilikler:\n- Geliştirilmiş Canlı Yönetim Paneli\n- Yüksek Hızlı Sunucu Performansı & Güvenlik\n- Yeni Arayüz Temaları ve Hata Düzeltmeleri",
       color: "#00E676",
       everyone: true
     },
     urgent: {
       title: "🚨 KANALSAL ACİL DUYURU",
-      message: "Önemli Güvenlik / Sistem Uyarısı:\n\nLütfen tüm yetkililer ve üyeler dikkat etsin! Yetkisiz işlemler ve şüpheli erişim istekleri sistem tarafından otomatik olarak engellenmektedir. Güvenliğiniz için şifrelerinizi kimseyle paylaşmayın.",
+      message: "Önemli Güvenlik / Sistem Uyarısı:\n\nLütfen tüm yetkililer ve üyeler dikkat etsin! Yetkisiz işlemler ve şüpheli erişim istekleri sistem tarafından otomatik olarak engellenmektedir.",
       color: "#FF1744",
       everyone: true
     },
     rules: {
       title: "📌 Sunucu Kuralları & Genel Bilgilendirme",
-      message: "Sunucumuz içerisinde huzurlu ve kaliteli bir ortam sağlamak için kurallara uymak zorunludur.\n\n- Saygılı ve seviyeli iletişim kurun.\n- Reklam ve spam kesinlikle yasaktır.\n- Yetkili ekibimizin uyarılarına riayet ediniz.",
+      message: "Sunucumuz içerisinde huzurlu bir ortam sağlamak için kurallara uymak zorunludur.\n\n- Saygılı iletişim kurun.\n- Reklam ve spam kesinlikle yasaktır.",
       color: "#00B0FF",
       everyone: false
     }
@@ -342,13 +308,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (targetRadio) targetRadio.checked = true;
 
       updateLiveDiscordPreview();
-      showToast(`"${tpl.title}" şablonu başarıyla dolduruldu!`, 'success');
+      showToast(`"${tpl.title}" şablonu dolduruldu!`, 'success');
     });
   });
 
-  // =========================================
-  // ANNOUNCEMENT LOG HISTORY
-  // =========================================
+  // --- Announcement Log History ---
   function getHistory() {
     try {
       const data = localStorage.getItem(HISTORY_STORAGE_KEY);
@@ -361,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function saveHistory(item) {
     const list = getHistory();
     list.unshift(item);
-    if (list.length > 20) list.pop(); // keep last 20
+    if (list.length > 20) list.pop();
     localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list));
     renderHistoryList();
   }
@@ -372,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const list = getHistory();
     if (list.length === 0) {
-      historyListContainer.innerHTML = '<div class="history-empty">Henüz kaydedilmiş bir duyuru geçmişi bulunmuyor.</div>';
+      historyListContainer.innerHTML = '<div class="history-empty">Henüz duyuru gönderilmedi.</div>';
       return;
     }
 
@@ -389,7 +353,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `).join('');
 
-    // Re-send click handlers
     document.querySelectorAll('.resend-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.getAttribute('data-index'));
@@ -417,9 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderHistoryList();
 
-  // =========================================
-  // V2 DISCORD ANNOUNCEMENT WEBHOOK DISPATCHER
-  // =========================================
+  // --- DISCORD V2 WEBHOOK DISPATCHER ---
   const announcementForm = document.getElementById('announcementForm');
 
   if (announcementForm) {
@@ -428,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const profile = getProfile();
       if (!profile) {
-        showToast('Duyuru göndermeden önce profil oluşturmanız gerekmektedir.', 'error');
+        showToast('Lütfen önce profilinizi oluşturun.', 'error');
         openSetupModal();
         return;
       }
@@ -441,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#5865F2';
 
       if (!annMessage) {
-        showToast('Lütfen duyuru metnini doldurun.', 'error');
+        showToast('Lütfen duyuru metnini yazın.', 'error');
         return;
       }
 
@@ -461,7 +422,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const colorInt = parseInt(selectedColorHex.replace('#', ''), 16);
 
-      // Embed Object Construction
+      // Discord API prohibits data: URIs for avatar_url
+      let finalAvatarUrl = profile.avatarUrl;
+      if (!finalAvatarUrl || finalAvatarUrl.startsWith('data:')) {
+        finalAvatarUrl = 'https://cdn.discordapp.net/embed/avatars/0.png';
+      }
+
+      // Rich Embed Structure
       const embedObj = {
         title: annTitle || "📢 Yönetici Duyurusu",
         description: annMessage,
@@ -469,7 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
         timestamp: new Date().toISOString(),
         footer: {
           text: `Milky Admin Panel • Yetkili: ${profile.username}`,
-          icon_url: profile.avatarUrl.startsWith('data:') ? undefined : profile.avatarUrl
+          icon_url: finalAvatarUrl
         }
       };
 
@@ -477,25 +444,77 @@ document.addEventListener('DOMContentLoaded', () => {
         embedObj.image = { url: annImageUrl };
       }
 
-      // V2 Webhook Payload
-      const payload = {
+      // Discord Components V2 Container Components
+      const v2ContainerComponents = [
+        {
+          type: ComponentType.Section, // 9
+          components: [
+            {
+              type: ComponentType.TextDisplay, // 10
+              content: `## ${annTitle || '📢 Yönetici Duyurusu'}\n\n${annMessage}`
+            }
+          ]
+        }
+      ];
+
+      if (annImageUrl) {
+        v2ContainerComponents.push({
+          type: ComponentType.Separator, // 14
+          divider: true,
+          spacing: 1
+        });
+        v2ContainerComponents.push({
+          type: ComponentType.Media, // 12
+          items: [
+            { media: { url: annImageUrl } }
+          ]
+        });
+      }
+
+      // Primary V2 Webhook Payload
+      const v2Payload = {
         username: profile.username || "Milky Admin",
-        avatar_url: profile.avatarUrl.startsWith('data:') ? undefined : profile.avatarUrl,
+        avatar_url: finalAvatarUrl,
+        content: isEveryone ? "@everyone" : null,
+        flags: V2Flags.IsComponentsV2,
+        components: [
+          {
+            type: ComponentType.Container, // 17
+            accent_color: colorInt,
+            components: v2ContainerComponents
+          }
+        ],
+        embeds: [embedObj]
+      };
+
+      // Standard Fallback Payload (In case channel webhook doesn't support V2 flags)
+      const standardPayload = {
+        username: profile.username || "Milky Admin",
+        avatar_url: finalAvatarUrl,
         content: isEveryone ? "@everyone" : null,
         embeds: [embedObj]
       };
 
       try {
-        const response = await fetch(webhookUrl, {
+        let response = await fetch(webhookUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(v2Payload)
         });
+
+        // Fallback to standard payload if V2 flags error occurs
+        if (!response.ok && response.status !== 204) {
+          console.warn("V2 Webhook dispatch failed, retrying with standard rich embed payload...");
+          response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(standardPayload)
+          });
+        }
 
         if (response.ok || response.status === 204) {
           showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
           
-          // Save to Log History
           saveHistory({
             title: annTitle || 'Yönetici Duyurusu',
             message: annMessage,
@@ -511,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           const errText = await response.text();
           console.error("Webhook Error Response:", errText);
-          showToast('Webhook gönderimi başarısız. Lütfen URL\'yi kontrol edin.', 'error');
+          showToast(`Webhook hatası (${response.status}). Lütfen URL'yi kontrol edin.`, 'error');
         }
       } catch (err) {
         console.error("Webhook Dispatch Error:", err);
