@@ -259,14 +259,11 @@ window.buildCurrentPayload = function() {
     finalAvatar = DEFAULT_AVATAR;
   }
 
-  // --- OFFICIAL DISCORD COMPONENTS V2 CONTAINER STRUCTURE ---
+  // --- PERFECT DISCORD V2 CONTAINER STRUCTURE (TextDisplay 10 + Container 17) ---
   const containerChildComponents = [
     {
-      type: 9, // Section
-      components: [
-        { type: 10, content: `# ${annTitle}` },
-        { type: 10, content: annMessage }
-      ]
+      type: 10, // TextDisplay (Title + Description)
+      content: `# ${annTitle}\n\n${annMessage}`
     }
   ];
 
@@ -280,10 +277,8 @@ window.buildCurrentPayload = function() {
 
   containerChildComponents.push({ type: 14, spacing: 1, divider: true });
   containerChildComponents.push({
-    type: 9, // Section
-    components: [
-      { type: 10, content: `• ${authorMentionStr}, Sunucu Yetkilisi` }
-    ]
+    type: 10, // TextDisplay (Author Footer)
+    content: `• ${authorMentionStr}, Sunucu Yetkilisi`
   });
 
   if (isButtons) {
@@ -352,7 +347,7 @@ window.handleAnnouncementSubmit = async function(event) {
     return false;
   }
 
-  // --- CRITICAL DISCORD API FIX: APPEND ?with_components=true ---
+  // --- MANDATORY DISCORD V2 PARAMETER ---
   if (!webhookUrl.includes('with_components=true')) {
     webhookUrl += webhookUrl.includes('?') ? '&with_components=true' : '?with_components=true';
   }
