@@ -204,7 +204,7 @@ window.handleProfileSubmit = function(event) {
   return false;
 };
 
-// --- Build Official Components V2 Payload (@everyone INSIDE CONTAINER) ---
+// --- Build Official Components V2 Payload (@everyone BELOW THE TOP SEPARATOR LINE) ---
 window.buildCurrentPayload = function() {
   const profile = window.getProfile() || { username: 'Sunucu Duyurusu', discordId: '', avatarUrl: DEFAULT_AVATAR };
   const annTitle = document.getElementById('annTitle')?.value.trim() || 'Sunucu Duyurusu';
@@ -225,26 +225,25 @@ window.buildCurrentPayload = function() {
     finalAvatar = DEFAULT_AVATAR;
   }
 
-  const containerChildComponents = [];
+  const containerChildComponents = [
+    {
+      type: 10, // TextDisplay Title (# Title)
+      content: `# ${annTitle}`
+    },
+    {
+      type: 14, // Separator Line ABOVE @everyone and description text!
+      spacing: 1,
+      divider: true
+    }
+  ];
 
-  // @everyone TAG INSIDE CONTAINER!
+  // @everyone TAG BELOW THE TOP SEPARATOR LINE!
   if (isEveryone) {
     containerChildComponents.push({
-      type: 10, // TextDisplay
+      type: 10, // TextDisplay @everyone
       content: "@everyone"
     });
   }
-
-  containerChildComponents.push({
-    type: 10, // TextDisplay Title (# Title)
-    content: `# ${annTitle}`
-  });
-
-  containerChildComponents.push({
-    type: 14, // Separator Line ABOVE description text!
-    spacing: 1,
-    divider: true
-  });
 
   containerChildComponents.push({
     type: 10, // TextDisplay Description Text
