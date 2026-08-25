@@ -7,8 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=30" />
-  <script src="script.js?v=30"></script>
+  <link rel="stylesheet" href="style.css?v=35" />
 </head>
 <body>
 
@@ -19,7 +18,7 @@
       <div class="header-actions">
         <button type="button" class="header-profile-btn" id="openProfileBtn" onclick="openSetupModal()">
           <img id="headerUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Profile" />
-          <span id="headerUsername">Giriş Yap</span>
+          <span id="headerUsername">Giriş Yap / Düzenle</span>
         </button>
       </div>
     </div>
@@ -139,7 +138,7 @@
             </div>
 
             <div class="form-actions">
-              <button type="submit" id="sendAnnBtn" class="btn btn-primary btn-glow">
+              <button type="button" onclick="handleAnnouncementSubmit(event)" id="sendAnnBtn" class="btn btn-primary btn-glow">
                 Duyuruyu Discord'a Gönder (V2 Webhook)
               </button>
             </div>
@@ -208,7 +207,7 @@
         <h2 class="modal-title">Profilinizi Oluşturun</h2>
       </div>
 
-      <form id="profileForm" class="modal-form">
+      <form id="profileForm" class="modal-form" onsubmit="handleProfileSubmit(event); return false;">
         <div class="form-group">
           <label for="setupUsername">Kullanıcı Adınız *</label>
           <input type="text" id="setupUsername" placeholder="Örn: MilkyAdmin" required class="form-input" />
@@ -270,5 +269,7 @@
 
   <div id="toastContainer" class="toast-container"></div>
 
+  <!-- SCRIPT PLACED AT VERY END OF BODY -->
+  <script src="script.js?v=35"></script>
 </body>
 </html>

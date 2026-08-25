@@ -1,5 +1,5 @@
 /* =========================================
-   MILKY.DEV — DISCORD V2 ADMIN CONTROL ENGINE
+   MILKY.DEV — DISCORD V2 ADMIN ENGINE v35
 ========================================= */
 
 const ComponentType = {
@@ -46,7 +46,7 @@ window.showToast = function(text, type = 'success') {
   }, 4000);
 };
 
-// --- Read Saved Profile ---
+// --- Read Profile ---
 window.getProfile = function() {
   try {
     const data = localStorage.getItem(PROFILE_STORAGE_KEY);
@@ -59,7 +59,44 @@ window.getProfile = function() {
   }
 };
 
-// --- Real-Time Live Preview Engine ---
+// --- Open Setup Modal (Global) ---
+window.openSetupModal = function() {
+  const modalOverlay = document.getElementById('profileSetupModal');
+  const setupUsernameInput = document.getElementById('setupUsername');
+  const setupPasswordInput = document.getElementById('setupPassword');
+  const setupAvatarUrlInput = document.getElementById('setupAvatarUrl');
+  const setupAvatarPreview = document.getElementById('setupAvatarPreview');
+
+  const currentProfile = window.getProfile();
+  if (currentProfile) {
+    if (setupUsernameInput) setupUsernameInput.value = currentProfile.username || '';
+    if (setupPasswordInput) setupPasswordInput.value = currentProfile.password || '';
+    if (setupAvatarUrlInput) setupAvatarUrlInput.value = currentProfile.avatarUrl || '';
+    if (setupAvatarPreview) setupAvatarPreview.src = currentProfile.avatarUrl || DEFAULT_AVATAR;
+  }
+
+  if (modalOverlay) {
+    modalOverlay.classList.add('active');
+    modalOverlay.style.display = 'flex';
+    modalOverlay.style.opacity = '1';
+    modalOverlay.style.pointerEvents = 'auto';
+    document.body.style.overflow = 'hidden';
+  }
+};
+
+// --- Close Setup Modal (Global) ---
+window.closeSetupModal = function() {
+  const modalOverlay = document.getElementById('profileSetupModal');
+  if (modalOverlay) {
+    modalOverlay.classList.remove('active');
+    modalOverlay.style.display = 'none';
+    modalOverlay.style.opacity = '0';
+    modalOverlay.style.pointerEvents = 'none';
+    document.body.style.overflow = '';
+  }
+};
+
+// --- Live Preview Engine ---
 window.updateLiveDiscordPreview = function() {
   const profile = window.getProfile() || { username: 'Milky Admin', avatarUrl: DEFAULT_AVATAR };
   let avatar = profile.avatarUrl;
@@ -137,34 +174,37 @@ window.applyProfileToDOM = function(profile) {
   window.updateLiveDiscordPreview();
 };
 
-// --- Global Modal Control ---
-window.openSetupModal = function() {
-  const modalOverlay = document.getElementById('profileSetupModal');
+// --- Profile Form Submit Handler ---
+window.handleProfileSubmit = function(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   const setupUsernameInput = document.getElementById('setupUsername');
   const setupPasswordInput = document.getElementById('setupPassword');
   const setupAvatarUrlInput = document.getElementById('setupAvatarUrl');
-  const setupAvatarPreview = document.getElementById('setupAvatarPreview');
 
-  const currentProfile = window.getProfile();
-  if (currentProfile) {
-    if (setupUsernameInput) setupUsernameInput.value = currentProfile.username || '';
-    if (setupPasswordInput) setupPasswordInput.value = currentProfile.password || '';
-    if (setupAvatarUrlInput) setupAvatarUrlInput.value = currentProfile.avatarUrl || '';
-    if (setupAvatarPreview) setupAvatarPreview.src = currentProfile.avatarUrl || DEFAULT_AVATAR;
+  const username = setupUsernameInput ? setupUsernameInput.value.trim() : '';
+  const password = setupPasswordInput ? setupPasswordInput.value.trim() : '';
+  let avatarUrl = setupAvatarUrlInput ? setupAvatarUrlInput.value.trim() : '';
+
+  if (!username || !password) {
+    window.showToast('Lütfen kullanıcı adı ve şifrenizi doldurun.', 'error');
+    return false;
   }
 
-  if (modalOverlay) {
-    modalOverlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
+  if (!avatarUrl) {
+    avatarUrl = DEFAULT_AVATAR;
   }
-};
 
-window.closeSetupModal = function() {
-  const modalOverlay = document.getElementById('profileSetupModal');
-  if (modalOverlay) {
-    modalOverlay.classList.remove('active');
-    document.body.style.overflow = '';
-  }
+  const profileData = { username, password, avatarUrl };
+  localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
+
+  window.applyProfileToDOM(profileData);
+  window.closeSetupModal();
+  window.showToast(`Profiliniz kaydedildi! Hoş geldiniz, ${username}.`, 'success');
+  return false;
 };
 
 // --- History Log Management ---
@@ -226,7 +266,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- Discord V2 Webhook Dispatch Handler ---
+// --- Webhook Announcement Dispatch Handler ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -387,11 +427,9 @@ window.handleAnnouncementSubmit = async function(event) {
   return false;
 };
 
-// --- DOM Initialization ---
+// --- DOM Content Loaded Init ---
 document.addEventListener('DOMContentLoaded', () => {
 
-  const profileForm = document.getElementById('profileForm');
-  const setupUsernameInput = document.getElementById('setupUsername');
   const setupPasswordInput = document.getElementById('setupPassword');
   const togglePasswordBtn = document.getElementById('togglePasswordBtn');
   
@@ -422,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (setupAvatarUrlInput) setupAvatarUrlInput.value = dataUrl;
           if (setupAvatarPreview) setupAvatarPreview.src = dataUrl;
           avatarPills.forEach(p => p.classList.remove('active'));
-          window.showToast('Fotoğraf yükledi!', 'success');
+          window.showToast('Fotoğraf yüklendi!', 'success');
           window.updateLiveDiscordPreview();
         };
         reader.readAsDataURL(file);
@@ -460,35 +498,11 @@ document.addEventListener('DOMContentLoaded', () => {
     window.applyProfileToDOM(savedProfile);
   }
 
-  if (profileForm) {
-    profileForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const username = setupUsernameInput.value.trim();
-      const password = setupPasswordInput.value.trim();
-      let avatarUrl = setupAvatarUrlInput ? setupAvatarUrlInput.value.trim() : '';
-
-      if (!username || !password) {
-        window.showToast('Kullanıcı adı ve şifrenizi doldurun.', 'error');
-        return;
-      }
-
-      if (!avatarUrl) {
-        avatarUrl = DEFAULT_AVATAR;
-      }
-
-      const profileData = { username, password, avatarUrl };
-      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
-
-      window.applyProfileToDOM(profileData);
-      window.closeSetupModal();
-      window.showToast(`Profiliniz kaydedildi! Hoş geldiniz, ${username}.`, 'success');
-    });
-  }
-
   const annTitleInput = document.getElementById('annTitle');
   const annMessageInput = document.getElementById('annMessage');
   const annImageUrlInput = document.getElementById('annImageUrl');
   const everyoneToggleInput = document.getElementById('everyoneToggle');
+  const setupUsernameInput = document.getElementById('setupUsername');
 
   [annTitleInput, annMessageInput, annImageUrlInput, everyoneToggleInput, setupUsernameInput].forEach(input => {
     if (input) {
