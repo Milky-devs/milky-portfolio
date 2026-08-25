@@ -1,10 +1,27 @@
 /* ==========================================================================
-   MODERATION PANEL — ANNOUNCEMENT SYSTEM DISCORD DISPATCH ENGINE
+   MODERATION PANEL — OFFICIAL DISCORD COMPONENTS V2 WEBHOOK ENGINE
+   Spec Reference: https://discord-webhook.com/en/blog/discord-components-v2-guide/
    ========================================================================== */
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
 const HISTORY_STORAGE_KEY = 'milky_ann_history';
 const DEFAULT_AVATAR = 'https://cdn.discordapp.net/embed/avatars/0.png';
+
+const ComponentType = {
+  ActionRow: 1,
+  Button: 2,
+  Section: 9,
+  TextDisplay: 10,
+  Thumbnail: 11,
+  MediaGallery: 12,
+  File: 13,
+  Separator: 14,
+  Container: 17,
+};
+
+const V2Flags = {
+  IsComponentsV2: 32768,
+};
 
 // --- Toast Notification Helper ---
 window.showToast = function(text, type = 'success') {
@@ -79,7 +96,7 @@ window.closeSetupModal = function() {
   }
 };
 
-// --- Live Preview Engine (1:1 Discord Replica) ---
+// --- Live Preview Engine (1:1 Discord Components V2 Preview) ---
 window.updateLiveDiscordPreview = function() {
   const profile = window.getProfile() || { username: 'crystaltears0', discordId: '', avatarUrl: DEFAULT_AVATAR };
   let avatar = profile.avatarUrl;
@@ -256,7 +273,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- DISCORD WEBHOOK DISPATCH HANDLER (FIXED FOR CLEAN DISCORD UI) ---
+// --- OFFICIAL DISCORD COMPONENTS V2 WEBHOOK DISPATCH HANDLER ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -299,25 +316,106 @@ window.handleAnnouncementSubmit = async function(event) {
   if (sendBtn) {
     sendBtn.disabled = true;
     sendBtn.style.opacity = '0.7';
-    sendBtn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> Discord\'a Gönderiliyor...';
+    sendBtn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> V2 Webhook Gönderiliyor...';
   }
 
   const colorInt = parseInt(selectedColorHex.replace('#', ''), 16) || 0x1E3A8A;
 
-  // Ensure public HTTP/HTTPS avatar URL for Discord API
   let finalAvatarUrl = profile.avatarUrl;
   if (!finalAvatarUrl || typeof finalAvatarUrl !== 'string' || finalAvatarUrl.startsWith('data:') || !finalAvatarUrl.startsWith('http')) {
     finalAvatarUrl = DEFAULT_AVATAR;
   }
 
-  // Pure Discord Mention formatting (Numeric ID vs Username)
+  // Author mention tag formatting
   let authorMentionStr = `**@${profile.username}** (${profile.username})`;
   if (profile.discordId && /^\d+$/.test(profile.discordId.trim())) {
     authorMentionStr = `<@${profile.discordId.trim()}> (${profile.username})`;
   }
 
-  // Clean Embed Object without raw "---" text lines
-  const embedObj = {
+  // ==========================================
+  // OFFICIAL DISCORD COMPONENTS V2 PAYLOAD (flags: 32768)
+  // Per spec: No top-level 'content' or 'embeds' when flags: 32768 is set.
+  // ==========================================
+  
+  // Internal container components
+  const containerComponents = [
+    {
+      type: ComponentType.Section, // 9
+      components: [
+        {
+          type: ComponentType.TextDisplay, // 10
+          content: `# ${annTitle || 'Sunucu Duyurusu'}`
+        },
+        {
+          type: ComponentType.TextDisplay, // 10
+          content: annMessage
+        }
+      ]
+    }
+  ];
+
+  // Optional Banner Image inside Container
+  if (annImageUrl && annImageUrl.startsWith('http')) {
+    containerComponents.push({
+      type: ComponentType.Separator, // 14
+      spacing: 1,
+      divider: true
+    });
+    containerComponents.push({
+      type: ComponentType.MediaGallery, // 12
+      items: [
+        {
+          media: { url: annImageUrl },
+          description: annTitle
+        }
+      ]
+    });
+  }
+
+  // Separator & Footer Author Info Section
+  containerComponents.push({
+    type: ComponentType.Separator, // 14
+    spacing: 1,
+    divider: true
+  });
+  containerComponents.push({
+    type: ComponentType.Section, // 9
+    components: [
+      {
+        type: ComponentType.TextDisplay, // 10
+        content: `• ${authorMentionStr}, Sunucu Yetkilisi`
+      }
+    ]
+  });
+
+  // Top-level V2 Components array
+  const rootComponents = [];
+
+  // @everyone ping as top-level TextDisplay component BEFORE the Container
+  if (isEveryone) {
+    rootComponents.push({
+      type: ComponentType.TextDisplay, // 10
+      content: "@everyone"
+    });
+  }
+
+  // Container Component (17)
+  rootComponents.push({
+    type: ComponentType.Container, // 17
+    accent_color: colorInt,
+    components: containerComponents
+  });
+
+  // Pure V2 Webhook Payload
+  const pureV2Payload = {
+    username: profile.username || "Sunucu Duyurusu",
+    avatar_url: finalAvatarUrl,
+    flags: V2Flags.IsComponentsV2,
+    components: rootComponents
+  };
+
+  // Fallback Rich Embed Payload (If webhook endpoint does not support V2 flags)
+  const fallbackEmbedObj = {
     title: annTitle || "Sunucu Duyurusu",
     description: annMessage,
     color: colorInt,
@@ -334,27 +432,37 @@ window.handleAnnouncementSubmit = async function(event) {
       icon_url: finalAvatarUrl
     }
   };
-
   if (annImageUrl && annImageUrl.startsWith('http')) {
-    embedObj.image = { url: annImageUrl };
+    fallbackEmbedObj.image = { url: annImageUrl };
   }
 
-  const payload = {
+  const fallbackPayload = {
     username: profile.username || "Sunucu Duyurusu",
     avatar_url: finalAvatarUrl,
     content: isEveryone ? "@everyone" : null,
-    embeds: [embedObj]
+    embeds: [fallbackEmbedObj]
   };
 
   try {
-    const response = await fetch(webhookUrl, {
+    // 1st Attempt: Send Pure Components V2 Payload (flags: 32768)
+    let response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(pureV2Payload)
     });
 
+    // 2nd Attempt: Fallback to Rich Embed Payload if V2 is rejected by endpoint
+    if (!response.ok && response.status !== 204) {
+      console.warn("V2 Payload returned HTTP", response.status, "— retrying with fallback embed payload.");
+      response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fallbackPayload)
+      });
+    }
+
     if (response.ok || response.status === 204) {
-      window.showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
+      window.showToast('🎉 V2 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
       
       window.saveHistory({
         title: annTitle || 'Sunucu Duyurusu',
@@ -369,6 +477,8 @@ window.handleAnnouncementSubmit = async function(event) {
       if (annImageUrlInput) annImageUrlInput.value = '';
       window.updateLiveDiscordPreview();
     } else {
+      const errTxt = await response.text();
+      console.error("Webhook Error:", response.status, errTxt);
       window.showToast(`Webhook hatası (${response.status}). URL'yi kontrol edin.`, 'error');
     }
   } catch (err) {
