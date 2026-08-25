@@ -145,39 +145,6 @@ window.updateLiveDiscordPreview = function() {
       : `@${usernameStr}`;
     previewFooterText.innerHTML = `• <span class="dc-user-tag">${tagStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
   }
-
-  // V2 Component Buttons Live Preview Update
-  const buttonsToggle = document.getElementById('buttonsToggle');
-  const buttonsConfigRow = document.getElementById('buttonsConfigRow');
-  const previewV2Buttons = document.getElementById('previewV2Buttons');
-  const previewBtn1 = document.getElementById('previewBtn1');
-  const previewBtn2 = document.getElementById('previewBtn2');
-
-  const isButtons = buttonsToggle ? buttonsToggle.checked : false;
-  if (buttonsConfigRow) buttonsConfigRow.style.display = isButtons ? 'block' : 'none';
-
-  if (isButtons) {
-    const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
-    const b1Url = document.getElementById('btn1Url')?.value.trim() || '';
-    const b2Label = document.getElementById('btn2Label')?.value.trim() || '';
-    const b2Url = document.getElementById('btn2Url')?.value.trim() || '';
-
-    const validB1 = b1Label && isValidHttpUrl(b1Url);
-    const validB2 = b2Label && isValidHttpUrl(b2Url);
-
-    if (previewV2Buttons) previewV2Buttons.style.display = (validB1 || validB2) ? 'flex' : 'none';
-
-    if (previewBtn1) {
-      previewBtn1.textContent = b1Label;
-      previewBtn1.style.display = validB1 ? 'inline-flex' : 'none';
-    }
-    if (previewBtn2) {
-      previewBtn2.textContent = b2Label;
-      previewBtn2.style.display = validB2 ? 'inline-flex' : 'none';
-    }
-  } else {
-    if (previewV2Buttons) previewV2Buttons.style.display = 'none';
-  }
 };
 
 // --- Apply Profile to DOM ---
@@ -237,14 +204,13 @@ window.handleProfileSubmit = function(event) {
   return false;
 };
 
-// --- Build Official Components V2 Payload (flags: 32768) ---
+// --- Build Official Components V2 Payload (flags: 32768) WITH TOP SEPARATOR LINE ---
 window.buildCurrentPayload = function() {
   const profile = window.getProfile() || { username: 'Sunucu Duyurusu', discordId: '', avatarUrl: DEFAULT_AVATAR };
   const annTitle = document.getElementById('annTitle')?.value.trim() || 'Sunucu Duyurusu';
   const annMessage = document.getElementById('annMessage')?.value.trim() || '';
   const annImageUrl = document.getElementById('annImageUrl')?.value.trim() || '';
   const isEveryone = document.getElementById('everyoneToggle')?.checked || false;
-  const isButtons = document.getElementById('buttonsToggle')?.checked || false;
 
   const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#1E3A8A';
   const colorInt = parseInt(selectedColorHex.replace('#', ''), 16) || 0x1E3A8A;
@@ -259,11 +225,20 @@ window.buildCurrentPayload = function() {
     finalAvatar = DEFAULT_AVATAR;
   }
 
-  // --- PERFECT DISCORD V2 CONTAINER STRUCTURE ---
+  // --- DISCORD V2 CONTAINER STRUCTURE (TITLE + TOP SEPARATOR + DESCRIPTION + BOTTOM SEPARATOR + FOOTER) ---
   const containerChildComponents = [
     {
-      type: 10, // TextDisplay (Title + Description)
-      content: `# ${annTitle}\n\n${annMessage}`
+      type: 10, // TextDisplay Title (# Title)
+      content: `# ${annTitle}`
+    },
+    {
+      type: 14, // Separator Line ABOVE description text!
+      spacing: 1,
+      divider: true
+    },
+    {
+      type: 10, // TextDisplay Description Text
+      content: annMessage
     }
   ];
 
@@ -277,23 +252,9 @@ window.buildCurrentPayload = function() {
 
   containerChildComponents.push({ type: 14, spacing: 1, divider: true });
   containerChildComponents.push({
-    type: 10, // TextDisplay (Author Footer)
+    type: 10, // TextDisplay Author Footer
     content: `• ${authorMentionStr}, Sunucu Yetkilisi`
   });
-
-  if (isButtons) {
-    const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
-    const b1Url = document.getElementById('btn1Url')?.value.trim() || '';
-    const b2Label = document.getElementById('btn2Label')?.value.trim() || '';
-    const b2Url = document.getElementById('btn2Url')?.value.trim() || '';
-
-    const buttonsList = [];
-    if (b1Label && isValidHttpUrl(b1Url)) buttonsList.push({ type: 2, style: 5, label: b1Label, url: b1Url.trim() });
-    if (b2Label && isValidHttpUrl(b2Url)) buttonsList.push({ type: 2, style: 5, label: b2Label, url: b2Url.trim() });
-    if (buttonsList.length > 0) {
-      containerChildComponents.push({ type: 1, components: buttonsList });
-    }
-  }
 
   const rootComponents = [];
   if (isEveryone) {
@@ -317,7 +278,7 @@ window.buildCurrentPayload = function() {
   };
 };
 
-// --- DISCORD WEBHOOK DISPATCH HANDLER ---
+// --- DISCORD WEBHOOK DISPATCH HANDLER WITH ?with_components=true ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -347,7 +308,6 @@ window.handleAnnouncementSubmit = async function(event) {
     return false;
   }
 
-  // Mandatory V2 Webhook parameter ?with_components=true
   if (!webhookUrl.includes('with_components=true')) {
     webhookUrl += webhookUrl.includes('?') ? '&with_components=true' : '?with_components=true';
   }
@@ -484,17 +444,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const annMessageInput = document.getElementById('annMessage');
   const annImageUrlInput = document.getElementById('annImageUrl');
   const everyoneToggleInput = document.getElementById('everyoneToggle');
-  const buttonsToggle = document.getElementById('buttonsToggle');
-  const btn1Label = document.getElementById('btn1Label');
-  const btn1Url = document.getElementById('btn1Url');
-  const btn2Label = document.getElementById('btn2Label');
-  const btn2Url = document.getElementById('btn2Url');
   const setupUsernameInput = document.getElementById('setupUsername');
 
   [
-    annTitleInput, annMessageInput, annImageUrlInput, everyoneToggleInput,
-    buttonsToggle, btn1Label, btn1Url, btn2Label, btn2Url,
-    setupUsernameInput
+    annTitleInput, annMessageInput, annImageUrlInput, everyoneToggleInput, setupUsernameInput
   ].forEach(input => {
     if (input) {
       input.addEventListener('input', window.updateLiveDiscordPreview);
@@ -511,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const templates = {
     maintenance: {
       title: "Sunucu Bakımı",
-      message: "Sunucumuz sistem bakımı meşgul çalışmalar için kısa süreliğine bakıma alınmıştır. Güncelleme tamamlandığında bilgilendirme yapılacaktır.\n\nAnlayışınız için teşekkür ederiz!",
+      message: "Sunucumuz sistem bakımı ve optimizasyon çalışmaları için kısa süreliğine bakıma alınmıştır. Güncelleme tamamlandığında bilgilendirme yapılacaktır.\n\nAnlayışınız için teşekkür ederiz!",
       color: "#1E3A8A",
       everyone: true
     },

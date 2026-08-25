@@ -196,39 +196,11 @@
               </label>
             </div>
 
-            <!-- V2 COMPONENT BUTTONS OPTIONS -->
             <div class="field-group">
-              <label class="custom-checkbox">
-                <input type="checkbox" id="buttonsToggle" checked />
-                <span class="checkbox-box">
-                  <span class="material-symbols-outlined check-mark">check</span>
-                </span>
-                <span class="checkbox-text">
-                  <span class="material-symbols-outlined text-icon">smart_button</span> <strong>İnteraktif Discord Butonları (V2 Components)</strong> Ekle
-                </span>
+              <label for="webhookUrlInput">
+                <span class="material-symbols-outlined field-icon">webhook</span> Discord Webhook URL *
               </label>
-            </div>
-
-            <div id="buttonsConfigRow" class="field-group-sub">
-              <div class="field-group">
-                <label for="btn1Label">
-                  <span class="material-symbols-outlined field-icon">label</span> Buton 1 Adı & URL
-                </label>
-                <div class="grid-2-col">
-                  <input type="text" id="btn1Label" placeholder="Örn: 🌐 Web Sitemiz" class="form-control" value="🌐 Web Sitemiz" />
-                  <input type="url" id="btn1Url" placeholder="https://milky-devs.github.io/milky-portfolio/" class="form-control" value="https://milky-devs.github.io/milky-portfolio/" />
-                </div>
-              </div>
-
-              <div class="field-group mt-2">
-                <label for="btn2Label">
-                  <span class="material-symbols-outlined field-icon">label</span> Buton 2 Adı & URL (Opsiyonel)
-                </label>
-                <div class="grid-2-col">
-                  <input type="text" id="btn2Label" placeholder="Örn: 💬 Destek Sunucusu" class="form-control" value="💬 Destek Sunucusu" />
-                  <input type="url" id="btn2Url" placeholder="https://discord.gg" class="form-control" value="https://discord.gg" />
-                </div>
-              </div>
+              <input type="url" id="webhookUrlInput" class="form-control form-control-sm" value="https://discord.com/api/webhooks/1541841811415498933/EEETUjrXpL51QoEv4ouN3tbklIRL5cFDkMzTOpml-bZwweynLsJ5YJ1yUuEDvSxdXUwd" required />
             </div>
 
             <!-- V2 COMPONENT SELECT MENU OPTIONS -->
@@ -317,20 +289,19 @@
                   <div class="dc-embed-color-bar" id="previewEmbedColorBar"></div>
                   <div class="dc-v2-container-inner">
                     <h1 class="dc-v2-title" id="previewTitle">Acil Duyuru</h1>
+                    
+                    <!-- SEPARATOR LINE ABOVE TEXT -->
+                    <div class="dc-v2-divider"></div>
+
                     <div class="dc-v2-description" id="previewMessage">Duyuru metniniz burada görünür...</div>
                     
                     <img id="previewImage" class="dc-embed-image" src="" alt="Duyuru Görseli" style="display: none;" />
                     
+                    <!-- SEPARATOR LINE BELOW TEXT -->
                     <div class="dc-v2-divider"></div>
 
                     <div class="dc-v2-author-tag" id="previewFooterText">
                       • <span class="dc-user-tag">@crystaltears0</span> (Crystal), Sunucu Yetkilisi
-                    </div>
-
-                    <!-- LIVE PREVIEW V2 COMPONENT BUTTONS ROW -->
-                    <div id="previewV2Buttons" class="dc-buttons-preview-row">
-                      <span class="dc-button-preview" id="previewBtn1">🌐 Web Sitemiz</span>
-                      <span class="dc-button-preview" id="previewBtn2">💬 Destek Sunucusu</span>
                     </div>
                   </div>
                 </div>
@@ -464,7 +435,7 @@
 
   <div id="toastContainer" class="toast-area"></div>
 
-  <!-- SCRIPT WITH FORCE CACHE BUSTER V13000 -->
-  <script src="script.js?v=13000"></script>
+  <!-- SCRIPT WITH FORCE CACHE BUSTER V14000 -->
+  <script src="script.js?v=14000"></script>
 </body>
 </html>
