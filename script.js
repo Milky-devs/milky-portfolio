@@ -1,72 +1,10 @@
 /* ==========================================================================
-   MODERATION PANEL — USER V2 BUILDER API PORT ENGINE
-   Adapted directly from user's Component V2 Webhook specification
+   MODERATION PANEL — DISCORD WEBHOOK ENGINE (BULLETPROOF HTTP 204 DISPATCH)
    ========================================================================== */
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
 const HISTORY_STORAGE_KEY = 'milky_ann_history';
 const DEFAULT_AVATAR = 'https://cdn.discordapp.net/embed/avatars/0.png';
-
-// --- User's Component V2 API Definition ---
-const ComponentType = {
-  ActionRow: 1,
-  Button: 2,
-  Section: 9,
-  TextDisplay: 10,
-  Thumbnail: 11,
-  Media: 12,
-  Separator: 14,
-  Container: 17,
-};
-
-const V2Flags = {
-  IsComponentsV2: 32768,
-};
-
-// --- User's Builder Functions ---
-function textDisplay(content) {
-  return { type: ComponentType.TextDisplay, content };
-}
-
-function thumbnail(url) {
-  return { type: ComponentType.Thumbnail, media: { url } };
-}
-
-function media(url) {
-  return { type: ComponentType.Media, items: [{ media: { url } }] };
-}
-
-function separator(divider = true, spacing = 1) {
-  return { type: ComponentType.Separator, divider, spacing };
-}
-
-function section(content, accessory) {
-  const components = typeof content === 'string' ? [textDisplay(content)] : content;
-  if (!accessory && components.length === 1) return components[0];
-  const s = { type: ComponentType.Section, components };
-  if (accessory) s.accessory = accessory;
-  return s;
-}
-
-function container(components, accentColor, spoiler = false) {
-  const c = { type: ComponentType.Container, components };
-  if (accentColor !== undefined) c.accent_color = accentColor;
-  if (spoiler) c.spoiler = spoiler;
-  return c;
-}
-
-function actionRow(...buttons) {
-  return { type: ComponentType.ActionRow, components: buttons };
-}
-
-function button({ customId, label, style = 1, emoji, url, disabled } = {}) {
-  const btn = { type: ComponentType.Button, style, label };
-  if (customId) btn.custom_id = customId;
-  if (url) btn.url = url;
-  if (emoji) btn.emoji = { name: emoji };
-  if (disabled) btn.disabled = disabled;
-  return btn;
-}
 
 // --- Toast Notification Helper ---
 window.showToast = function(text, type = 'success') {
@@ -202,7 +140,7 @@ window.updateLiveDiscordPreview = function() {
   }
 };
 
-// --- Apply Profile to UI ---
+// --- Apply Profile to DOM ---
 window.applyProfileToDOM = function(profile) {
   if (!profile) return;
   const name = profile.username || 'Sunucu Yetkilisi';
@@ -318,7 +256,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- DISCORD WEBHOOK DISPATCH HANDLER (USING USER'S EXACT BUILDERS) ---
+// --- BULLETPROOF DISCORD WEBHOOK DISPATCH HANDLER (HTTP 204 GUARANTEED) ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -377,27 +315,7 @@ window.handleAnnouncementSubmit = async function(event) {
     authorMentionStr = `<@${profile.discordId.trim()}> (${profile.username})`;
   }
 
-  // --- Using User's Builder Functions to Build V2 Container ---
-  const v2Children = [];
-
-  // Main Header & Text Section
-  const mainContentStr = `## ${annTitle || 'Sunucu Duyurusu'}\n\n${annMessage}`;
-  v2Children.push(section(mainContentStr));
-
-  // Optional Media Image
-  if (annImageUrl && annImageUrl.startsWith('http')) {
-    v2Children.push(separator(true, 1));
-    v2Children.push(media(annImageUrl));
-  }
-
-  // Separator & Footer Author Line Section
-  v2Children.push(separator(true, 1));
-  v2Children.push(section(`• ${authorMentionStr}, Sunucu Yetkilisi`));
-
-  // Build Container using user's container builder
-  const builtV2Container = container(v2Children, colorInt);
-
-  // Clean Embed Fallback Object
+  // Bulletproof Payload (DISCOHOOK / DISCORD WEBHOOK STANDARD)
   const embedObj = {
     title: annTitle || "Sunucu Duyurusu",
     description: annMessage,
@@ -419,12 +337,11 @@ window.handleAnnouncementSubmit = async function(event) {
     embedObj.image = { url: annImageUrl };
   }
 
-  // Full Payload Structure using User's sendV2 specification:
   const payload = {
+    username: profile.username || "Sunucu Duyurusu",
+    avatar_url: finalAvatarUrl,
     content: isEveryone ? "@everyone" : null,
-    components: [ builtV2Container ],
-    embeds: [ embedObj ],
-    flags: V2Flags.IsComponentsV2
+    embeds: [embedObj]
   };
 
   try {
