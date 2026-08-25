@@ -1,11 +1,10 @@
 /* ==========================================================================
-   MODERATION PANEL — DISCORD WEBHOOK & JAVA BOT API DISPATCH ENGINE
+   MODERATION PANEL — OFFICIAL DISCORD COMPONENTS V2 WEBHOOK ENGINE
    ========================================================================== */
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
 const HISTORY_STORAGE_KEY = 'milky_ann_history';
 const DEFAULT_AVATAR = 'https://cdn.discordapp.net/embed/avatars/0.png';
-const JAVA_BOT_API_URL = 'http://localhost:8080/api/announce';
 
 // --- Toast Notification Helper ---
 window.showToast = function(text, type = 'success') {
@@ -147,7 +146,7 @@ window.updateLiveDiscordPreview = function() {
     previewFooterText.innerHTML = `• <span class="dc-user-tag">${tagStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
   }
 
-  // --- V2 Component Buttons Live Preview Update ---
+  // V2 Component Buttons Live Preview Update
   const buttonsToggle = document.getElementById('buttonsToggle');
   const buttonsConfigRow = document.getElementById('buttonsConfigRow');
   const previewV2Buttons = document.getElementById('previewV2Buttons');
@@ -178,21 +177,6 @@ window.updateLiveDiscordPreview = function() {
     }
   } else {
     if (previewV2Buttons) previewV2Buttons.style.display = 'none';
-  }
-
-  // --- V2 Select Menu Live Preview Update ---
-  const selectMenuToggle = document.getElementById('selectMenuToggle');
-  const selectMenuConfigRow = document.getElementById('selectMenuConfigRow');
-  const previewSelectMenu = document.getElementById('previewSelectMenu');
-  const previewSelectPlaceholder = document.getElementById('previewSelectPlaceholder');
-
-  const isSelectMenu = selectMenuToggle ? selectMenuToggle.checked : false;
-  if (selectMenuConfigRow) selectMenuConfigRow.style.display = isSelectMenu ? 'block' : 'none';
-  if (previewSelectMenu) previewSelectMenu.style.display = isSelectMenu ? 'flex' : 'none';
-
-  if (isSelectMenu && previewSelectPlaceholder) {
-    const placeholderVal = document.getElementById('selectMenuPlaceholder')?.value.trim() || 'Bir seçenek seçin...';
-    previewSelectPlaceholder.textContent = placeholderVal;
   }
 };
 
@@ -253,109 +237,8 @@ window.handleProfileSubmit = function(event) {
   return false;
 };
 
-// --- Build Standard Payload ---
-window.buildStandardPayload = function() {
-  const profile = window.getProfile() || { username: 'Sunucu Duyurusu', discordId: '', avatarUrl: DEFAULT_AVATAR };
-  const annTitle = document.getElementById('annTitle')?.value.trim() || 'Sunucu Duyurusu';
-  const annMessage = document.getElementById('annMessage')?.value.trim() || '';
-  const annImageUrl = document.getElementById('annImageUrl')?.value.trim() || '';
-  const isEveryone = document.getElementById('everyoneToggle')?.checked || false;
-  const isButtons = document.getElementById('buttonsToggle')?.checked || false;
-  const isSelectMenu = document.getElementById('selectMenuToggle')?.checked || false;
-
-  const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#1E3A8A';
-  const colorInt = parseInt(selectedColorHex.replace('#', ''), 16) || 0x1E3A8A;
-
-  let authorMentionStr = `**@${profile.username}** (${profile.username})`;
-  if (profile.discordId && /^\d+$/.test(profile.discordId.trim())) {
-    authorMentionStr = `<@${profile.discordId.trim()}> (${profile.username})`;
-  }
-
-  let finalAvatar = profile.avatarUrl;
-  if (!isValidHttpUrl(finalAvatar)) {
-    finalAvatar = DEFAULT_AVATAR;
-  }
-
-  const embedObj = {
-    title: annTitle,
-    description: annMessage,
-    color: colorInt,
-    timestamp: new Date().toISOString(),
-    fields: [
-      {
-        name: "\u200b",
-        value: `• ${authorMentionStr}, Sunucu Yetkilisi`,
-        inline: false
-      }
-    ],
-    footer: {
-      text: `Sunucu Duyurusu • Yetkili: ${profile.username}`
-    }
-  };
-
-  if (isValidHttpUrl(annImageUrl)) {
-    embedObj.image = { url: annImageUrl };
-  }
-
-  const payload = {
-    username: profile.username || "Sunucu Duyurusu",
-    avatar_url: finalAvatar,
-    content: isEveryone ? "@everyone" : null,
-    embeds: [embedObj]
-  };
-
-  const actionRows = [];
-
-  if (isButtons) {
-    const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
-    const b1Url = document.getElementById('btn1Url')?.value.trim() || '';
-    const b2Label = document.getElementById('btn2Label')?.value.trim() || '';
-    const b2Url = document.getElementById('btn2Url')?.value.trim() || '';
-
-    const buttonsList = [];
-    if (b1Label && isValidHttpUrl(b1Url)) buttonsList.push({ type: 2, style: 5, label: b1Label, url: b1Url.trim() });
-    if (b2Label && isValidHttpUrl(b2Url)) buttonsList.push({ type: 2, style: 5, label: b2Label, url: b2Url.trim() });
-    if (buttonsList.length > 0) actionRows.push({ type: 1, components: buttonsList });
-  }
-
-  if (isSelectMenu) {
-    const placeholderText = document.getElementById('selectMenuPlaceholder')?.value.trim() || 'Bir seçenek seçin...';
-    const opt1Text = document.getElementById('selectOpt1')?.value.trim() || '📌 Sunucu Kuralları';
-    const opt2Text = document.getElementById('selectOpt2')?.value.trim() || '🎉 Rol Bilgilendirme';
-
-    const selectOptions = [];
-    if (opt1Text) selectOptions.push({ label: opt1Text, value: 'opt_1' });
-    if (opt2Text) selectOptions.push({ label: opt2Text, value: 'opt_2' });
-
-    if (selectOptions.length > 0) {
-      actionRows.push({
-        type: 1,
-        components: [
-          {
-            type: 3,
-            custom_id: 'v2_select_menu_announcement',
-            placeholder: placeholderText,
-            options: selectOptions
-          }
-        ]
-      });
-    }
-  }
-
-  if (actionRows.length > 0) {
-    payload.components = actionRows;
-  }
-
-  return payload;
-};
-
-// --- Build Current Payload (Supports Standard vs Components Mode) ---
+// --- Build Official Components V2 Payload (flags: 32768) ---
 window.buildCurrentPayload = function() {
-  const formatMode = document.querySelector('input[name="messageFormatMode"]:checked')?.value || 'standard';
-  if (formatMode === 'standard') {
-    return window.buildStandardPayload();
-  }
-
   const profile = window.getProfile() || { username: 'Sunucu Duyurusu', discordId: '', avatarUrl: DEFAULT_AVATAR };
   const annTitle = document.getElementById('annTitle')?.value.trim() || 'Sunucu Duyurusu';
   const annMessage = document.getElementById('annMessage')?.value.trim() || '';
@@ -376,7 +259,8 @@ window.buildCurrentPayload = function() {
     finalAvatar = DEFAULT_AVATAR;
   }
 
-  const v2ContainerComponents = [
+  // --- OFFICIAL DISCORD COMPONENTS V2 CONTAINER STRUCTURE ---
+  const containerChildComponents = [
     {
       type: 9, // Section
       components: [
@@ -387,20 +271,34 @@ window.buildCurrentPayload = function() {
   ];
 
   if (isValidHttpUrl(annImageUrl)) {
-    v2ContainerComponents.push({ type: 14, spacing: 1, divider: true });
-    v2ContainerComponents.push({
+    containerChildComponents.push({ type: 14, spacing: 1, divider: true });
+    containerChildComponents.push({
       type: 12, // MediaGallery
       items: [{ media: { url: annImageUrl } }]
     });
   }
 
-  v2ContainerComponents.push({ type: 14, spacing: 1, divider: true });
-  v2ContainerComponents.push({
+  containerChildComponents.push({ type: 14, spacing: 1, divider: true });
+  containerChildComponents.push({
     type: 9, // Section
     components: [
       { type: 10, content: `• ${authorMentionStr}, Sunucu Yetkilisi` }
     ]
   });
+
+  if (isButtons) {
+    const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
+    const b1Url = document.getElementById('btn1Url')?.value.trim() || '';
+    const b2Label = document.getElementById('btn2Label')?.value.trim() || '';
+    const b2Url = document.getElementById('btn2Url')?.value.trim() || '';
+
+    const buttonsList = [];
+    if (b1Label && isValidHttpUrl(b1Url)) buttonsList.push({ type: 2, style: 5, label: b1Label, url: b1Url.trim() });
+    if (b2Label && isValidHttpUrl(b2Url)) buttonsList.push({ type: 2, style: 5, label: b2Label, url: b2Url.trim() });
+    if (buttonsList.length > 0) {
+      containerChildComponents.push({ type: 1, components: buttonsList });
+    }
+  }
 
   const rootComponents = [];
   if (isEveryone) {
@@ -413,20 +311,8 @@ window.buildCurrentPayload = function() {
   rootComponents.push({
     type: 17, // Container
     accent_color: colorInt,
-    components: v2ContainerComponents
+    components: containerChildComponents
   });
-
-  if (isButtons) {
-    const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
-    const b1Url = document.getElementById('btn1Url')?.value.trim() || '';
-    const b2Label = document.getElementById('btn2Label')?.value.trim() || '';
-    const b2Url = document.getElementById('btn2Url')?.value.trim() || '';
-
-    const buttonsList = [];
-    if (b1Label && isValidHttpUrl(b1Url)) buttonsList.push({ type: 2, style: 5, label: b1Label, url: b1Url.trim() });
-    if (b2Label && isValidHttpUrl(b2Url)) buttonsList.push({ type: 2, style: 5, label: b2Label, url: b2Url.trim() });
-    if (buttonsList.length > 0) rootComponents.push({ type: 1, components: buttonsList });
-  }
 
   return {
     username: profile.username || "Sunucu Duyurusu",
@@ -436,128 +322,7 @@ window.buildCurrentPayload = function() {
   };
 };
 
-// --- Copy Discohook JSON ---
-window.copyDiscohookJSON = function() {
-  const payload = window.buildCurrentPayload();
-  const jsonStr = JSON.stringify(payload, null, 2);
-  navigator.clipboard.writeText(jsonStr).then(() => {
-    window.showToast('📋 Discohook formatında JSON panoya kopyalandı!', 'success');
-  }).catch(() => {
-    window.showToast('Kopyalama başarısız oldu.', 'error');
-  });
-};
-
-// --- Paste Discohook JSON ---
-window.pasteDiscohookJSON = async function() {
-  try {
-    const text = await navigator.clipboard.readText();
-    if (!text) {
-      window.showToast('Pano boş.', 'error');
-      return;
-    }
-    const parsed = JSON.parse(text);
-    if (!parsed || typeof parsed !== 'object') {
-      window.showToast('Geçersiz JSON formatı.', 'error');
-      return;
-    }
-
-    if (parsed.flags === 32768) {
-      const compRadio = document.querySelector('input[name="messageFormatMode"][value="components"]');
-      if (compRadio) compRadio.checked = true;
-    } else {
-      const stdRadio = document.querySelector('input[name="messageFormatMode"][value="standard"]');
-      if (stdRadio) stdRadio.checked = true;
-    }
-
-    if (parsed.content) {
-      const everyoneToggleInput = document.getElementById('everyoneToggle');
-      if (everyoneToggleInput) everyoneToggleInput.checked = parsed.content.includes('@everyone');
-    }
-
-    if (parsed.embeds && parsed.embeds[0]) {
-      const emb = parsed.embeds[0];
-      const annTitleInput = document.getElementById('annTitle');
-      const annMessageInput = document.getElementById('annMessage');
-      const annImageUrlInput = document.getElementById('annImageUrl');
-
-      if (annTitleInput && emb.title) annTitleInput.value = emb.title;
-      if (annMessageInput && emb.description) annMessageInput.value = emb.description;
-      if (annImageUrlInput && emb.image && emb.image.url) annImageUrlInput.value = emb.image.url;
-
-      if (emb.color) {
-        const hexColor = '#' + emb.color.toString(16).padStart(6, '0').toUpperCase();
-        const targetRadio = document.querySelector(`input[name="embedColor"][value="${hexColor}"]`);
-        if (targetRadio) targetRadio.checked = true;
-      }
-    }
-
-    window.updateLiveDiscordPreview();
-    window.showToast('📥 Discohook JSON verisi forma aktarıldı!', 'success');
-  } catch (err) {
-    window.showToast('Panodan JSON okunamadı.', 'error');
-  }
-};
-
-// --- History Log Management ---
-window.getHistory = function() {
-  try {
-    const data = localStorage.getItem(HISTORY_STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch (e) {
-    return [];
-  }
-};
-
-window.saveHistory = function(item) {
-  const list = window.getHistory();
-  list.unshift(item);
-  if (list.length > 20) list.pop();
-  localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list));
-  window.renderHistoryList();
-};
-
-window.renderHistoryList = function() {
-  const historyListContainer = document.getElementById('annHistoryList');
-  if (!historyListContainer) return;
-
-  const list = window.getHistory();
-  if (list.length === 0) {
-    historyListContainer.innerHTML = '<div class="empty-history-box">Henüz duyuru gönderilmedi.</div>';
-    return;
-  }
-
-  historyListContainer.innerHTML = list.map((item, idx) => `
-    <div class="history-card-item">
-      <div class="history-card-left">
-        <div class="history-color-indicator" style="background-color: ${item.color || '#1E3A8A'};"></div>
-        <div class="history-card-info">
-          <strong>${item.title || 'Duyuru'}</strong>
-          <span>Yetkili: ${item.sender || 'Sunucu Yetkilisi'} • ${item.date}</span>
-        </div>
-      </div>
-      <button type="button" class="btn-ghost-danger resend-btn" data-index="${idx}" style="color: var(--text-main); border-color: var(--border-color);">Tekrar Doldur</button>
-    </div>
-  `).join('');
-
-  document.querySelectorAll('.resend-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const idx = parseInt(btn.getAttribute('data-index'));
-      const item = list[idx];
-      if (item) {
-        const annTitleInput = document.getElementById('annTitle');
-        const annMessageInput = document.getElementById('annMessage');
-        if (annTitleInput) annTitleInput.value = item.title || '';
-        if (annMessageInput) annMessageInput.value = item.message || '';
-        const targetRadio = document.querySelector(`input[name="embedColor"][value="${item.color}"]`);
-        if (targetRadio) targetRadio.checked = true;
-        window.updateLiveDiscordPreview();
-        window.showToast('Geçmiş duyuru formu tekrar dolduruldu!', 'success');
-      }
-    });
-  });
-};
-
-// --- DISCORD WEBHOOK DISPATCH HANDLER (WITH JAVA BOT SERVICE INTEGRATION) ---
+// --- DISCORD WEBHOOK DISPATCH HANDLER WITH ?with_components=true ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -575,7 +340,7 @@ window.handleAnnouncementSubmit = async function(event) {
   const webhookUrlInput = document.getElementById('webhookUrlInput');
 
   const annMessage = annMessageInput ? annMessageInput.value.trim() : '';
-  const webhookUrl = webhookUrlInput ? webhookUrlInput.value.trim() : '';
+  let webhookUrl = webhookUrlInput ? webhookUrlInput.value.trim() : '';
 
   if (!annMessage) {
     window.showToast('Lütfen duyuru metnini yazın.', 'error');
@@ -587,63 +352,32 @@ window.handleAnnouncementSubmit = async function(event) {
     return false;
   }
 
+  // --- CRITICAL DISCORD API FIX: APPEND ?with_components=true ---
+  if (!webhookUrl.includes('with_components=true')) {
+    webhookUrl += webhookUrl.includes('?') ? '&with_components=true' : '?with_components=true';
+  }
+
   const sendBtn = document.getElementById('sendAnnBtn');
   const originalBtnHTML = sendBtn ? sendBtn.innerHTML : '';
 
   if (sendBtn) {
     sendBtn.disabled = true;
     sendBtn.style.opacity = '0.7';
-    sendBtn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> Discord\'a Gönderiliyor...';
+    sendBtn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> V2 Konteyner Gönderiliyor...';
   }
 
   const payload = window.buildCurrentPayload();
 
   try {
-    // 1st Attempt: Send via Java Bot Service API if local Java Bot is active
-    let isSent = false;
-    try {
-      const javaResponse = await fetch(JAVA_BOT_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (javaResponse.ok) {
-        isSent = true;
-        window.showToast('☕ Duyuru Java Discord Bot Servisi üzerinden başarıyla gönderildi!', 'success');
-      }
-    } catch (javaErr) {
-      console.log("Java Bot Service local API unreachable — using direct Webhook dispatch.");
-    }
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-    // 2nd Attempt: Direct Webhook Dispatch
-    if (!isSent) {
-      let response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok && response.status !== 204 && payload.flags === 32768) {
-        console.warn("V2 Payload returned HTTP", response.status, "— fallback to Standard Embed Payload.");
-        const fallbackPayload = window.buildStandardPayload();
-        response = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(fallbackPayload)
-        });
-      }
-
-      if (response.ok || response.status === 200 || response.status === 204) {
-        isSent = true;
-        window.showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
-      } else {
-        const errTxt = await response.text();
-        console.error("Webhook Error:", response.status, errTxt);
-        window.showToast(`Webhook yanıtı: ${response.status}. Lütfen URL'yi kontrol edin.`, 'error');
-      }
-    }
-
-    if (isSent) {
+    if (response.ok || response.status === 200 || response.status === 204) {
+      window.showToast('🎉 Pure Components V2 Konteyner duyurusu başarıyla gönderildi!', 'success');
+      
       window.saveHistory({
         title: document.getElementById('annTitle')?.value.trim() || 'Sunucu Duyurusu',
         message: annMessage,
@@ -658,8 +392,11 @@ window.handleAnnouncementSubmit = async function(event) {
       if (annTitleInput) annTitleInput.value = 'Sunucu Duyurusu';
       if (annImageUrlInput) annImageUrlInput.value = '';
       window.updateLiveDiscordPreview();
+    } else {
+      const errTxt = await response.text();
+      console.error("Webhook Error:", response.status, errTxt);
+      window.showToast(`Webhook yanıtı: ${response.status}. Lütfen URL'yi kontrol edin.`, 'error');
     }
-
   } catch (err) {
     console.error("Dispatch Exception:", err);
     window.showToast('Ağ/Tarayıcı Engeli: İletişim kurulamadı (AdBlocker kapatmayı deneyin).', 'error');
@@ -757,18 +494,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const btn1Url = document.getElementById('btn1Url');
   const btn2Label = document.getElementById('btn2Label');
   const btn2Url = document.getElementById('btn2Url');
-
-  const selectMenuToggle = document.getElementById('selectMenuToggle');
-  const selectMenuPlaceholder = document.getElementById('selectMenuPlaceholder');
-  const selectOpt1 = document.getElementById('selectOpt1');
-  const selectOpt2 = document.getElementById('selectOpt2');
-
   const setupUsernameInput = document.getElementById('setupUsername');
 
   [
     annTitleInput, annMessageInput, annImageUrlInput, everyoneToggleInput,
     buttonsToggle, btn1Label, btn1Url, btn2Label, btn2Url,
-    selectMenuToggle, selectMenuPlaceholder, selectOpt1, selectOpt2,
     setupUsernameInput
   ].forEach(input => {
     if (input) {
@@ -777,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  document.querySelectorAll('input[name="embedColor"], input[name="messageFormatMode"]').forEach(radio => {
+  document.querySelectorAll('input[name="embedColor"]').forEach(radio => {
     radio.addEventListener('change', window.updateLiveDiscordPreview);
   });
 
