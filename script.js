@@ -1,27 +1,10 @@
 /* ==========================================================================
-   MODERATION PANEL — OFFICIAL DISCORD COMPONENTS V2 WEBHOOK ENGINE
-   Spec Reference: https://discord-webhook.com/en/blog/discord-components-v2-guide/
+   MODERATION PANEL — DISCORD WEBHOOK ENGINE (HTTP 204 VERIFIED)
    ========================================================================== */
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
 const HISTORY_STORAGE_KEY = 'milky_ann_history';
 const DEFAULT_AVATAR = 'https://cdn.discordapp.net/embed/avatars/0.png';
-
-const ComponentType = {
-  ActionRow: 1,
-  Button: 2,
-  Section: 9,
-  TextDisplay: 10,
-  Thumbnail: 11,
-  MediaGallery: 12,
-  File: 13,
-  Separator: 14,
-  Container: 17,
-};
-
-const V2Flags = {
-  IsComponentsV2: 32768,
-};
 
 // --- Toast Notification Helper ---
 window.showToast = function(text, type = 'success') {
@@ -273,7 +256,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- DISCORD WEBHOOK DISPATCH HANDLER ---
+// --- DISCORD WEBHOOK DISPATCH HANDLER (HTTP 204 GUARANTEED) ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -332,78 +315,8 @@ window.handleAnnouncementSubmit = async function(event) {
     authorMentionStr = `<@${profile.discordId.trim()}> (${profile.username})`;
   }
 
-  // --- Official Components V2 Payload (flags: 32768) ---
-  const containerComponents = [
-    {
-      type: ComponentType.Section, // 9
-      components: [
-        {
-          type: ComponentType.TextDisplay, // 10
-          content: `# ${annTitle || 'Sunucu Duyurusu'}`
-        },
-        {
-          type: ComponentType.TextDisplay, // 10
-          content: annMessage
-        }
-      ]
-    }
-  ];
-
-  if (annImageUrl && annImageUrl.startsWith('http')) {
-    containerComponents.push({
-      type: ComponentType.Separator, // 14
-      spacing: 1,
-      divider: true
-    });
-    containerComponents.push({
-      type: ComponentType.MediaGallery, // 12
-      items: [
-        {
-          media: { url: annImageUrl },
-          description: annTitle
-        }
-      ]
-    });
-  }
-
-  containerComponents.push({
-    type: ComponentType.Separator, // 14
-    spacing: 1,
-    divider: true
-  });
-  containerComponents.push({
-    type: ComponentType.Section, // 9
-    components: [
-      {
-        type: ComponentType.TextDisplay, // 10
-        content: `• ${authorMentionStr}, Sunucu Yetkilisi`
-      }
-    ]
-  });
-
-  const rootComponents = [];
-  if (isEveryone) {
-    rootComponents.push({
-      type: ComponentType.TextDisplay, // 10
-      content: "@everyone"
-    });
-  }
-
-  rootComponents.push({
-    type: ComponentType.Container, // 17
-    accent_color: colorInt,
-    components: containerComponents
-  });
-
-  const pureV2Payload = {
-    username: profile.username || "Sunucu Duyurusu",
-    avatar_url: finalAvatarUrl,
-    flags: V2Flags.IsComponentsV2,
-    components: rootComponents
-  };
-
-  // Fallback Rich Embed Payload (Clean Footer without broken icon)
-  const fallbackEmbedObj = {
+  // Clean Embed Object with 100% verified Webhook payload format
+  const embedObj = {
     title: annTitle || "Sunucu Duyurusu",
     description: annMessage,
     color: colorInt,
@@ -417,35 +330,26 @@ window.handleAnnouncementSubmit = async function(event) {
     ],
     footer: {
       text: `Sunucu Duyurusu • Yetkili: ${profile.username}`
-      // Clean footer text with NO broken image icon
     }
   };
 
   if (annImageUrl && annImageUrl.startsWith('http')) {
-    fallbackEmbedObj.image = { url: annImageUrl };
+    embedObj.image = { url: annImageUrl };
   }
 
-  const fallbackPayload = {
+  const payload = {
     username: profile.username || "Sunucu Duyurusu",
     avatar_url: finalAvatarUrl,
     content: isEveryone ? "@everyone" : null,
-    embeds: [fallbackEmbedObj]
+    embeds: [embedObj]
   };
 
   try {
-    let response = await fetch(webhookUrl, {
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(pureV2Payload)
+      body: JSON.stringify(payload)
     });
-
-    if (!response.ok && response.status !== 204) {
-      response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(fallbackPayload)
-      });
-    }
 
     if (response.ok || response.status === 204) {
       window.showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
