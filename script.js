@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODERATION PANEL — DISCORD WEBHOOK ENGINE WITH V2 COMPONENT BUTTONS
+   MODERATION PANEL — DISCORD WEBHOOK ENGINE (DISCOHOOK 100% COMPATIBLE)
    ========================================================================== */
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
@@ -139,7 +139,7 @@ window.updateLiveDiscordPreview = function() {
     previewFooterText.innerHTML = `• <span class="dc-user-tag">${tagStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
   }
 
-  // --- V2 Component Buttons Live Preview Update ---
+  // V2 Component Buttons Live Preview Update
   const buttonsToggle = document.getElementById('buttonsToggle');
   const buttonsConfigRow = document.getElementById('buttonsConfigRow');
   const previewV2Buttons = document.getElementById('previewV2Buttons');
@@ -222,6 +222,125 @@ window.handleProfileSubmit = function(event) {
   return false;
 };
 
+// --- Build Current Discohook Payload ---
+window.buildCurrentPayload = function() {
+  const profile = window.getProfile() || { username: 'Sunucu Duyurusu', discordId: '', avatarUrl: DEFAULT_AVATAR };
+  const annTitle = document.getElementById('annTitle')?.value.trim() || 'Sunucu Duyurusu';
+  const annMessage = document.getElementById('annMessage')?.value.trim() || '';
+  const annImageUrl = document.getElementById('annImageUrl')?.value.trim() || '';
+  const isEveryone = document.getElementById('everyoneToggle')?.checked || false;
+  const isButtons = document.getElementById('buttonsToggle')?.checked || false;
+  const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#1E3A8A';
+  const colorInt = parseInt(selectedColorHex.replace('#', ''), 16) || 0x1E3A8A;
+
+  let authorMentionStr = `**@${profile.username}** (${profile.username})`;
+  if (profile.discordId && /^\d+$/.test(profile.discordId.trim())) {
+    authorMentionStr = `<@${profile.discordId.trim()}> (${profile.username})`;
+  }
+
+  const embedObj = {
+    title: annTitle,
+    description: annMessage,
+    color: colorInt,
+    timestamp: new Date().toISOString(),
+    fields: [
+      {
+        name: "\u200b",
+        value: `• ${authorMentionStr}, Sunucu Yetkilisi`,
+        inline: false
+      }
+    ],
+    footer: {
+      text: `Sunucu Duyurusu • Yetkili: ${profile.username}`
+    }
+  };
+
+  if (annImageUrl && annImageUrl.startsWith('http')) {
+    embedObj.image = { url: annImageUrl };
+  }
+
+  const payload = {
+    username: profile.username || "Sunucu Duyurusu",
+    avatar_url: profile.avatarUrl || DEFAULT_AVATAR,
+    content: isEveryone ? "@everyone" : null,
+    embeds: [embedObj]
+  };
+
+  if (isButtons) {
+    const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
+    const b1Url = document.getElementById('btn1Url')?.value.trim() || 'https://milky-devs.github.io/milky-portfolio/';
+    const b2Label = document.getElementById('btn2Label')?.value.trim();
+    const b2Url = document.getElementById('btn2Url')?.value.trim();
+
+    const buttonsList = [];
+    if (b1Label && b1Url) {
+      buttonsList.push({ type: 2, style: 5, label: b1Label, url: b1Url });
+    }
+    if (b2Label && b2Url) {
+      buttonsList.push({ type: 2, style: 5, label: b2Label, url: b2Url });
+    }
+    if (buttonsList.length > 0) {
+      payload.components = [{ type: 1, components: buttonsList }];
+    }
+  }
+
+  return payload;
+};
+
+// --- Copy Discohook JSON ---
+window.copyDiscohookJSON = function() {
+  const payload = window.buildCurrentPayload();
+  const jsonStr = JSON.stringify(payload, null, 2);
+  navigator.clipboard.writeText(jsonStr).then(() => {
+    window.showToast('📋 Discohook formatında JSON panoya kopyalandı!', 'success');
+  }).catch(() => {
+    window.showToast('Kopyalama başarısız oldu.', 'error');
+  });
+};
+
+// --- Paste Discohook JSON ---
+window.pasteDiscohookJSON = async function() {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (!text) {
+      window.showToast('Pano boş.', 'error');
+      return;
+    }
+    const parsed = JSON.parse(text);
+    if (!parsed || typeof parsed !== 'object') {
+      window.showToast('Geçersiz JSON formatı.', 'error');
+      return;
+    }
+
+    if (parsed.content) {
+      const everyoneToggleInput = document.getElementById('everyoneToggle');
+      if (everyoneToggleInput) everyoneToggleInput.checked = parsed.content.includes('@everyone');
+    }
+
+    if (parsed.embeds && parsed.embeds[0]) {
+      const emb = parsed.embeds[0];
+      const annTitleInput = document.getElementById('annTitle');
+      const annMessageInput = document.getElementById('annMessage');
+      const annImageUrlInput = document.getElementById('annImageUrl');
+
+      if (annTitleInput && emb.title) annTitleInput.value = emb.title;
+      if (annMessageInput && emb.description) annMessageInput.value = emb.description;
+      if (annImageUrlInput && emb.image && emb.image.url) annImageUrlInput.value = emb.image.url;
+
+      if (emb.color) {
+        const hexColor = '#' + emb.color.toString(16).padStart(6, '0').toUpperCase();
+        const targetRadio = document.querySelector(`input[name="embedColor"][value="${hexColor}"]`);
+        if (targetRadio) targetRadio.checked = true;
+      }
+    }
+
+    window.updateLiveDiscordPreview();
+    window.showToast('📥 Discohook JSON verisi forma aktarıldı!', 'success');
+  } catch (err) {
+    window.showToast('Panodan JSON okunamadı.', 'error');
+  }
+};
+
 // --- History Log Management ---
 window.getHistory = function() {
   try {
@@ -281,7 +400,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- DISCORD WEBHOOK DISPATCH HANDLER WITH V2 COMPONENT BUTTONS ---
+// --- DISCORD WEBHOOK DISPATCH HANDLER ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -295,20 +414,11 @@ window.handleAnnouncementSubmit = async function(event) {
     return false;
   }
 
-  const annTitleInput = document.getElementById('annTitle');
   const annMessageInput = document.getElementById('annMessage');
-  const annImageUrlInput = document.getElementById('annImageUrl');
-  const everyoneToggleInput = document.getElementById('everyoneToggle');
-  const buttonsToggle = document.getElementById('buttonsToggle');
   const webhookUrlInput = document.getElementById('webhookUrlInput');
 
-  const annTitle = annTitleInput ? annTitleInput.value.trim() : 'Sunucu Duyurusu';
   const annMessage = annMessageInput ? annMessageInput.value.trim() : '';
-  const annImageUrl = annImageUrlInput ? annImageUrlInput.value.trim() : '';
-  const isEveryone = everyoneToggleInput ? everyoneToggleInput.checked : false;
-  const isButtons = buttonsToggle ? buttonsToggle.checked : false;
   const webhookUrl = webhookUrlInput ? webhookUrlInput.value.trim() : '';
-  const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#1E3A8A';
 
   if (!annMessage) {
     window.showToast('Lütfen duyuru metnini yazın.', 'error');
@@ -329,84 +439,7 @@ window.handleAnnouncementSubmit = async function(event) {
     sendBtn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> Discord\'a Gönderiliyor...';
   }
 
-  const colorInt = parseInt(selectedColorHex.replace('#', ''), 16) || 0x1E3A8A;
-
-  let finalAvatarUrl = profile.avatarUrl;
-  if (!finalAvatarUrl || typeof finalAvatarUrl !== 'string' || finalAvatarUrl.startsWith('data:') || !finalAvatarUrl.startsWith('http')) {
-    finalAvatarUrl = DEFAULT_AVATAR;
-  }
-
-  // Author mention tag formatting
-  let authorMentionStr = `**@${profile.username}** (${profile.username})`;
-  if (profile.discordId && /^\d+$/.test(profile.discordId.trim())) {
-    authorMentionStr = `<@${profile.discordId.trim()}> (${profile.username})`;
-  }
-
-  // Embed Card
-  const embedObj = {
-    title: annTitle || "Sunucu Duyurusu",
-    description: annMessage,
-    color: colorInt,
-    timestamp: new Date().toISOString(),
-    fields: [
-      {
-        name: "\u200b",
-        value: `• ${authorMentionStr}, Sunucu Yetkilisi`,
-        inline: false
-      }
-    ],
-    footer: {
-      text: `Sunucu Duyurusu • Yetkili: ${profile.username}`
-    }
-  };
-
-  if (annImageUrl && annImageUrl.startsWith('http')) {
-    embedObj.image = { url: annImageUrl };
-  }
-
-  // Base Webhook Payload
-  const payload = {
-    username: profile.username || "Sunucu Duyurusu",
-    avatar_url: finalAvatarUrl,
-    content: isEveryone ? "@everyone" : null,
-    embeds: [embedObj]
-  };
-
-  // --- Add V2 Component Buttons (ActionRow) if Toggled ---
-  if (isButtons) {
-    const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
-    const b1Url = document.getElementById('btn1Url')?.value.trim() || 'https://milky-devs.github.io/milky-portfolio/';
-    const b2Label = document.getElementById('btn2Label')?.value.trim();
-    const b2Url = document.getElementById('btn2Url')?.value.trim();
-
-    const buttonsList = [];
-    if (b1Label && b1Url) {
-      buttonsList.push({
-        type: 2, // Button Component
-        style: 5, // Link Style
-        label: b1Label,
-        url: b1Url
-      });
-    }
-
-    if (b2Label && b2Url) {
-      buttonsList.push({
-        type: 2, // Button Component
-        style: 5, // Link Style
-        label: b2Label,
-        url: b2Url
-      });
-    }
-
-    if (buttonsList.length > 0) {
-      payload.components = [
-        {
-          type: 1, // ActionRow Component
-          components: buttonsList
-        }
-      ];
-    }
-  }
+  const payload = window.buildCurrentPayload();
 
   try {
     const response = await fetch(webhookUrl, {
@@ -419,14 +452,16 @@ window.handleAnnouncementSubmit = async function(event) {
       window.showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
       
       window.saveHistory({
-        title: annTitle || 'Sunucu Duyurusu',
+        title: payload.embeds[0]?.title || 'Sunucu Duyurusu',
         message: annMessage,
-        color: selectedColorHex,
+        color: document.querySelector('input[name="embedColor"]:checked')?.value || '#1E3A8A',
         sender: profile.username,
         date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       });
 
       if (annMessageInput) annMessageInput.value = '';
+      const annTitleInput = document.getElementById('annTitle');
+      const annImageUrlInput = document.getElementById('annImageUrl');
       if (annTitleInput) annTitleInput.value = 'Sunucu Duyurusu';
       if (annImageUrlInput) annImageUrlInput.value = '';
       window.updateLiveDiscordPreview();
