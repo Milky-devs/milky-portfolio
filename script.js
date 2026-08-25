@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODERATION PANEL — DISCORD WEBHOOK ENGINE (BULLETPROOF HTTP 204 DISPATCH)
+   MODERATION PANEL — DISCORD WEBHOOK ENGINE WITH V2 COMPONENT BUTTONS
    ========================================================================== */
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
@@ -138,6 +138,31 @@ window.updateLiveDiscordPreview = function() {
       : `@${usernameStr}`;
     previewFooterText.innerHTML = `• <span class="dc-user-tag">${tagStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
   }
+
+  // --- V2 Component Buttons Live Preview Update ---
+  const buttonsToggle = document.getElementById('buttonsToggle');
+  const buttonsConfigRow = document.getElementById('buttonsConfigRow');
+  const previewV2Buttons = document.getElementById('previewV2Buttons');
+  const previewBtn1 = document.getElementById('previewBtn1');
+  const previewBtn2 = document.getElementById('previewBtn2');
+
+  const isButtons = buttonsToggle ? buttonsToggle.checked : false;
+  if (buttonsConfigRow) buttonsConfigRow.style.display = isButtons ? 'block' : 'none';
+  if (previewV2Buttons) previewV2Buttons.style.display = isButtons ? 'flex' : 'none';
+
+  if (isButtons) {
+    const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
+    const b2Label = document.getElementById('btn2Label')?.value.trim() || '';
+
+    if (previewBtn1) {
+      previewBtn1.textContent = b1Label;
+      previewBtn1.style.display = b1Label ? 'inline-flex' : 'none';
+    }
+    if (previewBtn2) {
+      previewBtn2.textContent = b2Label;
+      previewBtn2.style.display = b2Label ? 'inline-flex' : 'none';
+    }
+  }
 };
 
 // --- Apply Profile to DOM ---
@@ -256,7 +281,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- BULLETPROOF DISCORD WEBHOOK DISPATCH HANDLER ---
+// --- DISCORD WEBHOOK DISPATCH HANDLER WITH V2 COMPONENT BUTTONS ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -274,12 +299,14 @@ window.handleAnnouncementSubmit = async function(event) {
   const annMessageInput = document.getElementById('annMessage');
   const annImageUrlInput = document.getElementById('annImageUrl');
   const everyoneToggleInput = document.getElementById('everyoneToggle');
+  const buttonsToggle = document.getElementById('buttonsToggle');
   const webhookUrlInput = document.getElementById('webhookUrlInput');
 
   const annTitle = annTitleInput ? annTitleInput.value.trim() : 'Sunucu Duyurusu';
   const annMessage = annMessageInput ? annMessageInput.value.trim() : '';
   const annImageUrl = annImageUrlInput ? annImageUrlInput.value.trim() : '';
   const isEveryone = everyoneToggleInput ? everyoneToggleInput.checked : false;
+  const isButtons = buttonsToggle ? buttonsToggle.checked : false;
   const webhookUrl = webhookUrlInput ? webhookUrlInput.value.trim() : '';
   const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#1E3A8A';
 
@@ -315,7 +342,7 @@ window.handleAnnouncementSubmit = async function(event) {
     authorMentionStr = `<@${profile.discordId.trim()}> (${profile.username})`;
   }
 
-  // Verified Webhook Payload Structure
+  // Embed Card
   const embedObj = {
     title: annTitle || "Sunucu Duyurusu",
     description: annMessage,
@@ -337,12 +364,49 @@ window.handleAnnouncementSubmit = async function(event) {
     embedObj.image = { url: annImageUrl };
   }
 
+  // Base Webhook Payload
   const payload = {
     username: profile.username || "Sunucu Duyurusu",
     avatar_url: finalAvatarUrl,
     content: isEveryone ? "@everyone" : null,
     embeds: [embedObj]
   };
+
+  // --- Add V2 Component Buttons (ActionRow) if Toggled ---
+  if (isButtons) {
+    const b1Label = document.getElementById('btn1Label')?.value.trim() || '🌐 Web Sitemiz';
+    const b1Url = document.getElementById('btn1Url')?.value.trim() || 'https://milky-devs.github.io/milky-portfolio/';
+    const b2Label = document.getElementById('btn2Label')?.value.trim();
+    const b2Url = document.getElementById('btn2Url')?.value.trim();
+
+    const buttonsList = [];
+    if (b1Label && b1Url) {
+      buttonsList.push({
+        type: 2, // Button Component
+        style: 5, // Link Style
+        label: b1Label,
+        url: b1Url
+      });
+    }
+
+    if (b2Label && b2Url) {
+      buttonsList.push({
+        type: 2, // Button Component
+        style: 5, // Link Style
+        label: b2Label,
+        url: b2Url
+      });
+    }
+
+    if (buttonsList.length > 0) {
+      payload.components = [
+        {
+          type: 1, // ActionRow Component
+          components: buttonsList
+        }
+      ];
+    }
+  }
 
   try {
     const response = await fetch(webhookUrl, {
@@ -463,9 +527,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const annMessageInput = document.getElementById('annMessage');
   const annImageUrlInput = document.getElementById('annImageUrl');
   const everyoneToggleInput = document.getElementById('everyoneToggle');
+  const buttonsToggle = document.getElementById('buttonsToggle');
+  const btn1Label = document.getElementById('btn1Label');
+  const btn1Url = document.getElementById('btn1Url');
+  const btn2Label = document.getElementById('btn2Label');
+  const btn2Url = document.getElementById('btn2Url');
   const setupUsernameInput = document.getElementById('setupUsername');
 
-  [annTitleInput, annMessageInput, annImageUrlInput, everyoneToggleInput, setupUsernameInput].forEach(input => {
+  [annTitleInput, annMessageInput, annImageUrlInput, everyoneToggleInput, buttonsToggle, btn1Label, btn1Url, btn2Label, btn2Url, setupUsernameInput].forEach(input => {
     if (input) {
       input.addEventListener('input', window.updateLiveDiscordPreview);
       input.addEventListener('change', window.updateLiveDiscordPreview);

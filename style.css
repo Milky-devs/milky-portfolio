@@ -950,6 +950,46 @@ body {
   margin-top: 8px;
 }
 
+/* V2 Component Buttons Preview Styles */
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field-group-sub {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 18px;
+}
+
+.dc-buttons-preview-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.dc-button-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #4f545c;
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: default;
+  transition: background 0.15s ease;
+}
+
+.dc-button-preview:hover {
+  background: #686d73;
+}
+
 /* TOAST AREA */
 .toast-area {
   position: fixed;
