@@ -679,14 +679,18 @@ body {
 }
 
 .dc-ping-text {
-  display: inline-block;
-  background: rgba(88, 101, 242, 0.15);
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: max-content;
+  background: rgba(88, 101, 242, 0.2);
   color: #c9cdfb;
-  font-size: 0.9rem;
-  padding: 2px 4px;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 2px 6px;
   border-radius: 3px;
-  margin-bottom: 8px;
-  font-weight: 500;
+  margin: 2px 0;
+  white-space: nowrap;
 }
 
 .dc-v2-container-card {
