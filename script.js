@@ -1,5 +1,5 @@
 /* =========================================
-   MILKY.DEV — DISCORD V2 ADMIN ENGINE v35
+   MILKY.DEV — DISCORD V2 COMPONENTS WEBHOOK ENGINE
 ========================================= */
 
 const ComponentType = {
@@ -266,7 +266,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- Webhook Announcement Dispatch Handler ---
+// --- PURE DISCORD COMPONENTS V2 WEBHOOK DISPATCH HANDLER ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -309,7 +309,7 @@ window.handleAnnouncementSubmit = async function(event) {
   if (sendBtn) {
     sendBtn.disabled = true;
     sendBtn.style.opacity = '0.7';
-    sendBtn.innerHTML = '⏳ Discord\'a Gönderiliyor...';
+    sendBtn.innerHTML = '⏳ V2 Webhook Gönderiliyor...';
   }
 
   const colorInt = parseInt(selectedColorHex.replace('#', ''), 16);
@@ -319,6 +319,73 @@ window.handleAnnouncementSubmit = async function(event) {
     finalAvatarUrl = DEFAULT_AVATAR;
   }
 
+  // --- Build Pure Components V2 Layout ---
+  const v2Components = [];
+
+  // Section 1: Title & Main Message Content
+  let textBody = '';
+  if (annTitle) {
+    textBody += `## ${annTitle}\n\n`;
+  }
+  textBody += annMessage;
+
+  v2Components.push({
+    type: ComponentType.Section, // 9
+    components: [
+      {
+        type: ComponentType.TextDisplay, // 10
+        content: textBody
+      }
+    ]
+  });
+
+  // Section 2: Optional Image Attachment
+  if (annImageUrl) {
+    v2Components.push({
+      type: ComponentType.Separator, // 14
+      divider: true,
+      spacing: 1
+    });
+    v2Components.push({
+      type: ComponentType.Media, // 12
+      items: [
+        { media: { url: annImageUrl } }
+      ]
+    });
+  }
+
+  // Section 3: Separator & Footer Author Info
+  v2Components.push({
+    type: ComponentType.Separator, // 14
+    divider: true,
+    spacing: 1
+  });
+  v2Components.push({
+    type: ComponentType.Section, // 9
+    components: [
+      {
+        type: ComponentType.TextDisplay, // 10
+        content: `- *Milky Admin Panel • Yetkili: ${profile.username}*`
+      }
+    ]
+  });
+
+  // Pure V2 Webhook Payload (flags: 32768, Container: 17)
+  const pureV2Payload = {
+    username: profile.username || "Milky Admin",
+    avatar_url: finalAvatarUrl,
+    content: isEveryone ? "@everyone" : null,
+    flags: V2Flags.IsComponentsV2,
+    components: [
+      {
+        type: ComponentType.Container, // 17
+        accent_color: colorInt,
+        components: v2Components
+      }
+    ]
+  };
+
+  // Embed Payload (Fallback if channel rejects V2 flags)
   const embedObj = {
     title: annTitle || "📢 Yönetici Duyurusu",
     description: annMessage,
@@ -329,36 +396,9 @@ window.handleAnnouncementSubmit = async function(event) {
       icon_url: finalAvatarUrl
     }
   };
+  if (annImageUrl) embedObj.image = { url: annImageUrl };
 
-  if (annImageUrl) {
-    embedObj.image = { url: annImageUrl };
-  }
-
-  const v2ContainerComponents = [
-    {
-      type: ComponentType.Section,
-      components: [
-        {
-          type: ComponentType.TextDisplay,
-          content: `## ${annTitle || '📢 Yönetici Duyurusu'}\n\n${annMessage}`
-        }
-      ]
-    }
-  ];
-
-  if (annImageUrl) {
-    v2ContainerComponents.push({
-      type: ComponentType.Separator,
-      divider: true,
-      spacing: 1
-    });
-    v2ContainerComponents.push({
-      type: ComponentType.Media,
-      items: [{ media: { url: annImageUrl } }]
-    });
-  }
-
-  const v2Payload = {
+  const fallbackPayload = {
     username: profile.username || "Milky Admin",
     avatar_url: finalAvatarUrl,
     content: isEveryone ? "@everyone" : null,
@@ -367,16 +407,9 @@ window.handleAnnouncementSubmit = async function(event) {
       {
         type: ComponentType.Container,
         accent_color: colorInt,
-        components: v2ContainerComponents
+        components: v2Components
       }
     ],
-    embeds: [embedObj]
-  };
-
-  const standardPayload = {
-    username: profile.username || "Milky Admin",
-    avatar_url: finalAvatarUrl,
-    content: isEveryone ? "@everyone" : null,
     embeds: [embedObj]
   };
 
@@ -384,19 +417,20 @@ window.handleAnnouncementSubmit = async function(event) {
     let response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(v2Payload)
+      body: JSON.stringify(pureV2Payload)
     });
 
     if (!response.ok && response.status !== 204) {
+      console.warn("Retrying with combined payload...");
       response = await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(standardPayload)
+        body: JSON.stringify(fallbackPayload)
       });
     }
 
     if (response.ok || response.status === 204) {
-      window.showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
+      window.showToast('🎉 V2 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
       
       window.saveHistory({
         title: annTitle || 'Yönetici Duyurusu',
@@ -411,7 +445,7 @@ window.handleAnnouncementSubmit = async function(event) {
       if (annImageUrlInput) annImageUrlInput.value = '';
       window.updateLiveDiscordPreview();
     } else {
-      window.showToast(`Webhook hatası (${response.status}). Lütfen URL'yi kontrol edin.`, 'error');
+      window.showToast(`Webhook hatası (${response.status}). URL'yi kontrol edin.`, 'error');
     }
   } catch (err) {
     console.error("Dispatch Error:", err);
