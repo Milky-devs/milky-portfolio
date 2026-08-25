@@ -1,5 +1,5 @@
 /* =========================================
-   MILKY.DEV — EXACT DISCORD V2 WEBHOOK ENGINE
+   MILKY.DEV — DISCORD V2 & EMBED WEBHOOK ENGINE v60
 ========================================= */
 
 const ComponentType = {
@@ -63,6 +63,7 @@ window.getProfile = function() {
 window.openSetupModal = function() {
   const modalOverlay = document.getElementById('profileSetupModal');
   const setupUsernameInput = document.getElementById('setupUsername');
+  const setupDiscordIdInput = document.getElementById('setupDiscordId');
   const setupPasswordInput = document.getElementById('setupPassword');
   const setupAvatarUrlInput = document.getElementById('setupAvatarUrl');
   const setupAvatarPreview = document.getElementById('setupAvatarPreview');
@@ -70,6 +71,7 @@ window.openSetupModal = function() {
   const currentProfile = window.getProfile();
   if (currentProfile) {
     if (setupUsernameInput) setupUsernameInput.value = currentProfile.username || '';
+    if (setupDiscordIdInput) setupDiscordIdInput.value = currentProfile.discordId || '';
     if (setupPasswordInput) setupPasswordInput.value = currentProfile.password || '';
     if (setupAvatarUrlInput) setupAvatarUrlInput.value = currentProfile.avatarUrl || '';
     if (setupAvatarPreview) setupAvatarPreview.src = currentProfile.avatarUrl || DEFAULT_AVATAR;
@@ -96,9 +98,9 @@ window.closeSetupModal = function() {
   }
 };
 
-// --- Live Preview Engine (Matches Screenshot Exactly) ---
+// --- Live Preview Engine ---
 window.updateLiveDiscordPreview = function() {
-  const profile = window.getProfile() || { username: 'crystaltears0', avatarUrl: DEFAULT_AVATAR };
+  const profile = window.getProfile() || { username: 'crystaltears0', discordId: '', avatarUrl: DEFAULT_AVATAR };
   let avatar = profile.avatarUrl;
   if (!avatar || typeof avatar !== 'string' || avatar.trim() === '') {
     avatar = DEFAULT_AVATAR;
@@ -126,7 +128,7 @@ window.updateLiveDiscordPreview = function() {
     previewContentMention.style.display = everyoneToggleInput.checked ? 'inline-block' : 'none';
   }
 
-  const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#5865F2';
+  const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#1E3A8A';
   if (previewEmbedColorBar) previewEmbedColorBar.style.backgroundColor = selectedColorHex;
 
   const annTitleInput = document.getElementById('annTitle');
@@ -150,7 +152,8 @@ window.updateLiveDiscordPreview = function() {
 
   if (previewFooterText) {
     const usernameStr = profile.username || 'crystaltears0';
-    previewFooterText.innerHTML = `• <span class="v2-user-badge">@${usernameStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
+    const tagStr = profile.discordId ? `@${profile.discordId}` : `@${usernameStr}`;
+    previewFooterText.innerHTML = `• <span class="v2-user-badge">${tagStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
   }
 };
 
@@ -184,10 +187,12 @@ window.handleProfileSubmit = function(event) {
   }
 
   const setupUsernameInput = document.getElementById('setupUsername');
+  const setupDiscordIdInput = document.getElementById('setupDiscordId');
   const setupPasswordInput = document.getElementById('setupPassword');
   const setupAvatarUrlInput = document.getElementById('setupAvatarUrl');
 
   const username = setupUsernameInput ? setupUsernameInput.value.trim() : '';
+  const discordId = setupDiscordIdInput ? setupDiscordIdInput.value.trim() : '';
   const password = setupPasswordInput ? setupPasswordInput.value.trim() : '';
   let avatarUrl = setupAvatarUrlInput ? setupAvatarUrlInput.value.trim() : '';
 
@@ -200,7 +205,7 @@ window.handleProfileSubmit = function(event) {
     avatarUrl = DEFAULT_AVATAR;
   }
 
-  const profileData = { username, password, avatarUrl };
+  const profileData = { username, discordId, password, avatarUrl };
   localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
 
   window.applyProfileToDOM(profileData);
@@ -240,7 +245,7 @@ window.renderHistoryList = function() {
   historyListContainer.innerHTML = list.map((item, idx) => `
     <div class="history-item">
       <div class="history-meta-left">
-        <div class="history-color-badge" style="background-color: ${item.color || '#5865F2'};"></div>
+        <div class="history-color-badge" style="background-color: ${item.color || '#1E3A8A'};"></div>
         <div class="history-details">
           <strong>${item.title || 'Duyuru'}</strong>
           <span>Yetkili: ${item.sender || 'Sunucu Yetkilisi'} • ${item.date}</span>
@@ -268,7 +273,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- DISCORD V2 WEBHOOK DISPATCH (MATCHES USER SCREENSHOT 100%) ---
+// --- DISCORD WEBHOOK DISPATCH HANDLER ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -293,7 +298,7 @@ window.handleAnnouncementSubmit = async function(event) {
   const annImageUrl = annImageUrlInput ? annImageUrlInput.value.trim() : '';
   const isEveryone = everyoneToggleInput ? everyoneToggleInput.checked : false;
   const webhookUrl = webhookUrlInput ? webhookUrlInput.value.trim() : '';
-  const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#5865F2';
+  const selectedColorHex = document.querySelector('input[name="embedColor"]:checked')?.value || '#1E3A8A';
 
   if (!annMessage) {
     window.showToast('Lütfen duyuru metnini yazın.', 'error');
@@ -311,103 +316,53 @@ window.handleAnnouncementSubmit = async function(event) {
   if (sendBtn) {
     sendBtn.disabled = true;
     sendBtn.style.opacity = '0.7';
-    sendBtn.innerHTML = '⏳ V2 Webhook Gönderiliyor...';
+    sendBtn.innerHTML = '⏳ Discord\'a Gönderiliyor...';
   }
 
-  const colorInt = parseInt(selectedColorHex.replace('#', ''), 16);
+  const colorInt = parseInt(selectedColorHex.replace('#', ''), 16) || 0x1E3A8A;
 
   let finalAvatarUrl = profile.avatarUrl;
   if (!finalAvatarUrl || typeof finalAvatarUrl !== 'string' || finalAvatarUrl.startsWith('data:')) {
     finalAvatarUrl = DEFAULT_AVATAR;
   }
 
-  // --- Build V2 Container Components Layout (Matches Screenshot) ---
-  const v2Components = [];
+  // Tag Mention string for Discord (e.g. <@1380218516677857291> or @username)
+  const authorTag = profile.discordId ? `<@${profile.discordId}>` : `@${profile.username}`;
+  const footerMentionStr = `• ${authorTag} (${profile.username}), Sunucu Yetkilisi`;
 
-  // 1. Title Component (Big Heading: # Sunucu Duyurusu)
-  v2Components.push({
-    type: ComponentType.Section, // 9
-    components: [
-      {
-        type: ComponentType.TextDisplay, // 10
-        content: `# ${annTitle || 'Sunucu Duyurusu'}`
-      }
-    ]
-  });
+  // Standard Embed Object with V2 Layout formatting inside Embed Body
+  const embedObj = {
+    title: annTitle || "Sunucu Duyurusu",
+    description: `${annMessage}\n\n---\n${footerMentionStr}`,
+    color: colorInt,
+    timestamp: new Date().toISOString(),
+    footer: {
+      text: `${profile.username} • Sunucu Duyurusu`,
+      icon_url: finalAvatarUrl
+    }
+  };
 
-  // 2. Separator Line below Title
-  v2Components.push({
-    type: ComponentType.Separator, // 14
-    divider: true,
-    spacing: 1
-  });
-
-  // 3. Message Body Text
-  v2Components.push({
-    type: ComponentType.Section, // 9
-    components: [
-      {
-        type: ComponentType.TextDisplay, // 10
-        content: annMessage
-      }
-    ]
-  });
-
-  // 4. Optional Image Media
   if (annImageUrl) {
-    v2Components.push({
-      type: ComponentType.Separator, // 14
-      divider: true,
-      spacing: 1
-    });
-    v2Components.push({
-      type: ComponentType.Media, // 12
-      items: [{ media: { url: annImageUrl } }]
-    });
+    embedObj.image = { url: annImageUrl };
   }
 
-  // 5. Separator Line before Footer
-  v2Components.push({
-    type: ComponentType.Separator, // 14
-    divider: true,
-    spacing: 1
-  });
-
-  // 6. User Mention & Role Footer Line (Exact Screenshot Format)
-  v2Components.push({
-    type: ComponentType.Section, // 9
-    components: [
-      {
-        type: ComponentType.TextDisplay, // 10
-        content: `• **@${profile.username}** (${profile.username}), Sunucu Yetkilisi`
-      }
-    ]
-  });
-
-  // Pure V2 Webhook Payload
-  const pureV2Payload = {
+  // Discord Payload (With @everyone mention ABOVE the Embed)
+  const payload = {
     username: profile.username || "Sunucu Duyurusu",
     avatar_url: finalAvatarUrl,
     content: isEveryone ? "@everyone" : null,
-    flags: V2Flags.IsComponentsV2,
-    components: [
-      {
-        type: ComponentType.Container, // 17
-        accent_color: colorInt,
-        components: v2Components
-      }
-    ]
+    embeds: [embedObj]
   };
 
   try {
-    let response = await fetch(webhookUrl, {
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(pureV2Payload)
+      body: JSON.stringify(payload)
     });
 
     if (response.ok || response.status === 204) {
-      window.showToast('🎉 V2 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
+      window.showToast('🎉 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
       
       window.saveHistory({
         title: annTitle || 'Sunucu Duyurusu',
@@ -422,6 +377,8 @@ window.handleAnnouncementSubmit = async function(event) {
       if (annImageUrlInput) annImageUrlInput.value = '';
       window.updateLiveDiscordPreview();
     } else {
+      const errTxt = await response.text();
+      console.error("Webhook Error:", errTxt);
       window.showToast(`Webhook hatası (${response.status}). URL'yi kontrol edin.`, 'error');
     }
   } catch (err) {
@@ -532,25 +489,25 @@ document.addEventListener('DOMContentLoaded', () => {
     maintenance: {
       title: "Sunucu Bakımı",
       message: "Sunucumuz sistem bakımı ve optimizasyon çalışmaları için kısa süreliğine bakıma alınmıştır. Güncelleme tamamlandığında bilgilendirme yapılacaktır.\n\nAnlayışınız için teşekkür ederiz!",
-      color: "#FFEA00",
+      color: "#1E3A8A",
       everyone: true
     },
     update: {
       title: "Yeni Güncelleme Notları v2.0",
       message: "Sistemlerimizde büyük yenilikler yayınlandı!\n\n✨ Öne Çıkan Yenilikler:\n- Geliştirilmiş Canlı Yönetim Paneli\n- Yüksek Hızlı Sunucu Performansı & Güvenlik\n- Yeni Arayüz Temaları ve Hata Düzeltmeleri",
-      color: "#00E676",
+      color: "#050505",
       everyone: true
     },
     urgent: {
       title: "Acil Duyuru",
       message: "Önemli Güvenlik / Sistem Uyarısı:\n\nLütfen tüm yetkililer ve üyeler dikkat etsin! Yetkisiz işlemler ve şüpheli erişim istekleri sistem tarafından otomatik olarak engellenmektedir.",
-      color: "#FF1744",
+      color: "#FFFFFF",
       everyone: true
     },
     rules: {
       title: "Sunucu Kuralları & Bilgilendirme",
       message: "Sunucumuz içerisinde huzurlu bir ortam sağlamak için kurallara uymak zorunludur.\n\n- Saygılı iletişim kurun.\n- Reklam ve spam kesinlikle yasaktır.",
-      color: "#00B0FF",
+      color: "#475569",
       everyone: false
     }
   };
