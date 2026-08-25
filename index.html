@@ -20,8 +20,13 @@
       <nav class="nav">
         <a href="#about">About</a>
         <a href="#expertise">Expertise</a>
+        <a href="#adminPanel" class="nav-admin-badge"><span class="badge-dot"></span> Admin Panel</a>
         <a href="#contact">Contact</a>
       </nav>
+      <button class="header-profile-btn" id="openProfileBtn" title="Profil Ayarlarını Düzenle">
+        <img id="headerUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Profile" />
+        <span id="headerUsername">Giriş Yap</span>
+      </button>
       <button class="music-toggle" id="musicBtn">
         <span id="musicText">Audio: Off</span>
         <div class="equalizer" id="equalizer">
@@ -171,6 +176,88 @@
     </div>
   </section>
 
+  <!-- ADMIN / MOD ANNOUNCEMENT PANEL -->
+  <section class="section admin-panel" id="adminPanel">
+    <div class="container reveal">
+      <div class="admin-card">
+        <div class="admin-header">
+          <div class="admin-title-wrap">
+            <span class="admin-badge"><span class="badge-pulse"></span> Admin & Mod Control</span>
+            <h2 class="admin-title">Discord Duyuru Yayınlama Merkezi</h2>
+          </div>
+          <div class="active-profile-card">
+            <img id="activeUserAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="User Avatar" class="active-avatar" />
+            <div class="active-user-meta">
+              <span id="activeUsername" class="active-name">Kullanıcı Tanımsız</span>
+              <span class="active-role">Aktif Yönetici</span>
+            </div>
+            <button type="button" id="editProfileQuickBtn" class="btn-edit-profile" title="Profili Değiştir">✏️ Düzenle</button>
+          </div>
+        </div>
+
+        <form id="announcementForm" class="announcement-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="annTitle">Duyuru Başlığı (Opsiyonel)</label>
+              <input type="text" id="annTitle" placeholder="Örn: Sunucu Bakımı & Güncelleme Notları" class="form-input" />
+            </div>
+
+            <div class="form-group">
+              <label>Embed Renk Teması</label>
+              <div class="color-picker-grid">
+                <label class="color-option">
+                  <input type="radio" name="embedColor" value="#5865F2" checked />
+                  <span class="color-swatch" style="background: #5865F2;"></span> Discord
+                </label>
+                <label class="color-option">
+                  <input type="radio" name="embedColor" value="#00E676" />
+                  <span class="color-swatch" style="background: #00E676;"></span> Yeşil
+                </label>
+                <label class="color-option">
+                  <input type="radio" name="embedColor" value="#FF1744" />
+                  <span class="color-swatch" style="background: #FF1744;"></span> Kırmızı
+                </label>
+                <label class="color-option">
+                  <input type="radio" name="embedColor" value="#FFEA00" />
+                  <span class="color-swatch" style="background: #FFEA00;"></span> Sarı
+                </label>
+                <label class="color-option">
+                  <input type="radio" name="embedColor" value="#00B0FF" />
+                  <span class="color-swatch" style="background: #00B0FF;"></span> Siber Mavi
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="annMessage">Duyuru Metni *</label>
+            <textarea id="annMessage" rows="5" placeholder="Duyuru mesajınızı buraya yazın..." required class="form-input form-textarea"></textarea>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-container">
+              <input type="checkbox" id="everyoneToggle" checked />
+              <span class="checkmark"></span>
+              <span class="checkbox-label">📢 <strong>@everyone</strong> Etiketini Ekle</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="webhookUrlInput">Target Discord Webhook URL</label>
+            <input type="url" id="webhookUrlInput" class="form-input form-input-sm" value="https://discord.com/api/webhooks/1541841811415498933/EEETUjrXpL51QoEv4ouN3tbklIRL5cFDkMzTOpml-bZwweynLsJ5YJ1yUuEDvSxdXUwd" />
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="sendAnnBtn" class="btn btn-primary btn-glow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              Duyuruyu Discord'a Gönder (V2 Webhook)
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
   <!-- CONTACT SECTION -->
   <section class="section contact" id="contact">
     <div class="container reveal">
@@ -200,6 +287,61 @@
     </div>
   </footer>
 
-  <script src="script.js?v=7"></script>
+  <!-- MANDATORY PROFILE SETUP MODAL -->
+  <div class="modal-overlay" id="profileSetupModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-badge">🔒 Yönetici Girişi & Profil Kurulumu</div>
+        <h2 class="modal-title">Profilinizi Oluşturun</h2>
+        <p class="modal-sub">Sitede işlem yapabilmek ve Discord duyurularını kendi profilinizle atabilmek için bilgilerinizi eksiksiz girin.</p>
+      </div>
+
+      <form id="profileForm" class="modal-form">
+        <div class="form-group">
+          <label for="setupUsername">Kullanıcı Adınız *</label>
+          <input type="text" id="setupUsername" placeholder="Örn: MilkyAdmin" required class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label for="setupPassword">Giriş Şifreniz / PIN *</label>
+          <input type="password" id="setupPassword" placeholder="••••••••" required class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Profil Fotoğrafı Seçin veya URL Girin *</label>
+          <div class="avatar-presets">
+            <button type="button" class="avatar-pill active" data-url="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png">
+              <img src="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png" alt="Milky Avatar" />
+              <span>Milky</span>
+            </button>
+            <button type="button" class="avatar-pill" data-url="https://cdn.discordapp.net/embed/avatars/0.png">
+              <img src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Blue Avatar" />
+              <span>Mavi</span>
+            </button>
+            <button type="button" class="avatar-pill" data-url="https://cdn.discordapp.net/embed/avatars/1.png">
+              <img src="https://cdn.discordapp.net/embed/avatars/1.png" alt="Gray Avatar" />
+              <span>Gri</span>
+            </button>
+            <button type="button" class="avatar-pill" data-url="https://cdn.discordapp.net/embed/avatars/4.png">
+              <img src="https://cdn.discordapp.net/embed/avatars/4.png" alt="Red Avatar" />
+              <span>Kırmızı</span>
+            </button>
+          </div>
+          <input type="url" id="setupAvatarUrl" placeholder="Veya özel resim URL yapıştırın (https://...)" class="form-input" style="margin-top: 10px;" value="https://media.discordapp.net/attachments/1502743667574571118/1505193963278307368/luicid.png" />
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary btn-block btn-glow">
+            Kaydet & Sitemize Giriş Yap
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS CONTAINER -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="script.js?v=8"></script>
 </body>
 </html>
