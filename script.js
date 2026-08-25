@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODERATION PANEL — ANNOUNCEMENT SYSTEM JS ENGINE v100
+   MODERATION PANEL — ANNOUNCEMENT SYSTEM DISCORD DISPATCH ENGINE
    ========================================================================== */
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
@@ -79,11 +79,11 @@ window.closeSetupModal = function() {
   }
 };
 
-// --- Live Preview Engine ---
+// --- Live Preview Engine (1:1 Discord Replica) ---
 window.updateLiveDiscordPreview = function() {
   const profile = window.getProfile() || { username: 'crystaltears0', discordId: '', avatarUrl: DEFAULT_AVATAR };
   let avatar = profile.avatarUrl;
-  if (!avatar || typeof avatar !== 'string' || avatar.trim() === '') {
+  if (!avatar || typeof avatar !== 'string' || avatar.trim() === '' || avatar.startsWith('data:')) {
     avatar = DEFAULT_AVATAR;
   }
 
@@ -123,7 +123,7 @@ window.updateLiveDiscordPreview = function() {
   const annImageUrlInput = document.getElementById('annImageUrl');
   const imageVal = annImageUrlInput ? annImageUrlInput.value.trim() : '';
   if (previewImage) {
-    if (imageVal) {
+    if (imageVal && imageVal.startsWith('http')) {
       previewImage.src = imageVal;
       previewImage.style.display = 'block';
     } else {
@@ -133,7 +133,9 @@ window.updateLiveDiscordPreview = function() {
 
   if (previewFooterText) {
     const usernameStr = profile.username || 'crystaltears0';
-    const tagStr = profile.discordId ? `@${profile.discordId}` : `@${usernameStr}`;
+    const tagStr = (profile.discordId && /^\d+$/.test(profile.discordId.trim())) 
+      ? `@${profile.discordId.trim()}` 
+      : `@${usernameStr}`;
     previewFooterText.innerHTML = `• <span class="dc-user-tag">${tagStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
   }
 };
@@ -143,7 +145,7 @@ window.applyProfileToDOM = function(profile) {
   if (!profile) return;
   const name = profile.username || 'Sunucu Yetkilisi';
   let avatar = profile.avatarUrl;
-  if (!avatar || typeof avatar !== 'string' || avatar.trim() === '') {
+  if (!avatar || typeof avatar !== 'string' || avatar.trim() === '' || avatar.startsWith('data:')) {
     avatar = DEFAULT_AVATAR;
   }
 
@@ -254,7 +256,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- DISCORD WEBHOOK DISPATCH HANDLER ---
+// --- DISCORD WEBHOOK DISPATCH HANDLER (FIXED FOR CLEAN DISCORD UI) ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -302,26 +304,38 @@ window.handleAnnouncementSubmit = async function(event) {
 
   const colorInt = parseInt(selectedColorHex.replace('#', ''), 16) || 0x1E3A8A;
 
+  // Ensure public HTTP/HTTPS avatar URL for Discord API
   let finalAvatarUrl = profile.avatarUrl;
-  if (!finalAvatarUrl || typeof finalAvatarUrl !== 'string' || finalAvatarUrl.startsWith('data:')) {
+  if (!finalAvatarUrl || typeof finalAvatarUrl !== 'string' || finalAvatarUrl.startsWith('data:') || !finalAvatarUrl.startsWith('http')) {
     finalAvatarUrl = DEFAULT_AVATAR;
   }
 
-  const authorTag = profile.discordId ? `<@${profile.discordId}>` : `@${profile.username}`;
-  const footerMentionStr = `• ${authorTag} (${profile.username}), Sunucu Yetkilisi`;
+  // Pure Discord Mention formatting (Numeric ID vs Username)
+  let authorMentionStr = `**@${profile.username}** (${profile.username})`;
+  if (profile.discordId && /^\d+$/.test(profile.discordId.trim())) {
+    authorMentionStr = `<@${profile.discordId.trim()}> (${profile.username})`;
+  }
 
+  // Clean Embed Object without raw "---" text lines
   const embedObj = {
     title: annTitle || "Sunucu Duyurusu",
-    description: `${annMessage}\n\n---\n${footerMentionStr}`,
+    description: annMessage,
     color: colorInt,
     timestamp: new Date().toISOString(),
+    fields: [
+      {
+        name: "\u200b",
+        value: `• ${authorMentionStr}, Sunucu Yetkilisi`,
+        inline: false
+      }
+    ],
     footer: {
-      text: `${profile.username} • Sunucu Duyurusu`,
+      text: `Sunucu Duyurusu • Yetkili: ${profile.username}`,
       icon_url: finalAvatarUrl
     }
   };
 
-  if (annImageUrl) {
+  if (annImageUrl && annImageUrl.startsWith('http')) {
     embedObj.image = { url: annImageUrl };
   }
 
