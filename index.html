@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=40" />
+  <link rel="stylesheet" href="style.css?v=50" />
 </head>
 <body>
 
@@ -85,7 +85,7 @@
           <form id="announcementForm" class="announcement-form" onsubmit="handleAnnouncementSubmit(event); return false;">
             <div class="form-group">
               <label for="annTitle">Duyuru Başlığı</label>
-              <input type="text" id="annTitle" placeholder="Örn: 🚀 Versiyon 2.0 Güncellemesi Yayınlandı!" class="form-input" />
+              <input type="text" id="annTitle" placeholder="Örn: Sunucu Duyurusu" class="form-input" value="Sunucu Duyurusu" />
             </div>
 
             <div class="form-group">
@@ -145,7 +145,7 @@
           </form>
         </div>
 
-        <!-- LIVE DISCORD PREVIEW -->
+        <!-- LIVE DISCORD PREVIEW (EXACT SCREENSHOT MOCKUP) -->
         <div class="preview-card-wrap">
           <div class="preview-header">
             <span class="preview-badge">💬 Canlı Discord Önizlemesi</span>
@@ -158,22 +158,21 @@
               <div class="dc-content-wrap">
                 <div class="dc-header">
                   <span id="previewUsername" class="dc-username">Sunucu Duyurusu</span>
-                  <span class="dc-bot-tag">BOT</span>
-                  <span id="previewTime" class="dc-timestamp">Bugün 18:30</span>
+                  <span class="dc-bot-tag">UYG</span>
+                  <span id="previewTime" class="dc-timestamp">Bugün 18:08</span>
                 </div>
                 
                 <div id="previewContentMention" class="dc-mention">@everyone</div>
 
-                <div class="dc-embed" id="previewEmbedCard">
+                <div class="dc-embed v2-container-embed" id="previewEmbedCard">
                   <div id="previewEmbedColorBar" class="dc-embed-color" style="background-color: #5865F2;"></div>
                   <div class="dc-embed-inner">
-                    <div id="previewTitle" class="dc-embed-title">📢 Sunucu Duyurusu</div>
-                    <div id="previewMessage" class="dc-embed-desc">Duyuru metniniz burada görünür...</div>
+                    <h1 id="previewTitle" class="v2-title">Sunucu Duyurusu</h1>
+                    <hr class="v2-divider" />
+                    <div id="previewMessage" class="v2-body-text">Duyuru metniniz burada görünür...</div>
                     <img id="previewImage" class="dc-embed-image" src="" alt="Preview" style="display: none;" />
-                    <div class="dc-embed-footer">
-                      <img id="previewFooterAvatar" src="https://cdn.discordapp.net/embed/avatars/0.png" class="dc-footer-img" alt="" />
-                      <span id="previewFooterText" class="dc-footer-text">Milky Sunucu Duyurusu</span>
-                    </div>
+                    <hr class="v2-divider" />
+                    <div id="previewFooterText" class="v2-author-footer">• <span class="v2-user-badge">@Admin</span> (Admin), Sunucu Yetkilisi</div>
                   </div>
                 </div>
               </div>
@@ -210,7 +209,7 @@
       <form id="profileForm" class="modal-form" onsubmit="handleProfileSubmit(event); return false;">
         <div class="form-group">
           <label for="setupUsername">Kullanıcı Adınız *</label>
-          <input type="text" id="setupUsername" placeholder="Örn: MilkyAdmin" required class="form-input" />
+          <input type="text" id="setupUsername" placeholder="Örn: crystaltears0" required class="form-input" />
         </div>
 
         <div class="form-group">
@@ -269,6 +268,6 @@
 
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="script.js?v=40"></script>
+  <script src="script.js?v=50"></script>
 </body>
 </html>

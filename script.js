@@ -1,5 +1,5 @@
 /* =========================================
-   MILKY.DEV — DISCORD V2 COMPONENTS WEBHOOK ENGINE
+   MILKY.DEV — EXACT DISCORD V2 WEBHOOK ENGINE
 ========================================= */
 
 const ComponentType = {
@@ -96,9 +96,9 @@ window.closeSetupModal = function() {
   }
 };
 
-// --- Live Preview Engine ---
+// --- Live Preview Engine (Matches Screenshot Exactly) ---
 window.updateLiveDiscordPreview = function() {
-  const profile = window.getProfile() || { username: 'Sunucu Duyurusu', avatarUrl: DEFAULT_AVATAR };
+  const profile = window.getProfile() || { username: 'crystaltears0', avatarUrl: DEFAULT_AVATAR };
   let avatar = profile.avatarUrl;
   if (!avatar || typeof avatar !== 'string' || avatar.trim() === '') {
     avatar = DEFAULT_AVATAR;
@@ -112,13 +112,10 @@ window.updateLiveDiscordPreview = function() {
   const previewTitle = document.getElementById('previewTitle');
   const previewMessage = document.getElementById('previewMessage');
   const previewImage = document.getElementById('previewImage');
-  const previewFooterAvatar = document.getElementById('previewFooterAvatar');
   const previewFooterText = document.getElementById('previewFooterText');
 
   if (previewAvatar) previewAvatar.src = avatar;
   if (previewUsername) previewUsername.textContent = profile.username || 'Sunucu Duyurusu';
-  if (previewFooterAvatar) previewFooterAvatar.src = avatar;
-  if (previewFooterText) previewFooterText.textContent = `Milky Sunucu Duyurusu • Yetkili: ${profile.username || 'Yetkili'}`;
 
   const now = new Date();
   const timeStr = `Bugün ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -134,7 +131,7 @@ window.updateLiveDiscordPreview = function() {
 
   const annTitleInput = document.getElementById('annTitle');
   const titleVal = annTitleInput ? annTitleInput.value.trim() : '';
-  if (previewTitle) previewTitle.textContent = titleVal || '📢 Sunucu Duyurusu';
+  if (previewTitle) previewTitle.textContent = titleVal || 'Sunucu Duyurusu';
 
   const annMessageInput = document.getElementById('annMessage');
   const messageVal = annMessageInput ? annMessageInput.value.trim() : '';
@@ -149,6 +146,11 @@ window.updateLiveDiscordPreview = function() {
     } else {
       previewImage.style.display = 'none';
     }
+  }
+
+  if (previewFooterText) {
+    const usernameStr = profile.username || 'crystaltears0';
+    previewFooterText.innerHTML = `• <span class="v2-user-badge">@${usernameStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
   }
 };
 
@@ -266,7 +268,7 @@ window.renderHistoryList = function() {
   });
 };
 
-// --- PURE DISCORD COMPONENTS V2 WEBHOOK DISPATCH HANDLER ---
+// --- DISCORD V2 WEBHOOK DISPATCH (MATCHES USER SCREENSHOT 100%) ---
 window.handleAnnouncementSubmit = async function(event) {
   if (event) {
     event.preventDefault();
@@ -286,7 +288,7 @@ window.handleAnnouncementSubmit = async function(event) {
   const everyoneToggleInput = document.getElementById('everyoneToggle');
   const webhookUrlInput = document.getElementById('webhookUrlInput');
 
-  const annTitle = annTitleInput ? annTitleInput.value.trim() : '';
+  const annTitle = annTitleInput ? annTitleInput.value.trim() : 'Sunucu Duyurusu';
   const annMessage = annMessageInput ? annMessageInput.value.trim() : '';
   const annImageUrl = annImageUrlInput ? annImageUrlInput.value.trim() : '';
   const isEveryone = everyoneToggleInput ? everyoneToggleInput.checked : false;
@@ -319,27 +321,39 @@ window.handleAnnouncementSubmit = async function(event) {
     finalAvatarUrl = DEFAULT_AVATAR;
   }
 
-  // --- Build Pure Components V2 Layout ---
+  // --- Build V2 Container Components Layout (Matches Screenshot) ---
   const v2Components = [];
 
-  // Section 1: Title & Main Message Content
-  let textBody = '';
-  if (annTitle) {
-    textBody += `## ${annTitle}\n\n`;
-  }
-  textBody += annMessage;
-
+  // 1. Title Component (Big Heading: # Sunucu Duyurusu)
   v2Components.push({
     type: ComponentType.Section, // 9
     components: [
       {
         type: ComponentType.TextDisplay, // 10
-        content: textBody
+        content: `# ${annTitle || 'Sunucu Duyurusu'}`
       }
     ]
   });
 
-  // Section 2: Optional Image Attachment
+  // 2. Separator Line below Title
+  v2Components.push({
+    type: ComponentType.Separator, // 14
+    divider: true,
+    spacing: 1
+  });
+
+  // 3. Message Body Text
+  v2Components.push({
+    type: ComponentType.Section, // 9
+    components: [
+      {
+        type: ComponentType.TextDisplay, // 10
+        content: annMessage
+      }
+    ]
+  });
+
+  // 4. Optional Image Media
   if (annImageUrl) {
     v2Components.push({
       type: ComponentType.Separator, // 14
@@ -348,24 +362,24 @@ window.handleAnnouncementSubmit = async function(event) {
     });
     v2Components.push({
       type: ComponentType.Media, // 12
-      items: [
-        { media: { url: annImageUrl } }
-      ]
+      items: [{ media: { url: annImageUrl } }]
     });
   }
 
-  // Section 3: Separator & Footer Author Info
+  // 5. Separator Line before Footer
   v2Components.push({
     type: ComponentType.Separator, // 14
     divider: true,
     spacing: 1
   });
+
+  // 6. User Mention & Role Footer Line (Exact Screenshot Format)
   v2Components.push({
     type: ComponentType.Section, // 9
     components: [
       {
         type: ComponentType.TextDisplay, // 10
-        content: `- *Milky Sunucu Duyurusu • Yetkili: ${profile.username}*`
+        content: `• **@${profile.username}** (${profile.username}), Sunucu Yetkilisi`
       }
     ]
   });
@@ -385,48 +399,12 @@ window.handleAnnouncementSubmit = async function(event) {
     ]
   };
 
-  // Fallback Embed Payload
-  const embedObj = {
-    title: annTitle || "📢 Sunucu Duyurusu",
-    description: annMessage,
-    color: colorInt,
-    timestamp: new Date().toISOString(),
-    footer: {
-      text: `Milky Sunucu Duyurusu • Yetkili: ${profile.username}`,
-      icon_url: finalAvatarUrl
-    }
-  };
-  if (annImageUrl) embedObj.image = { url: annImageUrl };
-
-  const fallbackPayload = {
-    username: profile.username || "Sunucu Duyurusu",
-    avatar_url: finalAvatarUrl,
-    content: isEveryone ? "@everyone" : null,
-    flags: V2Flags.IsComponentsV2,
-    components: [
-      {
-        type: ComponentType.Container,
-        accent_color: colorInt,
-        components: v2Components
-      }
-    ],
-    embeds: [embedObj]
-  };
-
   try {
     let response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(pureV2Payload)
     });
-
-    if (!response.ok && response.status !== 204) {
-      response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(fallbackPayload)
-      });
-    }
 
     if (response.ok || response.status === 204) {
       window.showToast('🎉 V2 Duyuru Discord kanalına başarıyla gönderildi!', 'success');
@@ -440,7 +418,7 @@ window.handleAnnouncementSubmit = async function(event) {
       });
 
       if (annMessageInput) annMessageInput.value = '';
-      if (annTitleInput) annTitleInput.value = '';
+      if (annTitleInput) annTitleInput.value = 'Sunucu Duyurusu';
       if (annImageUrlInput) annImageUrlInput.value = '';
       window.updateLiveDiscordPreview();
     } else {
@@ -552,25 +530,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const templates = {
     maintenance: {
-      title: "🛠️ Sunucu Bakımı & Güncelleme",
+      title: "Sunucu Bakımı",
       message: "Sunucumuz sistem bakımı ve optimizasyon çalışmaları için kısa süreliğine bakıma alınmıştır. Güncelleme tamamlandığında bilgilendirme yapılacaktır.\n\nAnlayışınız için teşekkür ederiz!",
       color: "#FFEA00",
       everyone: true
     },
     update: {
-      title: "🎉 Yeni Güncelleme Notları v2.0",
+      title: "Yeni Güncelleme Notları v2.0",
       message: "Sistemlerimizde büyük yenilikler yayınlandı!\n\n✨ Öne Çıkan Yenilikler:\n- Geliştirilmiş Canlı Yönetim Paneli\n- Yüksek Hızlı Sunucu Performansı & Güvenlik\n- Yeni Arayüz Temaları ve Hata Düzeltmeleri",
       color: "#00E676",
       everyone: true
     },
     urgent: {
-      title: "🚨 KANALSAL ACİL DUYURU",
+      title: "Acil Duyuru",
       message: "Önemli Güvenlik / Sistem Uyarısı:\n\nLütfen tüm yetkililer ve üyeler dikkat etsin! Yetkisiz işlemler ve şüpheli erişim istekleri sistem tarafından otomatik olarak engellenmektedir.",
       color: "#FF1744",
       everyone: true
     },
     rules: {
-      title: "📌 Sunucu Kuralları & Genel Bilgilendirme",
+      title: "Sunucu Kuralları & Bilgilendirme",
       message: "Sunucumuz içerisinde huzurlu bir ortam sağlamak için kurallara uymak zorunludur.\n\n- Saygılı iletişim kurun.\n- Reklam ve spam kesinlikle yasaktır.",
       color: "#00B0FF",
       everyone: false
