@@ -36,10 +36,13 @@ const server = http.createServer((req, res) => {
 
       try {
         const payload = JSON.parse(body);
+        const webhookUrl = payload.webhookUrl || payload.webhook_url || DISCORD_WEBHOOK_URL;
+        delete payload.webhookUrl;
+        delete payload.webhook_url;
         
         // Dispatch to Discord API with Java JDA Bot User-Agent header
         const postData = JSON.stringify(payload);
-        const urlObj = new URL(DISCORD_WEBHOOK_URL);
+        const urlObj = new URL(webhookUrl);
 
         const options = {
           hostname: urlObj.hostname,

@@ -107,8 +107,14 @@ public class DiscordV2Bot {
     }
 
     private static int dispatchToDiscord(String payloadJson) throws Exception {
-        // Extract webhook URL if passed inside payload wrapper, or use default target URL
         String targetUrl = "https://discord.com/api/webhooks/1541841811415498933/EEETUjrXpL51QoEv4ouN3tbklIRL5cFDkMzTOpml-bZwweynLsJ5YJ1yUuEDvSxdXUwd";
+        if (payloadJson.contains("\"webhookUrl\":\"")) {
+            int start = payloadJson.indexOf("\"webhookUrl\":\"") + 14;
+            int end = payloadJson.indexOf("\"", start);
+            if (start > 14 && end > start) {
+                targetUrl = payloadJson.substring(start, end);
+            }
+        }
         
         URL url = new URL(targetUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();

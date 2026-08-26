@@ -741,8 +741,19 @@ body {
 }
 
 .dc-v2-author-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 13px;
   color: #949ba4;
+}
+
+.dc-footer-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .dc-embed-container {

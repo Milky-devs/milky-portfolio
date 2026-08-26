@@ -207,12 +207,7 @@
               </div>
             </div>
 
-            <div class="field-group">
-              <label for="webhookUrlInput">
-                <span class="material-symbols-outlined field-icon">webhook</span> Discord Webhook URL *
-              </label>
-              <input type="url" id="webhookUrlInput" class="form-control form-control-sm" value="https://discord.com/api/webhooks/1541841811415498933/EEETUjrXpL51QoEv4ouN3tbklIRL5cFDkMzTOpml-bZwweynLsJ5YJ1yUuEDvSxdXUwd" required />
-            </div>
+
 
             <div class="form-footer">
               <button type="button" onclick="handleAnnouncementSubmit(event)" id="sendAnnBtn" class="btn btn-primary">
@@ -274,7 +269,8 @@
                     <div class="dc-v2-divider"></div>
 
                     <div class="dc-v2-author-tag" id="previewFooterText">
-                      • <span class="dc-user-tag">@crystaltears0</span> (Crystal), Sunucu Yetkilisi
+                      <img id="previewFooterAvatar" class="dc-footer-avatar" src="https://cdn.discordapp.net/embed/avatars/0.png" alt="Avatar" />
+                      <span>• <span class="dc-user-tag">@crystaltears0</span> (Crystal), Sunucu Yetkilisi</span>
                     </div>
                   </div>
                 </div>
@@ -320,7 +316,7 @@
 
       <div class="modal-header-block">
         <div class="modal-icon-badge">
-          <span class="material-symbols-outlined">lock</span>
+          <span class="material-symbols-outlined">account_circle</span>
         </div>
         <div>
           <h3 class="modal-dialog-title">Profil Kurulumu</h3>
@@ -342,18 +338,6 @@
             <span class="material-symbols-outlined field-icon">badge</span> Discord ID'niz (Etiketlenme İçin Opsiyonel)
           </label>
           <input type="text" id="setupDiscordId" placeholder="Örn: 1380218516677857291" class="form-control" />
-        </div>
-
-        <div class="field-group">
-          <label for="setupPassword">
-            <span class="material-symbols-outlined field-icon">key</span> Giriş Şifreniz *
-          </label>
-          <div class="password-wrapper">
-            <input type="password" id="setupPassword" placeholder="••••••••" required class="form-control" />
-            <button type="button" id="togglePasswordBtn" class="password-toggle-btn" title="Şifreyi Göster/Gizle">
-              <span class="material-symbols-outlined" id="eyeIcon">visibility</span>
-            </button>
-          </div>
         </div>
 
         <div class="field-group">

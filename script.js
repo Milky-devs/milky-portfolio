@@ -4,6 +4,7 @@
 
 const PROFILE_STORAGE_KEY = 'milky_admin_profile';
 const HISTORY_STORAGE_KEY = 'milky_ann_history';
+const WEBHOOK_STORAGE_KEY = 'milky_webhook_url';
 const DEFAULT_AVATAR = 'https://cdn.discordapp.net/embed/avatars/0.png';
 
 // --- Toast Notification Helper ---
@@ -58,7 +59,6 @@ window.openSetupModal = function() {
   const modalOverlay = document.getElementById('profileSetupModal');
   const setupUsernameInput = document.getElementById('setupUsername');
   const setupDiscordIdInput = document.getElementById('setupDiscordId');
-  const setupPasswordInput = document.getElementById('setupPassword');
   const setupAvatarUrlInput = document.getElementById('setupAvatarUrl');
   const setupAvatarPreview = document.getElementById('setupAvatarPreview');
 
@@ -66,7 +66,6 @@ window.openSetupModal = function() {
   if (currentProfile) {
     if (setupUsernameInput) setupUsernameInput.value = currentProfile.username || '';
     if (setupDiscordIdInput) setupDiscordIdInput.value = currentProfile.discordId || '';
-    if (setupPasswordInput) setupPasswordInput.value = currentProfile.password || '';
     if (setupAvatarUrlInput) setupAvatarUrlInput.value = currentProfile.avatarUrl || '';
     if (setupAvatarPreview) setupAvatarPreview.src = currentProfile.avatarUrl || DEFAULT_AVATAR;
   }
@@ -90,7 +89,7 @@ window.closeSetupModal = function() {
 window.updateLiveDiscordPreview = function() {
   const profile = window.getProfile() || { username: 'crystaltears0', discordId: '', avatarUrl: DEFAULT_AVATAR };
   let avatar = profile.avatarUrl;
-  if (!avatar || typeof avatar !== 'string' || avatar.trim() === '' || !isValidHttpUrl(avatar)) {
+  if (!avatar || typeof avatar !== 'string' || avatar.trim() === '' || (!isValidHttpUrl(avatar) && !avatar.startsWith('data:image/'))) {
     avatar = DEFAULT_AVATAR;
   }
 
@@ -103,9 +102,11 @@ window.updateLiveDiscordPreview = function() {
   const previewMessage = document.getElementById('previewMessage');
   const previewImage = document.getElementById('previewImage');
   const previewFooterText = document.getElementById('previewFooterText');
+  const previewFooterAvatar = document.getElementById('previewFooterAvatar');
 
   if (previewAvatar) previewAvatar.src = avatar;
   if (previewUsername) previewUsername.textContent = profile.username || 'Sunucu Duyurusu';
+  if (previewFooterAvatar) previewFooterAvatar.src = avatar;
 
   const now = new Date();
   const timeStr = `Bugün ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -130,7 +131,7 @@ window.updateLiveDiscordPreview = function() {
   const annImageUrlInput = document.getElementById('annImageUrl');
   const imageVal = annImageUrlInput ? annImageUrlInput.value.trim() : '';
   if (previewImage) {
-    if (isValidHttpUrl(imageVal)) {
+    if (isValidHttpUrl(imageVal) || imageVal.startsWith('data:image/')) {
       previewImage.src = imageVal;
       previewImage.style.display = 'block';
     } else {
@@ -143,7 +144,10 @@ window.updateLiveDiscordPreview = function() {
     const tagStr = (profile.discordId && /^\d+$/.test(profile.discordId.trim())) 
       ? `@${profile.discordId.trim()}` 
       : `@${usernameStr}`;
-    previewFooterText.innerHTML = `• <span class="dc-user-tag">${tagStr}</span> (${usernameStr}), Sunucu Yetkilisi`;
+    previewFooterText.innerHTML = `
+      <img id="previewFooterAvatar" class="dc-footer-avatar" src="${avatar}" alt="Avatar" />
+      <span>• <span class="dc-user-tag">${tagStr}</span> (${usernameStr}), Sunucu Yetkilisi</span>
+    `;
   }
 };
 
@@ -152,7 +156,7 @@ window.applyProfileToDOM = function(profile) {
   if (!profile) return;
   const name = profile.username || 'Sunucu Yetkilisi';
   let avatar = profile.avatarUrl;
-  if (!avatar || typeof avatar !== 'string' || avatar.trim() === '' || !isValidHttpUrl(avatar)) {
+  if (!avatar || typeof avatar !== 'string' || avatar.trim() === '' || (!isValidHttpUrl(avatar) && !avatar.startsWith('data:image/'))) {
     avatar = DEFAULT_AVATAR;
   }
 
@@ -178,16 +182,14 @@ window.handleProfileSubmit = function(event) {
 
   const setupUsernameInput = document.getElementById('setupUsername');
   const setupDiscordIdInput = document.getElementById('setupDiscordId');
-  const setupPasswordInput = document.getElementById('setupPassword');
   const setupAvatarUrlInput = document.getElementById('setupAvatarUrl');
 
   const username = setupUsernameInput ? setupUsernameInput.value.trim() : '';
   const discordId = setupDiscordIdInput ? setupDiscordIdInput.value.trim() : '';
-  const password = setupPasswordInput ? setupPasswordInput.value.trim() : '';
   let avatarUrl = setupAvatarUrlInput ? setupAvatarUrlInput.value.trim() : '';
 
-  if (!username || !password) {
-    window.showToast('Lütfen kullanıcı adı ve şifrenizi doldurun.', 'error');
+  if (!username) {
+    window.showToast('Lütfen kullanıcı adınızı girin.', 'error');
     return false;
   }
 
@@ -195,7 +197,7 @@ window.handleProfileSubmit = function(event) {
     avatarUrl = DEFAULT_AVATAR;
   }
 
-  const profileData = { username, discordId, password, avatarUrl };
+  const profileData = { username, discordId, avatarUrl };
   localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
 
   window.applyProfileToDOM(profileData);
@@ -308,6 +310,8 @@ window.handleAnnouncementSubmit = async function(event) {
     return false;
   }
 
+  localStorage.setItem(WEBHOOK_STORAGE_KEY, webhookUrl);
+
   if (!webhookUrl.includes('with_components=true')) {
     webhookUrl += webhookUrl.includes('?') ? '&with_components=true' : '?with_components=true';
   }
@@ -368,25 +372,11 @@ window.handleAnnouncementSubmit = async function(event) {
 
 // --- DOM Content Loaded Init ---
 document.addEventListener('DOMContentLoaded', () => {
-
-  const setupPasswordInput = document.getElementById('setupPassword');
-  const togglePasswordBtn = document.getElementById('togglePasswordBtn');
   
   const setupAvatarFileInput = document.getElementById('setupAvatarFile');
   const setupAvatarUrlInput = document.getElementById('setupAvatarUrl');
   const setupAvatarPreview = document.getElementById('setupAvatarPreview');
   const avatarPills = document.querySelectorAll('.avatar-chip');
-
-  if (togglePasswordBtn && setupPasswordInput) {
-    togglePasswordBtn.addEventListener('click', () => {
-      const isPass = setupPasswordInput.getAttribute('type') === 'password';
-      setupPasswordInput.setAttribute('type', isPass ? 'text' : 'password');
-      const eyeIcon = document.getElementById('eyeIcon');
-      if (eyeIcon) {
-        eyeIcon.textContent = isPass ? 'visibility_off' : 'visibility';
-      }
-    });
-  }
 
   if (setupAvatarFileInput) {
     setupAvatarFileInput.addEventListener('change', (e) => {
@@ -429,6 +419,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (url && setupAvatarPreview) {
         setupAvatarPreview.src = url;
         window.updateLiveDiscordPreview();
+      }
+    });
+  }
+
+  const savedWebhook = localStorage.getItem(WEBHOOK_STORAGE_KEY);
+  if (webhookUrlInput) {
+    if (savedWebhook) {
+      webhookUrlInput.value = savedWebhook;
+    }
+    webhookUrlInput.addEventListener('input', () => {
+      const val = webhookUrlInput.value.trim();
+      if (isValidHttpUrl(val)) {
+        localStorage.setItem(WEBHOOK_STORAGE_KEY, val);
       }
     });
   }
